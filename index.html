@@ -62,8 +62,9 @@ main{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:28px 24p
 .lu{font-size:.72rem;color:var(--mut)}
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 0;gap:18px;color:var(--mut)}
 .spinner{width:38px;height:38px;border:2px solid var(--s3);border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite}
-.err-box{background:rgba(255,64,96,.07);border:1px solid rgba(255,64,96,.18);color:#ff8090;padding:20px 24px;border-radius:10px;text-align:center;max-width:460px;margin:60px auto;font-size:.9rem;line-height:1.6}
-.err-box strong{display:block;font-family:var(--fD);margin-bottom:6px}
+.err-box{background:rgba(255,64,96,.07);border:1px solid rgba(255,64,96,.18);color:#ff8090;padding:20px 24px;border-radius:10px;text-align:center;max-width:480px;margin:60px auto;font-size:.9rem;line-height:1.6}
+.err-box strong{display:block;font-family:var(--fD);margin-bottom:6px;font-size:1rem}
+.err-box code{font-size:.75rem;opacity:.65;display:block;margin:8px 0}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:15px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .card{background:var(--s1);border:1px solid var(--bdr);border-radius:11px;overflow:hidden;cursor:pointer;position:relative;transition:transform .2s,border-color .2s,box-shadow .2s;animation:fadeUp .23s ease both}
@@ -120,10 +121,7 @@ main{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:28px 24p
 .ci-info{flex:1;min-width:0}
 .ci-name{font-size:.84rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ci-tag{font-size:.68rem;margin-top:2px;font-weight:600;font-family:var(--fD)}
-.ci-tag.normal{color:var(--mut)}
-.ci-tag.premium{color:var(--gold)}
-.ci-tag.special{color:var(--pur)}
-.ci-tag.free{color:var(--acc)}
+.ci-tag.normal{color:var(--mut)}.ci-tag.premium{color:var(--gold)}.ci-tag.special{color:var(--pur)}.ci-tag.free{color:var(--acc)}
 .rm{background:none;border:none;color:var(--mut);cursor:pointer;font-size:14px;padding:4px;border-radius:4px;transition:color .15s;flex-shrink:0}
 .rm:hover{color:var(--red)}
 .empty{text-align:center;color:var(--mut);padding:50px 0;font-size:.9rem}
@@ -148,18 +146,13 @@ main{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:28px 24p
 </style>
 </head>
 <body>
-
 <header>
-  <div class="logo">
-    <div class="logo-mark">🎮</div>
-    <span class="logo-text">GAMEDROP</span>
-  </div>
+  <div class="logo"><div class="logo-mark">🎮</div><span class="logo-text">GAMEDROP</span></div>
   <div class="hdr-right">
     <button class="refresh-btn" id="refreshBtn" onclick="loadGames(true)"><span class="ic">↻</span> Actualizar</button>
     <button class="cart-btn" onclick="openPanel()">🛒 Mi Pedido <div class="cart-count" id="cartCount">0</div></button>
   </div>
 </header>
-
 <div class="price-banner">
   <div class="pb-inner">
     <span class="pb-label">PRECIOS</span>
@@ -170,13 +163,9 @@ main{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:28px 24p
     <div class="pb-pill special">🟣 Especial: $25.000 + 2 juegos de regalo</div>
   </div>
 </div>
-
 <main>
   <div class="sh">
-    <div style="display:flex;align-items:baseline;gap:10px">
-      <h1 class="st">Catálogo</h1>
-      <span class="sc" id="gameCount"></span>
-    </div>
+    <div style="display:flex;align-items:baseline;gap:10px"><h1 class="st">Catálogo</h1><span class="sc" id="gameCount"></span></div>
     <span class="lu" id="lastUpdate"></span>
   </div>
   <div class="toolbar">
@@ -189,7 +178,6 @@ main{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:28px 24p
   </div>
   <div id="gamesArea"><div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span></div></div>
 </main>
-
 <div class="overlay" id="overlay" onclick="closePanel()"></div>
 <div class="panel" id="panel">
   <div class="phd"><span class="pt">🛒 MI PEDIDO</span><button class="xb" onclick="closePanel()">✕</button></div>
@@ -197,22 +185,22 @@ main{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:28px 24p
   <div class="cl" id="cartList"></div>
   <div class="pft">
     <div class="totals" id="totals"></div>
-    <button class="wa" id="waBtn" onclick="sendWhatsApp()" disabled>
-      <span style="font-size:18px">📱</span> HACER PEDIDO POR WHATSAPP
-    </button>
+    <button class="wa" id="waBtn" onclick="sendWhatsApp()" disabled><span style="font-size:18px">📱</span> HACER PEDIDO POR WHATSAPP</button>
   </div>
 </div>
 
 <script>
-/* ╔══════════════════════════════════════════════════════════╗
-   ║              ⚙️  CONFIGURACIÓN GENERAL                   ║
-   ╚══════════════════════════════════════════════════════════╝ */
+/* ╔══════════════════════════════════════════════════════╗
+   ║              ⚙️  CONFIGURACIÓN                       ║
+   ╚══════════════════════════════════════════════════════╝ */
 const CONFIG = {
   storeName:   "GAMEDROP",
-  whatsapp:    "5491112345678",   // ← número con código de país, sin + ni espacios
-  aliasTienda: "gamedrop.mp",     // ← tu alias de cobro (aparece en el mensaje)
+  whatsapp:    "5491112345678",    // ← tu número con código de país
+  aliasTienda: "gamedrop.mp",      // ← tu alias de cobro
   currency:    "$",
-  webhookUrl:  "https://flow.retroverse.games/webhook/gamedrop-catalog",
+
+  // ID del Google Sheet — NO tocar
+  sheetId: "1gXrcWhPm9uBI4L10I7RYDQi-FXEPk5NCwZ1OcY9OJ0s",
 
   prices: {
     normal:  { single: 9900, pack3: 19900, pack6: 29900 },
@@ -220,15 +208,6 @@ const CONFIG = {
     special: { price: 25000, gifts: 2 },
   },
 
-  /* ── MENSAJE DE WHATSAPP ──────────────────────────────────
-     Variables disponibles para usar en cualquier parte:
-       {storeName}     → nombre del negocio
-       {aliasTienda}   → tu alias de cobro
-       {listaNormal}   → lista de juegos normales con precios/packs
-       {listaPremium}  → lista de juegos premium con precio aplicado
-       {listaEspecial} → lista de juegos especiales
-       {total}         → monto total a pagar
-     ─────────────────────────────────────────────────────── */
   mensajeWA: `
 🎮 *PEDIDO {storeName}*
 ━━━━━━━━━━━━━━━━━━━━
@@ -240,40 +219,77 @@ const CONFIG = {
 `.trim(),
 };
 
-/* ═══════════════════════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════════════════════ */
+/* ═══ STATE ═══════════════════════════════════════════ */
 let GAMES=[], cart=[], activeTag="Todos", activeTier="all";
 const fmt=n=>CONFIG.currency+Number(n).toLocaleString('es-AR');
 const imgUrl=id=>`https://cdn.cloudflare.steamstatic.com/steam/apps/${id}/header.jpg`;
 const FB=`data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='460' height='215'><rect fill='%23141828' width='100%25' height='100%25'/><text y='50%25' x='50%25' dominant-baseline='middle' text-anchor='middle' fill='%235b6680' font-size='12' font-family='sans-serif'>Sin imagen</text></svg>`;
 
-/* ═══════════════════════════════════════════════════════════
-   LOAD
-═══════════════════════════════════════════════════════════ */
+/* ═══ LOAD — lee directo del Google Sheet vía gviz ════ */
 async function loadGames(manual=false){
   const btn=document.getElementById('refreshBtn');
   btn.classList.add('spinning');
   if(!manual) document.getElementById('gamesArea').innerHTML=`<div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span></div>`;
+
+  // URL del Google Sheet como JSON público (requiere "Anyone with link can view")
+  const url=`https://docs.google.com/spreadsheets/d/${CONFIG.sheetId}/gviz/tq?tqx=out:json&t=${Date.now()}`;
+
   try{
-    const res=await fetch(CONFIG.webhookUrl,{cache:manual?'reload':'default'});
-    if(!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data=await res.json();
-    GAMES=data.games||data;
+    const res=await fetch(url);
+    const text=await res.text();
+
+    // La respuesta tiene formato: /*O_o*/\ngoogle.visualization.Query.setResponse({...});
+    const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?\s*$/)[1]);
+    const table=json.table;
+
+    // Mapear columnas por header
+    const cols={};
+    table.cols.forEach((c,i)=>{ if(c.label) cols[c.label.toLowerCase().trim()]=i; });
+
+    const getCol=(row,name)=>{
+      const i=cols[name];
+      if(i===undefined||!row.c[i]) return '';
+      return row.c[i].v!==null&&row.c[i].v!==undefined ? String(row.c[i].v) : (row.c[i].f||'');
+    };
+
+    GAMES=table.rows
+      .filter(row=>{
+        const avail=getCol(row,'available').toUpperCase().trim();
+        return avail==='TRUE'&&getCol(row,'name')&&getCol(row,'appid');
+      })
+      .map((row,i)=>({
+        id:        parseInt(getCol(row,'id'))||i+1,
+        name:      getCol(row,'name').trim(),
+        appId:     parseInt(getCol(row,'appid'))||0,
+        tier:      ['normal','premium','special'].includes(getCol(row,'tier').toLowerCase()) ? getCol(row,'tier').toLowerCase() : 'normal',
+        price:     parseInt(getCol(row,'price'))||CONFIG.prices.normal.single,
+        tags:      getCol(row,'tags').split(',').map(t=>t.trim()).filter(Boolean),
+        available: true,
+        notes:     getCol(row,'notes')||'',
+      }));
+
     const now=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-    document.getElementById('lastUpdate').textContent=`Actualizado ${now}`;
+    document.getElementById('lastUpdate').textContent=`${GAMES.length.toLocaleString()} juegos · ${now}`;
     renderTierFilters(); renderTags(); buildGrid(); renderTotals();
+
   }catch(err){
-    document.getElementById('gamesArea').innerHTML=`<div class="err-box"><strong>No se pudo cargar el catálogo</strong>Verificá que el workflow de n8n esté activo.<br><br><code style="font-size:.78rem;opacity:.65">${CONFIG.webhookUrl}</code><br><br><button onclick="loadGames(true)" style="margin-top:10px;background:var(--s2);border:1px solid var(--bdr);color:var(--txt);padding:7px 18px;border-radius:8px;cursor:pointer;font-family:var(--fB)">Reintentar</button></div>`;
-  }finally{btn.classList.remove('spinning');}
+    console.error(err);
+    document.getElementById('gamesArea').innerHTML=`
+      <div class="err-box">
+        <strong>No se pudo cargar el catálogo</strong>
+        El Google Sheet necesita estar compartido como <b>"Cualquiera con el enlace puede ver"</b>.<br><br>
+        <code>Compartir → Cambiar a cualquiera con el enlace → Lector</code><br><br>
+        <button onclick="loadGames(true)" style="margin-top:10px;background:var(--s2);border:1px solid var(--bdr);color:var(--txt);padding:7px 18px;border-radius:8px;cursor:pointer;font-family:var(--fB)">Reintentar</button>
+      </div>`;
+  }finally{
+    btn.classList.remove('spinning');
+  }
 }
 
-/* ═══════════════════════════════════════════════════════════
-   PRICING
-═══════════════════════════════════════════════════════════ */
+/* ═══ PRICING ══════════════════════════════════════════ */
 function calcTotal(){
   const P=CONFIG.prices;
-  const normals =cart.filter(g=>!g.tier||g.tier==='normal');
+  const normals=cart.filter(g=>!g.tier||g.tier==='normal');
   const premiums=cart.filter(g=>g.tier==='premium');
   const specials=cart.filter(g=>g.tier==='special');
   const giftsAvailable=specials.length*P.special.gifts;
@@ -289,19 +305,16 @@ function calcTotal(){
   const specialTotal=specials.length*P.special.price;
   return{total:normalTotal+premiumTotal+specialTotal,normalTotal,premiumTotal,specialTotal,
     freeNormalIds,giftsAvailable,giftsRemaining,giftsUsed,
-    packs6,packs3,singles,n,hasMixed,premiumUnit,
-    normals,premiums,specials,paidNormals};
+    packs6,packs3,singles,n,hasMixed,premiumUnit,normals,premiums,specials,paidNormals};
 }
 
-/* ═══════════════════════════════════════════════════════════
-   FILTERS
-═══════════════════════════════════════════════════════════ */
+/* ═══ FILTERS ══════════════════════════════════════════ */
 function renderTierFilters(){
   const tiers=['all',...new Set(GAMES.map(g=>g.tier||'normal'))];
   const L={all:'Todos',normal:'🟢 Normal',premium:'💛 Premium',special:'🟣 Especial'};
   document.getElementById('tierFilters').innerHTML=tiers.map(t=>{
     const on=activeTier===t?` on-${t==='all'?'all':t}`:'';
-    return `<button class="tf${on}" onclick="setTier('${t}')" style="margin-right:5px">${L[t]||t}</button>`;
+    return`<button class="tf${on}" onclick="setTier('${t}')" style="margin-right:5px">${L[t]||t}</button>`;
   }).join('');
 }
 function setTier(t){activeTier=t;renderTierFilters();renderGames();}
@@ -314,9 +327,7 @@ function renderTags(){
 }
 function setTag(t){activeTag=t;renderTags();renderGames();}
 
-/* ═══════════════════════════════════════════════════════════
-   GRID
-═══════════════════════════════════════════════════════════ */
+/* ═══ GRID ══════════════════════════════════════════════ */
 function buildGrid(){document.getElementById('gamesArea').innerHTML=`<div class="grid" id="gamesGrid"></div>`;renderGames();}
 
 function renderGames(){
@@ -327,46 +338,54 @@ function renderGames(){
     (activeTag==='Todos'||(g.tags||[]).includes(activeTag))&&
     (!q||g.name.toLowerCase().includes(q))
   );
-  document.getElementById('gameCount').textContent=`${filtered.length} juego${filtered.length!==1?'s':''}`;
+  document.getElementById('gameCount').textContent=`${filtered.length.toLocaleString()} juego${filtered.length!==1?'s':''}`;
   const grid=document.getElementById('gamesGrid');
   if(!grid) return;
-  if(!filtered.length){grid.innerHTML=`<div style="grid-column:1/-1;color:var(--mut);padding:40px 0;text-align:center">Sin resultados</div>`;return;}
+  if(!filtered.length){grid.innerHTML=`<div style="grid-column:1/-1;color:var(--mut);padding:40px 0;text-align:center">Sin resultados para "${q}"</div>`;return;}
   const P=CONFIG.prices;
-  grid.innerHTML=filtered.map((g,i)=>{
-    const tier=g.tier||'normal';
-    const inCart=cart.some(c=>c.id===g.id);
-    const isFree=freeNormalIds.includes(g.id);
-    const selClass=inCart?`sel-${tier}`:'';
-    let priceHtml='';
-    if(!g.available){
-      priceHtml=`<div class="price-block"><span class="cp soon-txt">⏳ Próximamente</span></div>`;
-    }else if(tier==='normal'){
-      priceHtml=`<div class="price-block"><div class="cp">${fmt(P.normal.single)}</div><div class="cp-sub">3×${fmt(P.normal.pack3)} | 6×${fmt(P.normal.pack6)}</div></div>`;
-    }else if(tier==='premium'){
-      priceHtml=`<div class="price-block"><div class="cp premium">${fmt(P.premium.solo)}</div><div class="cp-sub premium">o ${fmt(P.premium.mixed)} en combo</div></div>`;
-    }else{
-      priceHtml=`<div class="price-block"><div class="cp special">${fmt(P.special.price)}</div><div class="cp-sub special">🎁 +${P.special.gifts} juegos de regalo</div></div>`;
-    }
-    const tierBadge=tier==='premium'?`<div class="badge tier-b premium">PREMIUM</div>`:tier==='special'?`<div class="badge tier-b special">ESPECIAL</div>`:'';
-    return `
-      <div class="card ${selClass}${!g.available?' soon':''}" style="animation-delay:${Math.min(i,15)*.028}s"
-           onclick="${g.available?`toggleCart(${g.id})`:''}">
+  // Render en bloques para no bloquear el browser con 40k juegos
+  grid.innerHTML='';
+  const chunk=200;
+  let i=0;
+  function renderChunk(){
+    const frag=document.createDocumentFragment();
+    const end=Math.min(i+chunk,filtered.length);
+    for(;i<end;i++){
+      const g=filtered[i];
+      const tier=g.tier||'normal';
+      const inCart=cart.some(c=>c.id===g.id);
+      const isFree=freeNormalIds.includes(g.id);
+      const selClass=inCart?`sel-${tier}`:'';
+      let priceHtml='';
+      if(tier==='normal') priceHtml=`<div class="price-block"><div class="cp">${fmt(P.normal.single)}</div><div class="cp-sub">3×${fmt(P.normal.pack3)} | 6×${fmt(P.normal.pack6)}</div></div>`;
+      else if(tier==='premium') priceHtml=`<div class="price-block"><div class="cp premium">${fmt(P.premium.solo)}</div><div class="cp-sub premium">o ${fmt(P.premium.mixed)} en combo</div></div>`;
+      else priceHtml=`<div class="price-block"><div class="cp special">${fmt(P.special.price)}</div><div class="cp-sub special">🎁 +${P.special.gifts} regalos</div></div>`;
+      const tierBadge=tier==='premium'?`<div class="badge tier-b premium">PREMIUM</div>`:tier==='special'?`<div class="badge tier-b special">ESPECIAL</div>`:'';
+      const div=document.createElement('div');
+      div.className=`card ${selClass}`;
+      div.style.animationDelay=Math.min(i,15)*.025+'s';
+      div.onclick=()=>toggleCart(g.id);
+      div.innerHTML=`
         ${inCart?`<div class="badge sel-b ${tier}">✓ EN PEDIDO</div>`:tierBadge}
         ${isFree?`<div class="badge free-b">🎁 GRATIS</div>`:''}
-        <img class="cover" src="${imgUrl(g.appId)}" alt="${g.name}" onerror="this.src='${FB}'"/>
+        <img class="cover" src="${imgUrl(g.appId)}" alt="${escHtml(g.name)}" loading="lazy" onerror="this.src='${FB}'"/>
         <div class="card-body">
-          <div class="cn">${g.name}</div>
-          <div class="cf">${priceHtml}${g.available?`<button class="add ${tier}" onclick="event.stopPropagation();toggleCart(${g.id})">${inCart?'✓':'+'}</button>`:''}</div>
-        </div>
-      </div>`;
-  }).join('');
+          <div class="cn">${escHtml(g.name)}</div>
+          <div class="cf">${priceHtml}<button class="add ${tier}" onclick="event.stopPropagation();toggleCart(${g.id})">${inCart?'✓':'+'}</button></div>
+        </div>`;
+      frag.appendChild(div);
+    }
+    grid.appendChild(frag);
+    if(i<filtered.length) requestAnimationFrame(renderChunk);
+  }
+  requestAnimationFrame(renderChunk);
 }
 
-/* ═══════════════════════════════════════════════════════════
-   CART
-═══════════════════════════════════════════════════════════ */
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+/* ═══ CART ══════════════════════════════════════════════ */
 function toggleCart(id){
-  const game=GAMES.find(g=>g.id===id);if(!game||!game.available)return;
+  const game=GAMES.find(g=>g.id===id);if(!game)return;
   const idx=cart.findIndex(c=>c.id===id);
   idx===-1?cart.push(game):cart.splice(idx,1);
   update();
@@ -380,20 +399,14 @@ function update(){
 function renderCartList(){
   const el=document.getElementById('cartList');
   if(!cart.length){el.innerHTML=`<div class="empty">🎮<br><br>Agregá juegos al pedido</div>`;updateGiftNotice({giftsAvailable:0,giftsRemaining:0});return;}
-  const calc=calcTotal();
-  updateGiftNotice(calc);
+  const calc=calcTotal(); updateGiftNotice(calc);
   const TL={normal:'NORMAL',premium:'PREMIUM',special:'ESPECIAL + 2 REGALOS'};
   el.innerHTML=cart.map(g=>{
-    const tier=g.tier||'normal';
-    const isFree=calc.freeNormalIds.includes(g.id);
-    return `<div class="ci">
-      <img class="ci-img" src="${imgUrl(g.appId)}" alt="${g.name}" onerror="this.src='${FB}'"/>
-      <div class="ci-info">
-        <div class="ci-name">${g.name}</div>
-        <div class="ci-tag ${isFree?'free':tier}">${isFree?'🎁 GRATIS — regalo':TL[tier]||''}</div>
-      </div>
-      <button class="rm" onclick="toggleCart(${g.id})">✕</button>
-    </div>`;
+    const tier=g.tier||'normal';const isFree=calc.freeNormalIds.includes(g.id);
+    return`<div class="ci"><img class="ci-img" src="${imgUrl(g.appId)}" alt="${escHtml(g.name)}" onerror="this.src='${FB}'"/>
+      <div class="ci-info"><div class="ci-name">${escHtml(g.name)}</div>
+      <div class="ci-tag ${isFree?'free':tier}">${isFree?'🎁 GRATIS — regalo':TL[tier]||''}</div></div>
+      <button class="rm" onclick="toggleCart(${g.id})">✕</button></div>`;
   }).join('');
 }
 
@@ -401,24 +414,17 @@ function updateGiftNotice({giftsAvailable,giftsRemaining}){
   const el=document.getElementById('giftNotice'),txt=document.getElementById('giftNoticeTxt');
   if(!giftsAvailable){el.classList.remove('show');return;}
   el.classList.add('show');
-  if(giftsRemaining>0){
-    el.className='gift-notice show pending';
-    txt.textContent=`Podés agregar ${giftsRemaining} juego${giftsRemaining>1?'s':''} normal${giftsRemaining>1?'es':''} de regalo todavía`;
-  }else{
-    el.className='gift-notice show ok';
-    txt.textContent=`${giftsAvailable} regalo${giftsAvailable>1?'s':''} aplicado${giftsAvailable>1?'s':''} ✓`;
-  }
+  if(giftsRemaining>0){el.className='gift-notice show pending';txt.textContent=`Podés agregar ${giftsRemaining} juego${giftsRemaining>1?'s':''} normal${giftsRemaining>1?'es':''} de regalo todavía`;}
+  else{el.className='gift-notice show ok';txt.textContent=`${giftsAvailable} regalo${giftsAvailable>1?'s':''} aplicado${giftsAvailable>1?'s':''} ✓`;}
 }
 
 function renderTotals(){
-  const el=document.getElementById('totals');
-  const calc=calcTotal();
-  const P=CONFIG.prices;
+  const el=document.getElementById('totals');const calc=calcTotal();const P=CONFIG.prices;
   if(!cart.length){el.innerHTML='';document.getElementById('waBtn').disabled=true;return;}
   let html='';
   if(calc.normals.length){
     html+=`<div class="trow head"><span style="color:var(--acc)">🟢 Normales (${calc.normals.length})</span></div>`;
-    if(calc.giftsUsed>0) html+=`<div class="trow sub"><span class="lbl">${calc.giftsUsed} regalo${calc.giftsUsed>1?'s':''} (promo especial)</span><span style="color:var(--acc)">GRATIS</span></div>`;
+    if(calc.giftsUsed>0) html+=`<div class="trow sub"><span class="lbl">${calc.giftsUsed} regalo${calc.giftsUsed>1?'s':''}</span><span style="color:var(--acc)">GRATIS</span></div>`;
     if(calc.packs6>0) html+=`<div class="trow sub"><span class="lbl">${calc.packs6}× pack de 6</span><span>${fmt(calc.packs6*P.normal.pack6)}</span></div>`;
     if(calc.packs3>0) html+=`<div class="trow sub"><span class="lbl">${calc.packs3}× pack de 3</span><span>${fmt(calc.packs3*P.normal.pack3)}</span></div>`;
     if(calc.singles>0) html+=`<div class="trow sub"><span class="lbl">${calc.singles} suelto${calc.singles>1?'s':''}</span><span>${fmt(calc.singles*P.normal.single)}</span></div>`;
@@ -426,76 +432,54 @@ function renderTotals(){
   if(calc.premiums.length){
     const lbl=calc.hasMixed?`${fmt(P.premium.mixed)} c/u (combo)`:`${fmt(P.premium.solo)} c/u`;
     html+=`<div class="trow head"><span style="color:var(--gold)">💛 Premium (${calc.premiums.length}) — ${lbl}</span></div>`;
-    if(calc.hasMixed){const saved=calc.premiums.length*(P.premium.solo-P.premium.mixed);html+=`<div class="trow disc"><span>↓ Descuento combo</span><span>-${fmt(saved)}</span></div>`;}
+    if(calc.hasMixed){const s=calc.premiums.length*(P.premium.solo-P.premium.mixed);html+=`<div class="trow disc"><span>↓ Descuento combo</span><span>-${fmt(s)}</span></div>`;}
   }
   if(calc.specials.length){
     html+=`<div class="trow head"><span style="color:var(--pur)">🟣 Especiales (${calc.specials.length})</span></div>`;
     if(calc.giftsRemaining>0) html+=`<div class="trow disc-pur"><span>🎁 Faltan ${calc.giftsRemaining} regalo${calc.giftsRemaining>1?'s':''} por elegir</span><span>—</span></div>`;
   }
   html+=`<div class="trow total-row"><span>TOTAL</span><span>${fmt(calc.total)}</span></div>`;
-  el.innerHTML=html;
-  document.getElementById('waBtn').disabled=false;
+  el.innerHTML=html; document.getElementById('waBtn').disabled=false;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   WHATSAPP — usa CONFIG.mensajeWA como plantilla
-═══════════════════════════════════════════════════════════ */
-function buildListaNormal(calc){
-  if(!calc.normals.length) return '';
+/* ═══ WHATSAPP ══════════════════════════════════════════ */
+function buildListaNormal(c){
+  if(!c.normals.length) return '';
   const P=CONFIG.prices;
-  let lines=`\n🟢 *NORMALES (${calc.normals.length}):*\n`;
-  calc.normals.forEach(g=>{
-    lines+=`  • ${g.name}${calc.freeNormalIds.includes(g.id)?' 🎁 GRATIS':''}\n`;
-  });
+  let l=`\n🟢 *NORMALES (${c.normals.length}):*\n`;
+  c.normals.forEach(g=>{l+=`  • ${g.name}${c.freeNormalIds.includes(g.id)?' 🎁 GRATIS':''}\n`;});
   const pd=[];
-  if(calc.packs6>0) pd.push(`${calc.packs6}× pack de 6 = ${fmt(calc.packs6*P.normal.pack6)}`);
-  if(calc.packs3>0) pd.push(`${calc.packs3}× pack de 3 = ${fmt(calc.packs3*P.normal.pack3)}`);
-  if(calc.singles>0) pd.push(`${calc.singles} suelto${calc.singles>1?'s':''} = ${fmt(calc.singles*P.normal.single)}`);
-  if(pd.length) lines+=`  📦 ${pd.join(' | ')}\n`;
-  return lines;
+  if(c.packs6>0) pd.push(`${c.packs6}× pack de 6 = ${fmt(c.packs6*P.normal.pack6)}`);
+  if(c.packs3>0) pd.push(`${c.packs3}× pack de 3 = ${fmt(c.packs3*P.normal.pack3)}`);
+  if(c.singles>0) pd.push(`${c.singles} suelto${c.singles>1?'s':''} = ${fmt(c.singles*P.normal.single)}`);
+  if(pd.length) l+=`  📦 ${pd.join(' | ')}\n`;
+  return l;
 }
-function buildListaPremium(calc){
-  if(!calc.premiums.length) return '';
+function buildListaPremium(c){
+  if(!c.premiums.length) return '';
+  const P=CONFIG.prices;const lbl=c.hasMixed?`${fmt(P.premium.mixed)} c/u (combo)`:`${fmt(P.premium.solo)} c/u`;
+  let l=`\n💛 *PREMIUM — ${lbl}:*\n`;
+  c.premiums.forEach(g=>{l+=`  • ${g.name}\n`;});return l;
+}
+function buildListaEspecial(c){
+  if(!c.specials.length) return '';
   const P=CONFIG.prices;
-  const lbl=calc.hasMixed?`${fmt(P.premium.mixed)} c/u (combo)`:`${fmt(P.premium.solo)} c/u`;
-  let lines=`\n💛 *PREMIUM — ${lbl}:*\n`;
-  calc.premiums.forEach(g=>{lines+=`  • ${g.name}\n`;});
-  return lines;
+  let l=`\n🟣 *ESPECIALES (${fmt(P.special.price)} c/u + ${P.special.gifts} regalos):*\n`;
+  c.specials.forEach(g=>{l+=`  • ${g.name}\n`;});
+  if(c.giftsRemaining>0) l+=`  🎁 Faltan ${c.giftsRemaining} regalo${c.giftsRemaining>1?'s':''} por elegir\n`;
+  return l;
 }
-function buildListaEspecial(calc){
-  if(!calc.specials.length) return '';
-  const P=CONFIG.prices;
-  let lines=`\n🟣 *ESPECIALES (${fmt(P.special.price)} c/u + ${P.special.gifts} regalos):*\n`;
-  calc.specials.forEach(g=>{lines+=`  • ${g.name}\n`;});
-  if(calc.giftsRemaining>0) lines+=`  🎁 Faltan ${calc.giftsRemaining} regalo${calc.giftsRemaining>1?'s':''} por elegir\n`;
-  return lines;
-}
-
 function sendWhatsApp(){
   if(!cart.length) return;
   const calc=calcTotal();
-
-  // Construye las variables y reemplaza en la plantilla
-  const vars={
-    storeName:    CONFIG.storeName,
-    aliasTienda:  CONFIG.aliasTienda,
-    listaNormal:  buildListaNormal(calc),
-    listaPremium: buildListaPremium(calc),
-    listaEspecial:buildListaEspecial(calc),
-    total:        fmt(calc.total),
-  };
-
   let msg=CONFIG.mensajeWA;
-  Object.entries(vars).forEach(([k,v])=>{
-    msg=msg.replaceAll(`{${k}}`,v);
-  });
-
+  [{storeName:CONFIG.storeName},{aliasTienda:CONFIG.aliasTienda},{listaNormal:buildListaNormal(calc)},
+   {listaPremium:buildListaPremium(calc)},{listaEspecial:buildListaEspecial(calc)},{total:fmt(calc.total)}]
+  .forEach(v=>Object.entries(v).forEach(([k,val])=>{msg=msg.replaceAll(`{${k}}`,val);}));
   window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`,'_blank');
 }
 
-/* ═══════════════════════════════════════════════════════════
-   PANEL
-═══════════════════════════════════════════════════════════ */
+/* ═══ PANEL ═════════════════════════════════════════════ */
 function openPanel(){document.getElementById('panel').classList.add('open');document.getElementById('overlay').classList.add('open');renderCartList();renderTotals();}
 function closePanel(){document.getElementById('panel').classList.remove('open');document.getElementById('overlay').classList.remove('open');}
 
