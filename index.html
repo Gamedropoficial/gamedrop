@@ -119,9 +119,9 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px 20p
 }
 .bnav-btn{
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:4px;padding:8px 4px;border-radius:10px;cursor:pointer;
+  gap:3px;padding:6px 2px;border-radius:10px;cursor:pointer;
   border:none;background:none;color:var(--mut);
-  font-family:var(--fD);font-size:.6rem;font-weight:600;letter-spacing:.5px;
+  font-family:var(--fD);font-size:.52rem;font-weight:600;letter-spacing:.3px;
   text-transform:uppercase;transition:all .2s;position:relative;
   -webkit-tap-highlight-color:transparent;
 }
@@ -264,21 +264,25 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px 20p
     <div class="icon" style="position:relative">🛒<span class="cart-badge" id="cartBadge">0</span></div>
     <span>Mi Pedido</span>
   </button>
-  <button class="bnav-btn info-nav" onclick="openHow()">
-    <div class="icon">ℹ️</div>
+  <button class="bnav-btn info-nav" onclick="openPedir()">
+    <div class="icon">📋</div>
+    <span>Cómo pedir</span>
+  </button>
+  <button class="bnav-btn" style="color:#a78bfa" onclick="openHow()">
+    <div class="icon">⚡</div>
     <span>¿Cómo funciona?</span>
   </button>
   <button class="bnav-btn wa-nav" onclick="openWAConsulta()">
     <div class="icon">💬</div>
-    <span>Quiero uno que no esta</span>
+    <span>Consultar</span>
   </button>
 </nav>
 
-<!-- MODAL ¿CÓMO FUNCIONA? -->
-<div class="modal-overlay" id="howModal" onclick="closeHow(event)">
+<!-- MODAL CÓMO PEDIR (pasos del pedido + precios) -->
+<div class="modal-overlay" id="pedirModal" onclick="closePedir(event)">
   <div class="modal-sheet">
-    <div class="modal-handle" onclick="closeHow(null, true)"></div>
-    <div class="modal-title">¿CÓMO FUNCIONA?</div>
+    <div class="modal-handle" onclick="closePedir(null, true)"></div>
+    <div class="modal-title">CÓMO PEDIR</div>
 
     <div class="how-step">
       <div class="how-num">1</div>
@@ -324,6 +328,41 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px 20p
         <div class="pc-label">🟣 Especial</div>
         <p>$25.000 c/u + elegís 2 juegos normales de regalo</p>
       </div>
+    </div>
+
+    <button class="modal-close" onclick="closePedir(null, true)">CERRAR</button>
+  </div>
+</div>
+
+<!-- MODAL ¿CÓMO FUNCIONA? (activación) -->
+<div class="modal-overlay" id="howModal" onclick="closeHow(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle" onclick="closeHow(null, true)"></div>
+    <div class="modal-title" style="color:#a78bfa">¿CÓMO FUNCIONA?</div>
+
+    <div class="how-step">
+      <div class="how-num" style="background:rgba(167,139,250,.12);border-color:rgba(167,139,250,.25);color:#a78bfa">⚡</div>
+      <div class="how-text">
+        <strong>Activación instantánea</strong>
+        <p>Te enviamos la <b>key y el activador</b>. La activación demora <b>1 minuto</b> y ya podés descargar y jugar desde tu propia cuenta de Steam.</p>
+      </div>
+    </div>
+    <div class="how-step">
+      <div class="how-num" style="background:rgba(167,139,250,.12);border-color:rgba(167,139,250,.25);color:#a78bfa">🔒</div>
+      <div class="how-text">
+        <strong>100% seguro</strong>
+        <p>No vendemos cuentas compartidas ni pedimos datos personales. El juego queda permanentemente en tu cuenta.</p>
+      </div>
+    </div>
+
+    <hr class="how-divider"/>
+    <div style="background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.2);border-radius:10px;padding:14px 16px;text-align:center">
+      <div style="font-family:var(--fD);font-size:.72rem;color:#a78bfa;letter-spacing:.5px;margin-bottom:8px;text-transform:uppercase">Más info y reseñas</div>
+      <p style="font-size:.82rem;color:var(--mut);margin-bottom:12px">Encontrá reseñas de clientes y más información en nuestro Instagram</p>
+      <a href="https://www.instagram.com/gamedrop_oficial/" target="_blank"
+         style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;padding:9px 20px;border-radius:22px;font-family:var(--fD);font-size:.78rem;font-weight:700;letter-spacing:.8px;text-decoration:none">
+        📸 @gamedrop_oficial
+      </a>
     </div>
 
     <button class="modal-close" onclick="closeHow(null, true)">CERRAR</button>
@@ -576,6 +615,10 @@ function openWAConsulta(){
 function openPanel(){$('panel').classList.add('open');$('overlay').classList.add('open');renderCartList();renderTotals();}
 function closePanel(){$('panel').classList.remove('open');$('overlay').classList.remove('open');}
 
+function openPedir(){$('pedirModal').classList.add('open');}
+function closePedir(e,force=false){
+  if(force||e&&e.target===$('pedirModal'))$('pedirModal').classList.remove('open');
+}
 function openHow(){$('howModal').classList.add('open');}
 function closeHow(e,force=false){
   if(force||e&&e.target===$('howModal'))$('howModal').classList.remove('open');
