@@ -250,11 +250,11 @@ main{padding:16px 14px}
 <div class="price-banner">
   <div class="pb-inner">
     <span class="pb-label">PRECIOS</span>
-    <div class="pb-pill n">🟢 Juegos Normales: $9.900 | 3×$19.900 | 6×$29.900</div>
+    <div class="pb-pill n">🟢 Normal: $9.900 | 3×$19.900 | 6×$29.900</div>
     <div class="pb-sep">·</div>
-    <div class="pb-pill p">💛 Juegos Premium: $14.000 | combo $10.000</div>
+    <div class="pb-pill p">💛 Premium: $14.000 | combo $10.000</div>
     <div class="pb-sep">·</div>
-    <div class="pb-pill s">🟣 Juegos Especiales: $25.000 + 2 regalos</div>
+    <div class="pb-pill s">🟣 Especial: $25.000 + 2 regalos</div>
   </div>
 </div>
 
@@ -500,7 +500,7 @@ function makeCard(g){
   div.className=`card ${sc}`;div.dataset.id=g.id;div.onclick=()=>toggleCart(g.id);
   div.innerHTML=`${inCart?`<div class="bdg sb sb${tier[0]}">✓ EN PEDIDO</div>`:tb}
     ${isFree?`<div class="bdg fb">🎁 GRATIS</div>`:''}
-    <img class="cover" loading="lazy" src="${img(g.appId)}" onerror="this.src='${FB}'" alt="">
+    <img class="cover" loading="lazy" src="${img(g.appId)}" onerror="if(this.dataset.t)this.src='${FB}';else{this.dataset.t=1;this.src='https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appId}/capsule_616x353.jpg'}" alt="">
     <div class="card-body"><div class="cn">${esc(g.name)}</div>
     <div class="cf">${ph}<button class="addb ${tier[0]}" onclick="event.stopPropagation();toggleCart(${g.id})">${inCart?'✓':'+'}</button></div></div>`;
   return div;
@@ -548,7 +548,7 @@ function renderCartList(){
   const TL={normal:'NORMAL',premium:'PREMIUM',special:'ESPECIAL + 2 REGALOS'};
   el.innerHTML=cart.map(g=>{
     const t=g.tier||'normal';const fr=c.freeNormalIds.includes(g.id);
-    return`<div class="ci"><img class="cimg" loading="lazy" src="${img(g.appId)}" onerror="this.src='${FB}'" alt="">
+    return`<div class="ci"><img class="cimg" loading="lazy" src="${img(g.appId)}" onerror="if(this.dataset.t)this.src='${FB}';else{this.dataset.t=1;this.src='https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appId}/capsule_616x353.jpg'}" alt="">
       <div class="cinfo"><div class="cname">${esc(g.name)}</div>
       <div class="ctag ${fr?'f':t[0]}">${fr?'🎁 GRATIS — regalo':TL[t]||''}</div></div>
       <button class="rm" onclick="toggleCart(${g.id})">✕</button></div>`;
