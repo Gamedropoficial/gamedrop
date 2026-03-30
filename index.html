@@ -509,7 +509,7 @@ function makeCard(g){
   div.className=`card ${sc}`;div.dataset.id=g.id;div.onclick=()=>toggleCart(g.id);
   div.innerHTML=`${inCart?`<div class="bdg sb sb${tier[0]}">✓ EN PEDIDO</div>`:tb}
     ${isFree?`<div class="bdg fb">🎁 GRATIS</div>`:''}
-    <img class="cover" loading="lazy" src="${img(g.appId)}" onerror="imgFallback(this,${g.appId})" alt="">
+    <img class="cover" loading="lazy" referrerpolicy="no-referrer" src="${img(g.appId)}" onerror="imgFallback(this,${g.appId})" alt="">
     <div class="card-body"><div class="cn">${esc(g.name)}</div>
     <div class="cf">${ph}<button class="addb ${tier[0]}" onclick="event.stopPropagation();toggleCart(${g.id})">${inCart?'✓':'+'}</button></div></div>`;
   return div;
@@ -557,7 +557,7 @@ function renderCartList(){
   const TL={normal:'NORMAL',premium:'PREMIUM',special:'ESPECIAL + 2 REGALOS'};
   el.innerHTML=cart.map(g=>{
     const t=g.tier||'normal';const fr=c.freeNormalIds.includes(g.id);
-    return`<div class="ci"><img class="cimg" loading="lazy" src="${img(g.appId)}" onerror="imgFallback(this,${g.appId})" alt="">
+    return`<div class="ci"><img class="cimg" loading="lazy" referrerpolicy="no-referrer" src="${img(g.appId)}" onerror="imgFallback(this,${g.appId})" alt="">
       <div class="cinfo"><div class="cname">${esc(g.name)}</div>
       <div class="ctag ${fr?'f':t[0]}">${fr?'🎁 GRATIS — regalo':TL[t]||''}</div></div>
       <button class="rm" onclick="toggleCart(${g.id})">✕</button></div>`;
