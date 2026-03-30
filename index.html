@@ -409,6 +409,15 @@ const fmt=n=>CFG.currency+Number(n).toLocaleString('es-AR');
 const img=id=>`https://cdn.cloudflare.steamstatic.com/steam/apps/${id}/header.jpg`;
 const FB=`data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='460' height='215'><rect fill='%23141828' width='100%25' height='100%25'/><text y='50%25' x='50%25' dominant-baseline='middle' text-anchor='middle' fill='%235b6680' font-size='12' font-family='sans-serif'>Sin imagen</text></svg>`;
 
+function imgFallback(el,appId){
+  if(el.dataset.tried==='capsule'){
+    el.onerror=null;
+    el.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22460%22 height=%22215%22><rect fill=%22%23141828%22 width=%22100%25%22 height=%22100%25%22/><text y=%2250%25%22 x=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%235b6680%22 font-size=%2212%22 font-family=%22sans-serif%22>Sin imagen</text></svg>';
+  }else{
+    el.dataset.tried='capsule';
+    el.src='https://cdn.cloudflare.steamstatic.com/steam/apps/'+appId+'/capsule_616x353.jpg';
+  }
+}
 async function loadGames(manual=false){
   const btn=$('refreshBtn');btn.classList.add('spinning');
   if(!manual) $('gamesArea').innerHTML=`<div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span><span class="load-detail" id="loadDetail">Conectando...</span></div>`;
@@ -500,7 +509,7 @@ function makeCard(g){
   div.className=`card ${sc}`;div.dataset.id=g.id;div.onclick=()=>toggleCart(g.id);
   div.innerHTML=`${inCart?`<div class="bdg sb sb${tier[0]}">✓ EN PEDIDO</div>`:tb}
     ${isFree?`<div class="bdg fb">🎁 GRATIS</div>`:''}
-    <img class="cover" loading="lazy" src="${img(g.appId)}" onerror="if(this.dataset.t)this.src='${FB}';else{this.dataset.t=1;this.src='https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appId}/capsule_616x353.jpg'}" alt="">
+    <img class="cover" loading="lazy" src="${img(g.appId)}" onerror="imgFallback(this,${g.appId})" alt="">
     <div class="card-body"><div class="cn">${esc(g.name)}</div>
     <div class="cf">${ph}<button class="addb ${tier[0]}" onclick="event.stopPropagation();toggleCart(${g.id})">${inCart?'✓':'+'}</button></div></div>`;
   return div;
@@ -548,7 +557,7 @@ function renderCartList(){
   const TL={normal:'NORMAL',premium:'PREMIUM',special:'ESPECIAL + 2 REGALOS'};
   el.innerHTML=cart.map(g=>{
     const t=g.tier||'normal';const fr=c.freeNormalIds.includes(g.id);
-    return`<div class="ci"><img class="cimg" loading="lazy" src="${img(g.appId)}" onerror="if(this.dataset.t)this.src='${FB}';else{this.dataset.t=1;this.src='https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appId}/capsule_616x353.jpg'}" alt="">
+    return`<div class="ci"><img class="cimg" loading="lazy" src="${img(g.appId)}" onerror="imgFallback(this,${g.appId})" alt="">
       <div class="cinfo"><div class="cname">${esc(g.name)}</div>
       <div class="ctag ${fr?'f':t[0]}">${fr?'🎁 GRATIS — regalo':TL[t]||''}</div></div>
       <button class="rm" onclick="toggleCart(${g.id})">✕</button></div>`;
