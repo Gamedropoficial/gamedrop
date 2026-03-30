@@ -406,20 +406,28 @@ const CFG = {
 let ALL=[], FILTERED=[], cart=[], activeTag="Todos", activeTier="all", renderOffset=0, searchTimer=null;
 const $=id=>document.getElementById(id);
 const fmt=n=>CFG.currency+Number(n).toLocaleString('es-AR');
-const img=id=>`https://shared.akamaihd.net/steam/apps/${id}/header.jpg`;
+const img=(id,custom)=>custom||`https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${id}/header.jpg`;
 const FB=`data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='460' height='215'><rect fill='%23141828' width='100%25' height='100%25'/><text y='50%25' x='50%25' dominant-baseline='middle' text-anchor='middle' fill='%235b6680' font-size='12' font-family='sans-serif'>Sin imagen</text></svg>`;
 
-function imgFallback(el,appId){
+function imgFallback(el,appId,custom){
+  if(custom&&el.dataset.tried!=='custom'){el.dataset.tried='custom';el.src=custom;return;}
   const t=el.dataset.tried||'';
   if(t===''){
+    // Fallback 1: cloudflare CDN clásico
     el.dataset.tried='cf';
     el.src='https://cdn.cloudflare.steamstatic.com/steam/apps/'+appId+'/header.jpg';
   }else if(t==='cf'){
+    // Fallback 2: store_item_assets (bypasa restricción de edad)
+    el.dataset.tried='assets';
+    el.src='https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/'+appId+'/header.jpg';
+  }else if(t==='assets'){
+    // Fallback 3: capsule (formato diferente)
     el.dataset.tried='capsule';
-    el.src='https://cdn.cloudflare.steamstatic.com/steam/apps/'+appId+'/capsule_616x353.jpg';
+    el.src='https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/'+appId+'/capsule_616x353.jpg';
   }else if(t==='capsule'){
-    el.dataset.tried='store';
-    el.src='https://store.akamai.steamstatic.com/steam/apps/'+appId+'/header.jpg';
+    // Fallback 4: SteamDB CDN
+    el.dataset.tried='steamdb';
+    el.src='https://cdn.cloudflare.steamstatic.com/steam/apps/'+appId+'/capsule_616x353.jpg';
   }else{
     el.onerror=null;
     el.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22460%22 height=%22215%22><rect fill=%22%23141828%22 width=%22100%25%22 height=%22100%25%22/><text y=%2250%25%22 x=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%235b6680%22 font-size=%2212%22 font-family=%22sans-serif%22>Sin imagen</text></svg>';
@@ -439,7 +447,9 @@ async function loadGames(manual=false){
       .map((row,i)=>({id:parseInt(gc(row,'id'))||i+1,name:gc(row,'name').trim(),appId:parseInt(gc(row,'appid'))||0,
         tier:(['normal','premium','special'].includes(gc(row,'tier').toLowerCase())?gc(row,'tier').toLowerCase():'normal'),
         price:parseInt(gc(row,'price'))||CFG.prices.normal.single,
-        tags:gc(row,'tags').split(',').map(t=>t.trim()).filter(Boolean),_q:gc(row,'name').toLowerCase()}));
+        tags:gc(row,'tags').split(',').map(t=>t.trim()).filter(Boolean),
+        image:gc(row,'image')||'',
+        _q:gc(row,'name').toLowerCase()}));
     const now=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
     $('lu').textContent=`${ALL.length.toLocaleString()} juegos · ${now}`;
     buildTierFilters();buildTagFilters();applyFilter();renderTotals();
@@ -516,7 +526,7 @@ function makeCard(g){
   div.className=`card ${sc}`;div.dataset.id=g.id;div.onclick=()=>toggleCart(g.id);
   div.innerHTML=`${inCart?`<div class="bdg sb sb${tier[0]}">✓ EN PEDIDO</div>`:tb}
     ${isFree?`<div class="bdg fb">🎁 GRATIS</div>`:''}
-    <img class="cover" loading="lazy" referrerpolicy="no-referrer" src="${img(g.appId)}" onerror="imgFallback(this,${g.appId})" alt="">
+    <img class="cover" loading="lazy" src="${img(g.appId,g.image)}" onerror="imgFallback(this,${g.appId},${JSON.stringify(g.image)})" alt="">
     <div class="card-body"><div class="cn">${esc(g.name)}</div>
     <div class="cf">${ph}<button class="addb ${tier[0]}" onclick="event.stopPropagation();toggleCart(${g.id})">${inCart?'✓':'+'}</button></div></div>`;
   return div;
@@ -564,7 +574,7 @@ function renderCartList(){
   const TL={normal:'NORMAL',premium:'PREMIUM',special:'ESPECIAL + 2 REGALOS'};
   el.innerHTML=cart.map(g=>{
     const t=g.tier||'normal';const fr=c.freeNormalIds.includes(g.id);
-    return`<div class="ci"><img class="cimg" loading="lazy" referrerpolicy="no-referrer" src="${img(g.appId)}" onerror="imgFallback(this,${g.appId})" alt="">
+    return`<div class="ci"><img class="cimg" loading="lazy" src="${img(g.appId,g.image)}" onerror="imgFallback(this,${g.appId},${JSON.stringify(g.image)})" alt="">
       <div class="cinfo"><div class="cname">${esc(g.name)}</div>
       <div class="ctag ${fr?'f':t[0]}">${fr?'🎁 GRATIS — regalo':TL[t]||''}</div></div>
       <button class="rm" onclick="toggleCart(${g.id})">✕</button></div>`;
