@@ -448,7 +448,7 @@ async function loadGames(manual=false){
         tier:(['normal','premium','special'].includes(gc(row,'tier').toLowerCase())?gc(row,'tier').toLowerCase():'normal'),
         price:parseInt(gc(row,'price'))||CFG.prices.normal.single,
         tags:gc(row,'tags').split(',').map(t=>t.trim()).filter(Boolean),
-        image:gc(row,'image')||'',
+        image:gc(row,'imageUrl')||'',
         _q:gc(row,'name').toLowerCase()}));
     const now=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
     $('lu').textContent=`${ALL.length.toLocaleString()} juegos · ${now}`;
