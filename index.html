@@ -409,6 +409,16 @@ const fmt=n=>CFG.currency+Number(n).toLocaleString('es-AR');
 const img=(id,custom)=>custom||`https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${id}/header.jpg`;
 const FB=`data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='460' height='215'><rect fill='%23141828' width='100%25' height='100%25'/><text y='50%25' x='50%25' dominant-baseline='middle' text-anchor='middle' fill='%235b6680' font-size='12' font-family='sans-serif'>Sin imagen</text></svg>`;
 
+function normalizeSearch(str){
+  return (str||'')
+    .toString()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g,'')
+    .replace(/['’`"]/g,'')
+    .replace(/[^a-z0-9]+/g,'');
+}
+
 function imgFallback(el,appId,custom){
   if(custom&&el.dataset.tried!=='custom'){el.dataset.tried='custom';el.src=custom;return;}
   const t=el.dataset.tried||'';
@@ -444,12 +454,20 @@ async function loadGames(manual=false){
     const cols={};table.cols.forEach((c,i)=>{if(c.label)cols[c.label.toLowerCase().trim()]=i;});
     const gc=(row,name)=>{const i=cols[name];if(i===undefined||!row.c||!row.c[i]||row.c[i].v===null)return '';return String(row.c[i].v!==undefined?row.c[i].v:row.c[i].f||'');};
     ALL=table.rows.filter(row=>gc(row,'available').toUpperCase()==='TRUE'&&gc(row,'name')&&gc(row,'appid'))
-      .map((row,i)=>({id:parseInt(gc(row,'id'))||i+1,name:gc(row,'name').trim(),appId:parseInt(gc(row,'appid'))||0,
-        tier:(['normal','premium','special'].includes(gc(row,'tier').toLowerCase())?gc(row,'tier').toLowerCase():'normal'),
-        price:parseInt(gc(row,'price'))||CFG.prices.normal.single,
-        tags:gc(row,'tags').split(',').map(t=>t.trim()).filter(Boolean),
-        image:gc(row,'imageurl')||'',
-        _q:gc(row,'name').toLowerCase()}));
+      .map((row,i)=>{
+        const name=gc(row,'name').trim();
+        return {
+          id:parseInt(gc(row,'id'))||i+1,
+          name,
+          appId:parseInt(gc(row,'appid'))||0,
+          tier:(['normal','premium','special'].includes(gc(row,'tier').toLowerCase())?gc(row,'tier').toLowerCase():'normal'),
+          price:parseInt(gc(row,'price'))||CFG.prices.normal.single,
+          tags:gc(row,'tags').split(',').map(t=>t.trim()).filter(Boolean),
+          image:gc(row,'imageurl')||'',
+          _q:name.toLowerCase(),
+          _nq:normalizeSearch(name)
+        };
+      });
     const now=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
     $('lu').textContent=`${ALL.length.toLocaleString()} juegos · ${now}`;
     buildTierFilters();buildTagFilters();applyFilter();renderTotals();
@@ -477,27 +495,51 @@ function buildTagFilters(){
 function setTag(t){activeTag=t;buildTagFilters();applyFilter();}
 
 function applyFilter(){
-  const q=($('q').value||'').toLowerCase().trim();
-  const scoreGame=(g)=>{
-    if(!q)return {score:0,name:g.name.toLowerCase()};
-    const name=(g.name||'').toLowerCase();
-    if(name===q)return {score:0,name};
-    if(name.startsWith(q))return {score:1,name};
-    if(name.split(/[^a-z0-9]+/i).some(word=>word.startsWith(q)))return {score:2,name};
-    return {score:3,name};
-  };
+  const rawQ=($('q').value||'').trim();
+  const q=rawQ.toLowerCase();
+  const nq=normalizeSearch(rawQ);
 
-  FILTERED=ALL.filter(g=>{
-    if(activeTier!=='all'&&g.tier!==activeTier)return false;
-    if(activeTag!=='Todos'&&!g.tags.includes(activeTag))return false;
-    if(q&&!g._q.includes(q))return false;
-    return true;
-  }).sort((a,b)=>{
-    const sa=scoreGame(a);
-    const sb=scoreGame(b);
-    if(sa.score!==sb.score)return sa.score-sb.score;
-    return sa.name.localeCompare(sb.name,'es',{sensitivity:'base'});
-  });
+  FILTERED=ALL
+    .filter(g=>{
+      if(activeTier!=='all'&&g.tier!==activeTier)return false;
+      if(activeTag!=='Todos'&&!g.tags.includes(activeTag))return false;
+      if(!rawQ)return true;
+      return (g._q&&g._q.includes(q))||(g._nq&&g._nq.includes(nq));
+    })
+    .sort((a,b)=>{
+      if(!rawQ)return a.name.localeCompare(b.name,'es',{sensitivity:'base'});
+
+      const aQ=a._q||'';
+      const bQ=b._q||'';
+      const aN=a._nq||'';
+      const bN=b._nq||'';
+
+      const qExactA=aQ===q;
+      const qExactB=bQ===q;
+      if(qExactA!==qExactB)return qExactA?-1:1;
+
+      const nqExactA=aN===nq;
+      const nqExactB=bN===nq;
+      if(nqExactA!==nqExactB)return nqExactA?-1:1;
+
+      const qStartsA=aQ.startsWith(q);
+      const qStartsB=bQ.startsWith(q);
+      if(qStartsA!==qStartsB)return qStartsA?-1:1;
+
+      const nqStartsA=aN.startsWith(nq);
+      const nqStartsB=bN.startsWith(nq);
+      if(nqStartsA!==nqStartsB)return nqStartsA?-1:1;
+
+      const qWordA=aQ.includes(' '+q);
+      const qWordB=bQ.includes(' '+q);
+      if(qWordA!==qWordB)return qWordA?-1:1;
+
+      const idxA=aN.indexOf(nq);
+      const idxB=bN.indexOf(nq);
+      if(idxA!==idxB)return idxA-idxB;
+
+      return a.name.localeCompare(b.name,'es',{sensitivity:'base'});
+    });
 
   renderOffset=0;
   $('cnt').textContent=`${FILTERED.length.toLocaleString()} juego${FILTERED.length!==1?'s':''}`;
