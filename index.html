@@ -1,3 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GameDrop — Catálogo</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#07090f;--s1:#0d1120;--s2:#141828;--s3:#1b2235;
+  --acc:#00e5a0;--acc-dim:rgba(0,229,160,.1);--acc-glow:rgba(0,229,160,.25);
+  --gold:#f5a623;--gold-dim:rgba(245,166,35,.1);--gold-glow:rgba(245,166,35,.25);
+  --pur:#b57cf5;--pur-dim:rgba(181,124,245,.1);--pur-glow:rgba(181,124,245,.25);
+  --red:#ff4060;--txt:#dde4f0;--mut:#5b6680;--bdr:rgba(255,255,255,.07);
+  --fD:'Chakra Petch',sans-serif;--fB:'Outfit',sans-serif;--col:200px;
+  --nav-h:68px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:var(--fB);min-height:100vh;overflow-x:hidden;padding-bottom:var(--nav-h)}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(0,229,160,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,160,.018) 1px,transparent 1px);
+  background-size:48px 48px}
+header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.93);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{font-family:var(--fD);font-weight:700;font-size:1rem;color:#00d4ff;letter-spacing:2px;display:flex;align-items:center;gap:8px}
+.hdr-right{display:flex;gap:8px;align-items:center}
+.refresh-btn{background:none;border:1px solid var(--bdr);color:var(--mut);padding:6px 10px;border-radius:7px;cursor:pointer;font-family:var(--fB);font-size:.78rem;display:flex;align-items:center;gap:4px;transition:all .15s}
+.refresh-btn:hover{border-color:var(--acc);color:var(--acc)}
+.refresh-btn.spinning .ic{display:inline-block;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cart-btn-desk{background:var(--s2);border:1px solid var(--bdr);color:var(--txt);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:var(--fB);font-size:.85rem;font-weight:500;display:flex;align-items:center;gap:6px;transition:all .2s;white-space:nowrap}
+.cart-btn-desk:hover{background:var(--acc-dim);border-color:var(--acc);color:var(--acc)}
+.cart-count{background:var(--acc);color:#000;font-size:.62rem;font-weight:700;min-width:18px;height:18px;border-radius:9px;padding:0 4px;display:flex;align-items:center;justify-content:center;font-family:var(--fD);transition:transform .15s}
+.cart-count.pop{transform:scale(1.5)}
+.price-banner{background:#060d1a;border-bottom:1px solid var(--bdr)}
+.pb-inner{display:flex;align-items:center;height:48px;gap:7px;padding:0 20px;overflow-x:auto;scrollbar-width:none;justify-content:center}
+.pb-inner::-webkit-scrollbar{display:none}
+.pb-label{font-family:var(--fD);font-size:.62rem;font-weight:700;letter-spacing:2px;color:var(--mut);text-transform:uppercase;white-space:nowrap;flex-shrink:0}
+.pb-pill{white-space:nowrap;padding:4px 11px;border-radius:18px;font-size:.73rem;font-family:var(--fD);font-weight:600;flex-shrink:0}
+.pb-pill.n{background:rgba(0,229,160,.15);border:1px solid rgba(0,229,160,.4);color:#00e5a0}
+.pb-pill.p{background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.4);color:#f5a623}
+.pb-pill.s{background:rgba(181,124,245,.15);border:1px solid rgba(181,124,245,.4);color:#b57cf5}
+.pb-sep{color:var(--s3);font-size:14px;flex-shrink:0}
+@media(max-width:768px){
+  .pb-inner{flex-direction:column;height:auto;align-items:flex-start;padding:10px 14px;gap:6px}
+  .pb-sep{display:none}
+  .pb-label{font-size:.6rem}
+  .pb-pill{font-size:.75rem;padding:5px 13px}
+}
+main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
+.toolbar{display:flex;gap:9px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.sw{flex:1;min-width:180px;position:relative}
+.sw input{width:100%;background:var(--s1);border:1px solid var(--bdr);color:var(--txt);padding:11px 13px 11px 40px;border-radius:9px;font-family:var(--fB);font-size:.95rem;outline:none;transition:border-color .2s}
+.sw input:focus{border-color:var(--acc)}
+.sw input::placeholder{color:var(--mut)}
+.si{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--mut);font-size:14px;pointer-events:none}
+.filters{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.tag,.tf{background:var(--s1);border:1px solid var(--bdr);color:var(--mut);padding:6px 10px;border-radius:7px;cursor:pointer;font-family:var(--fB);font-size:.76rem;transition:all .15s;white-space:nowrap}
+.tag:hover,.tf:hover{border-color:rgba(255,255,255,.15);color:var(--txt)}
+.tag.on,.tf.on-all{border-color:var(--acc);color:var(--acc);background:var(--acc-dim)}
+.tf.on-normal{border-color:var(--acc);color:var(--acc);background:var(--acc-dim)}
+.tf.on-premium{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+.tf.on-special{border-color:var(--pur);color:var(--pur);background:var(--pur-dim)}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.st{font-family:var(--fD);font-size:1.1rem;font-weight:700}
+.sc{color:var(--mut);font-size:.8rem}
+.lu{font-size:.7rem;color:var(--mut)}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 0;gap:18px;color:var(--mut)}
+.spinner{width:38px;height:38px;border:2px solid var(--s3);border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite}
+.err-box{background:rgba(255,64,96,.07);border:1px solid rgba(255,64,96,.18);color:#ff8090;padding:20px 24px;border-radius:10px;text-align:center;max-width:480px;margin:60px auto;font-size:.88rem;line-height:1.6}
+.err-box strong{display:block;font-family:var(--fD);margin-bottom:8px}
+#gridWrap{position:relative;width:100%}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--col),1fr));gap:13px;position:absolute;width:100%}
+#gridSpacer{width:100%}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--s1);border:1px solid var(--bdr);border-radius:11px;overflow:hidden;cursor:pointer;position:relative;transition:transform .18s,border-color .18s,box-shadow .18s;animation:fadeUp .2s ease both}
+.card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.1);box-shadow:0 6px 24px rgba(0,0,0,.55)}
+.card.sn{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc),0 5px 18px var(--acc-glow)}
+.card.sp{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 5px 18px var(--gold-glow)}
+.card.ss{border-color:var(--pur);box-shadow:0 0 0 1px var(--pur),0 5px 18px var(--pur-glow)}
+.cover{width:100%;aspect-ratio:460/215;object-fit:cover;display:block;background:var(--s2)}
+.card-body{padding:9px 10px}
+.cn{font-family:var(--fD);font-size:.79rem;font-weight:600;line-height:1.3;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cf{display:flex;align-items:flex-end;justify-content:space-between;gap:5px}
+.pb2{min-width:0}
+.cp{font-family:var(--fD);font-size:.88rem;font-weight:700;color:var(--acc);line-height:1}
+.cp.gp{color:var(--gold)}.cp.sp2{color:var(--pur)}
+.cps{font-size:.61rem;color:var(--mut);margin-top:2px}
+.cps.gp{color:rgba(245,166,35,.5)}.cps.sp2{color:rgba(181,124,245,.5)}
+.addb{width:26px;height:26px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s;flex-shrink:0;font-weight:bold;border:1px solid;line-height:1}
+.addb.n{border-color:var(--acc);background:var(--acc-dim);color:var(--acc)}
+.addb.n:hover,.card.sn .addb.n{background:var(--acc);color:#000}
+.addb.p{border-color:var(--gold);background:var(--gold-dim);color:var(--gold)}
+.addb.p:hover,.card.sp .addb.p{background:var(--gold);color:#000}
+.addb.s{border-color:var(--pur);background:var(--pur-dim);color:var(--pur)}
+.addb.s:hover,.card.ss .addb.s{background:var(--pur);color:#000}
+.bdg{position:absolute;font-size:.58rem;font-weight:700;font-family:var(--fD);padding:2px 6px;border-radius:3px;letter-spacing:.7px}
+.bdg.sb{top:5px;right:5px}
+.bdg.sbn{background:var(--acc);color:#000}.bdg.sbp{background:var(--gold);color:#000}.bdg.sbs{background:var(--pur);color:#000}
+.bdg.tb{top:5px;left:5px}
+.bdg.tbp{background:#1e1200;border:1px solid rgba(245,166,35,.3);color:var(--gold)}
+.bdg.tbs{background:#150c22;border:1px solid rgba(181,124,245,.3);color:var(--pur)}
+.bdg.fb{top:5px;left:5px;background:#0e2318;border:1px solid rgba(0,229,160,.3);color:var(--acc)}
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:300;background:rgba(13,17,32,.97);backdrop-filter:blur(20px);border-top:1px solid var(--bdr);height:var(--nav-h);padding:0 8px;align-items:center;justify-content:space-around;gap:4px}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 2px;border-radius:10px;cursor:pointer;border:none;background:none;color:var(--mut);font-family:var(--fD);font-size:.52rem;font-weight:600;letter-spacing:.3px;text-transform:uppercase;transition:all .2s;position:relative;-webkit-tap-highlight-color:transparent}
+.bnav-btn:active{transform:scale(.95)}
+.bnav-btn .icon{font-size:22px;line-height:1;margin-bottom:1px}
+.bnav-btn.cart-nav{color:var(--acc)}
+.bnav-btn.cart-nav .icon{position:relative}
+.cart-badge{position:absolute;top:-4px;right:-8px;background:var(--acc);color:#000;font-size:.55rem;font-weight:700;min-width:16px;height:16px;border-radius:8px;padding:0 3px;display:flex;align-items:center;justify-content:center;font-family:var(--fD);transition:transform .15s}
+.cart-badge.pop{transform:scale(1.5)}
+.bnav-btn.info-nav{color:#64b5f6}
+.bnav-btn.wa-nav{color:#4ade80}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:400;opacity:0;pointer-events:none;transition:opacity .25s;display:flex;align-items:flex-end;justify-content:center}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-sheet{background:var(--s1);border:1px solid var(--bdr);border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:85vh;overflow-y:auto;padding:24px 22px 32px;transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1)}
+.modal-overlay.open .modal-sheet{transform:translateY(0)}
+.modal-handle{width:40px;height:4px;background:var(--s3);border-radius:2px;margin:0 auto 20px;cursor:pointer}
+.modal-title{font-family:var(--fD);font-size:1rem;font-weight:700;color:var(--acc);letter-spacing:1.5px;margin-bottom:20px;text-align:center}
+.how-step{display:flex;gap:14px;align-items:flex-start;margin-bottom:18px}
+.how-num{width:32px;height:32px;border-radius:8px;background:var(--acc-dim);border:1px solid rgba(0,229,160,.2);color:var(--acc);font-family:var(--fD);font-size:.85rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.how-text strong{display:block;font-family:var(--fD);font-size:.82rem;color:var(--txt);margin-bottom:3px}
+.how-text p{font-size:.8rem;color:var(--mut);line-height:1.5}
+.how-divider{border:none;border-top:1px solid var(--bdr);margin:18px 0}
+.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+.price-card{background:var(--s2);border-radius:9px;padding:12px;border:1px solid var(--bdr)}
+.price-card .pc-label{font-family:var(--fD);font-size:.68rem;font-weight:700;letter-spacing:.5px;margin-bottom:6px}
+.price-card.nc .pc-label{color:var(--acc)}
+.price-card.pc .pc-label{color:var(--gold)}
+.price-card.sc{grid-column:span 2;background:var(--pur-dim);border-color:rgba(181,124,245,.2)}
+.price-card.sc .pc-label{color:var(--pur)}
+.price-card p{font-size:.75rem;color:var(--mut);line-height:1.6}
+.modal-close{width:100%;background:var(--s2);border:1px solid var(--bdr);color:var(--mut);padding:12px;border-radius:9px;cursor:pointer;font-family:var(--fD);font-size:.8rem;font-weight:700;letter-spacing:1px;margin-top:20px;transition:all .15s}
+.modal-close:hover{border-color:var(--acc);color:var(--acc)}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:300;opacity:0;pointer-events:none;transition:opacity .28s}
+.overlay.open{opacity:1;pointer-events:all}
+.panel{position:fixed;top:0;right:0;bottom:0;width:min(490px,100vw);background:var(--s1);border-left:1px solid var(--bdr);z-index:301;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1)}
+.panel.open{transform:translateX(0)}
+.phd{padding:15px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.pt{font-family:var(--fD);font-size:.88rem;font-weight:700;letter-spacing:1.5px}
+.xb{background:var(--s2);border:1px solid var(--bdr);color:var(--mut);width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.xb:hover{color:var(--txt)}
+.gn{margin:10px 20px 0;padding:9px 12px;border-radius:8px;font-size:.79rem;font-weight:500;display:none;align-items:center;gap:7px}
+.gn.show{display:flex}
+.gn.ok{background:var(--acc-dim);border:1px solid rgba(0,229,160,.2);color:var(--acc)}
+.gn.pe{background:var(--pur-dim);border:1px solid rgba(181,124,245,.2);color:var(--pur)}
+.cl{flex:1;overflow-y:auto;padding:10px 20px}
+.cl::-webkit-scrollbar{width:4px}
+.cl::-webkit-scrollbar-thumb{background:var(--s3);border-radius:4px}
+.ci{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--bdr);align-items:center}
+.cimg{width:68px;height:32px;object-fit:cover;border-radius:5px;background:var(--s2);flex-shrink:0}
+.cinfo{flex:1;min-width:0}
+.cname{font-size:.82rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctag{font-size:.65rem;margin-top:2px;font-weight:600;font-family:var(--fD)}
+.ctag.n{color:var(--mut)}.ctag.p{color:var(--gold)}.ctag.s{color:var(--pur)}.ctag.f{color:var(--acc)}
+.rm{background:none;border:none;color:var(--mut);cursor:pointer;font-size:13px;padding:4px;border-radius:4px;transition:color .15s;flex-shrink:0}
+.rm:hover{color:var(--red)}
+.empty{text-align:center;color:var(--mut);padding:48px 0;font-size:.88rem}
+.pft{border-top:1px solid var(--bdr);padding:14px 20px;flex-shrink:0}
+.totals{margin-bottom:12px}
+.trow{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:.81rem;gap:8px}
+.trow.hd{color:var(--mut);font-size:.7rem;padding-top:6px;text-transform:uppercase;letter-spacing:.5px;font-family:var(--fD)}
+.trow.sb2{color:var(--txt);padding-left:9px;font-size:.79rem}
+.trow.sb2 .lbl{color:var(--mut)}
+.trow.dc{color:var(--acc)}.trow.dp{color:var(--pur)}
+.trow.tot{font-family:var(--fD);font-size:1.05rem;font-weight:700;color:var(--txt);padding-top:9px;border-top:1px solid var(--bdr);margin-top:5px}
+.trow.tot span:last-child{color:var(--acc)}
+.wa{width:100%;background:#25D366;color:#fff;border:none;padding:13px;border-radius:9px;font-family:var(--fD);font-size:.88rem;font-weight:700;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;text-transform:uppercase}
+.wa:hover:not(:disabled){background:#1db954;transform:translateY(-1px);box-shadow:0 4px 18px rgba(37,211,102,.4)}
+.wa:disabled{background:var(--s2);color:var(--mut);cursor:not-allowed;transform:none;box-shadow:none}
+@media(max-width:768px){
+  :root{--col:155px}
+  .bottom-nav{display:flex}
+  .cart-btn-desk{display:none}
+  main{padding:16px 14px}
+  header{padding:0 14px}
+  .pb-inner{padding:0 14px}
+}
+@media(min-width:769px){
+  body{padding-bottom:0}
+  .bottom-nav{display:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;border-radius:7px">
+      <rect width="32" height="32" rx="7" fill="#00e5a0"/>
+      <path d="M8 16h6M11 13v6M18 14h6M21 18h3" stroke="#000" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <span>GAMEDROP</span>
+  </div>
+  <div class="hdr-right">
+    <button class="refresh-btn" id="refreshBtn" onclick="loadGames(true)"><span class="ic">↻</span> Actualizar</button>
+    <button class="cart-btn-desk" onclick="openPanel()">🛒 Mi Pedido <div class="cart-count" id="cartCountDesk">0</div></button>
+  </div>
+</header>
+
+<div class="price-banner">
+  <div class="pb-inner">
+    <span class="pb-label">PRECIOS</span>
+    <div class="pb-pill n">🟢 Normal: $9.900 | 3×$19.900 | 6×$29.900</div>
+    <div class="pb-sep">·</div>
+    <div class="pb-pill p">💛 Premium: $14.000 | combo $10.000</div>
+    <div class="pb-sep">·</div>
+    <div class="pb-pill s">🟣 Especial: $25.000 + 2 regalos</div>
+  </div>
+</div>
+
+<main>
+  <div class="sh">
+    <div style="display:flex;align-items:baseline;gap:10px"><h1 class="st">Catálogo</h1><span class="sc" id="cnt"></span></div>
+    <span class="lu" id="lu"></span>
+  </div>
+  <div class="toolbar">
+    <div class="sw"><span class="si">🔍</span><input type="text" id="q" placeholder="Buscar juego..."/></div>
+    <div class="filters" id="tfs"></div>
+    <span style="color:var(--s3);font-size:14px">·</span>
+    <div class="filters" id="tags"></div>
+  </div>
+  <div id="gamesArea"><div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span></div></div>
+</main>
+
+<nav class="bottom-nav">
+  <button class="bnav-btn cart-nav" onclick="openPanel()">
+    <div class="icon" style="position:relative">🛒<span class="cart-badge" id="cartBadge">0</span></div>
+    <span>Mi Pedido</span>
+  </button>
+  <button class="bnav-btn info-nav" onclick="openPedir()">
+    <div class="icon">📋</div><span>Cómo pedir</span>
+  </button>
+  <button class="bnav-btn" style="color:var(--pur)" onclick="openHow()">
+    <div class="icon">⚡</div><span>¿Cómo funciona?</span>
+  </button>
+  <button class="bnav-btn wa-nav" onclick="openWAConsulta()">
+    <div class="icon">💬</div><span>Mi juego no está</span>
+  </button>
+</nav>
+
+<div class="modal-overlay" id="pedirModal" onclick="closePedir(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle" onclick="closePedir(null,true)"></div>
+    <div class="modal-title">CÓMO PEDIR</div>
+    <div class="how-step"><div class="how-num">1</div><div class="how-text"><strong>Buscá tus juegos</strong><p>Usá el buscador o filtrá por categoría. Tocá <b>+</b> para agregar juegos.</p></div></div>
+    <div class="how-step"><div class="how-num">2</div><div class="how-text"><strong>Revisá tu pedido</strong><p>Tocá 🛒 <b>Mi Pedido</b> para ver los juegos y el total con descuentos.</p></div></div>
+    <div class="how-step"><div class="how-num">3</div><div class="how-text"><strong>Enviá por WhatsApp</strong><p>Tocá el botón verde y te abrimos WhatsApp con el resumen listo.</p></div></div>
+    <hr class="how-divider"/>
+    <div style="font-family:var(--fD);font-size:.75rem;color:var(--mut);letter-spacing:.5px;margin-bottom:12px;text-transform:uppercase">Precios y promos</div>
+    <div class="price-grid">
+      <div class="price-card nc"><div class="pc-label">🟢 Normal</div><p>$9.900 c/u<br>3 juegos → $19.900<br>6 juegos → $29.900</p></div>
+      <div class="price-card pc"><div class="pc-label">💛 Premium</div><p>$14.000 solos<br>$10.000 en combo</p></div>
+      <div class="price-card sc"><div class="pc-label">🟣 Especial</div><p>$25.000 c/u + elegís 2 juegos normales de regalo</p></div>
+    </div>
+    <button class="modal-close" onclick="closePedir(null,true)">CERRAR</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="howModal" onclick="closeHow(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle" onclick="closeHow(null,true)"></div>
+    <div class="modal-title" style="color:var(--pur)">¿CÓMO FUNCIONA?</div>
+    <div class="how-step"><div class="how-num" style="background:var(--pur-dim);border-color:rgba(181,124,245,.25);color:var(--pur)">⚡</div><div class="how-text"><strong>Activación instantánea</strong><p>Te enviamos la <b>key y el activador</b>. Demora <b>1 minuto</b> y ya podés jugar desde tu propia cuenta.</p></div></div>
+    <div class="how-step"><div class="how-num" style="background:var(--pur-dim);border-color:rgba(181,124,245,.25);color:var(--pur)">🔒</div><div class="how-text"><strong>100% seguro</strong><p>No vendemos cuentas compartidas. El juego queda permanentemente en tu cuenta.</p></div></div>
+    <hr class="how-divider"/>
+    <div style="background:var(--pur-dim);border:1px solid rgba(181,124,245,.2);border-radius:10px;padding:14px 16px;text-align:center">
+      <div style="font-family:var(--fD);font-size:.72rem;color:var(--pur);letter-spacing:.5px;margin-bottom:8px;text-transform:uppercase">Más info y reseñas</div>
+      <p style="font-size:.82rem;color:var(--mut);margin-bottom:12px">Encontrá reseñas de clientes en nuestro Instagram</p>
+      <a href="https://www.instagram.com/gamedrop_oficial/" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;padding:9px 20px;border-radius:22px;font-family:var(--fD);font-size:.78rem;font-weight:700;letter-spacing:.8px;text-decoration:none">📸 @gamedrop_oficial</a>
+    </div>
+    <button class="modal-close" onclick="closeHow(null,true)">CERRAR</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="closePanel()"></div>
+<div class="panel" id="panel">
+  <div class="phd"><span class="pt">🛒 MI PEDIDO</span><button class="xb" onclick="closePanel()">✕</button></div>
+  <div class="gn" id="gn"><span>🎁</span><span id="gntxt"></span></div>
+  <div class="cl" id="cl"></div>
+  <div class="pft">
+    <div class="totals" id="tots"></div>
+    <button class="wa" id="wab" onclick="sendWA()" disabled><span style="font-size:18px">📱</span> HACER PEDIDO POR WHATSAPP</button>
+  </div>
+</div>
+
 <script>
 const CFG = {
   storeName:   'GAMEDROP',
@@ -11,7 +297,7 @@ const CFG = {
     special: {price:25000,gifts:2},
   },
   mensajeWA: '🎮 *PEDIDO {storeName}*\n━━━━━━━━━━━━━━━━━━━━\n{listaNormal}{listaPremium}{listaEspecial}\n💳 *TOTAL: {total}*\n🏦 Transferir a: *{aliasTienda}*\n━━━━━━━━━━━━━━━━━━━━\n¡Muchas gracias! Confirmamos tu pedido a la brevedad 🙌',
-  PAGE_SIZE: 24
+  PAGE_SIZE: 24,
 };
 
 let ALL_SORTED = [];
@@ -21,19 +307,17 @@ let activeTag  = 'Todos';
 let activeTier = 'all';
 let renderOffset = 0;
 let searchTimer  = null;
-let GAME_BY_ID   = new Map();
+let LAST_FREE_IDS = [];
+let GAME_BY_ID = new Map();
 
 const $ = id => document.getElementById(id);
 const fmt = n => CFG.currency + Number(n).toLocaleString('es-AR');
 const imgUrl = (appId, custom) => custom || `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appId}/header.jpg`;
-const collator = new Intl.Collator('es', { sensitivity:'base' });
 
 function norm(str){
-  return (str || '').toString().toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g,'')
-    .replace(/['’`"´]/g,'')
-    .replace(/[^a-z0-9]+/g,'');
+  return (str||'').toString().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[''`"´]/g,'').replace(/[^a-z0-9]+/g,'');
 }
 
 const FEATURED = [
@@ -55,486 +339,339 @@ const FEATURED = [
   ['blackmythwukong','wukong'],
   ['stellarblade'],
 ];
-
 function featuredRank(nq){
-  for(let i=0;i<FEATURED.length;i++){
-    if(FEATURED[i].some(t => nq.includes(t))) return i;
-  }
+  for(let i=0;i<FEATURED.length;i++)
+    if(FEATURED[i].some(t=>nq.includes(t))) return i;
   return 99999;
 }
 
 function imgFallback(el, appId, custom){
-  const t = el.dataset.tried || '';
-  if(!t && custom){
-    el.dataset.tried = 'custom';
-    el.src = custom;
-    return;
-  }
-  if(t === '' || t === 'custom'){
-    el.dataset.tried = 'cf';
-    el.src = 'https://cdn.cloudflare.steamstatic.com/steam/apps/' + appId + '/header.jpg';
-  } else if(t === 'cf'){
-    el.dataset.tried = 'cap';
-    el.src = 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/' + appId + '/capsule_616x353.jpg';
+  const t = el.dataset.tried||'';
+  if(!t && custom){ el.dataset.tried='custom'; el.src=custom; return; }
+  if(t===''||t==='custom'){
+    el.dataset.tried='cf';
+    el.src='https://cdn.cloudflare.steamstatic.com/steam/apps/'+appId+'/header.jpg';
+  } else if(t==='cf'){
+    el.dataset.tried='cap';
+    el.src='https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/'+appId+'/capsule_616x353.jpg';
   } else {
-    el.onerror = null;
-    el.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='460' height='215'%3E%3Crect fill='%23141828' width='100%25' height='100%25'/%3E%3Ctext y='50%25' x='50%25' dominant-baseline='middle' text-anchor='middle' fill='%235b6680' font-size='12' font-family='sans-serif'%3ESin imagen%3C/text%3E%3C/svg%3E";
+    el.onerror=null;
+    el.src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='460' height='215'%3E%3Crect fill='%23141828' width='100%25' height='100%25'/%3E%3Ctext y='50%25' x='50%25' dominant-baseline='middle' text-anchor='middle' fill='%235b6680' font-size='12' font-family='sans-serif'%3ESin imagen%3C/text%3E%3C/svg%3E";
   }
 }
 
-function esc(s){
-  return String(s)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
-}
-
-// ── CARGA ─────────────────────────────────────────────────────────────
 async function loadGames(manual=false){
-  const btn = $('refreshBtn');
-  btn.classList.add('spinning');
-
-  if(!manual){
-    $('gamesArea').innerHTML = '<div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span></div>';
-  }
-
-  const url = `https://docs.google.com/spreadsheets/d/${CFG.sheetId}/gviz/tq?tqx=out:json&t=${Date.now()}`;
-
+  const btn=$('refreshBtn'); btn.classList.add('spinning');
+  if(!manual) $('gamesArea').innerHTML='<div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span></div>';
+  const url=`https://docs.google.com/spreadsheets/d/${CFG.sheetId}/gviz/tq?tqx=out:json&t=${Date.now()}`;
   try{
-    const text = await fetch(url).then(r => r.text());
-    const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);\s*$/);
-
-    if(!match) throw new Error('No se pudo parsear la respuesta del sheet');
-
-    const json = JSON.parse(match[1]);
-    const table = json.table;
-    const cols = {};
-
-    table.cols.forEach((c,i)=>{
-      if(c.label) cols[c.label.toLowerCase().trim()] = i;
-    });
-
-    const gc = (row,name)=>{
-      const i = cols[name];
-      if(i === undefined || !row.c || !row.c[i] || row.c[i].v === null) return '';
-      return String(row.c[i].v !== undefined ? row.c[i].v : (row.c[i].f || ''));
+    const text=await fetch(url).then(r=>r.text());
+    const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);\s*$/)[1]);
+    const table=json.table;
+    const cols={};
+    table.cols.forEach((c,i)=>{ if(c.label) cols[c.label.toLowerCase().trim()]=i; });
+    const gc=(row,name)=>{
+      const i=cols[name];
+      if(i===undefined||!row.c||!row.c[i]||row.c[i].v===null) return '';
+      return String(row.c[i].v!==undefined?row.c[i].v:row.c[i].f||'');
     };
 
-    const raw = table.rows
-      .filter(row => gc(row,'available').toUpperCase() === 'TRUE' && gc(row,'name') && gc(row,'appid'))
+    const raw=table.rows
+      .filter(row=>gc(row,'available').toUpperCase()==='TRUE'&&gc(row,'name')&&gc(row,'appid'))
       .map((row,i)=>{
-        const name = gc(row,'name').trim();
-        const _nq = norm(name);
-
-        return {
-          id: parseInt(gc(row,'id')) || i + 1,
+        const name=gc(row,'name').trim();
+        const _nq=norm(name);
+        return{
+          id:    parseInt(gc(row,'id'))||i+1,
           name,
-          appId: parseInt(gc(row,'appid')) || 0,
-          tier: ['normal','premium','special'].includes(gc(row,'tier').toLowerCase()) ? gc(row,'tier').toLowerCase() : 'normal',
-          price: parseInt(gc(row,'price')) || CFG.prices.normal.single,
-          tags: gc(row,'tags').split(',').map(t => t.trim()).filter(Boolean),
-          image: gc(row,'imageurl') || '',
-          _q: name.toLowerCase(),
+          appId: parseInt(gc(row,'appid'))||0,
+          tier:  ['normal','premium','special'].includes(gc(row,'tier').toLowerCase())
+                   ?gc(row,'tier').toLowerCase():'normal',
+          price: parseInt(gc(row,'price'))||CFG.prices.normal.single,
+          tags:  gc(row,'tags').split(',').map(t=>t.trim()).filter(Boolean),
+          image: gc(row,'imageurl')||'',
+          _q:    name.toLowerCase(),
           _nq,
-          _rank: featuredRank(_nq)
+          _rank: featuredRank(_nq),
         };
       });
 
-    ALL_SORTED = raw.sort((a,b)=>{
-      const d = a._rank - b._rank;
-      if(d !== 0) return d;
-      return collator.compare(a.name, b.name);
+    ALL_SORTED=raw.sort((a,b)=>{
+      const d=a._rank-b._rank;
+      return d!==0?d:a.name.localeCompare(b.name,'es',{sensitivity:'base'});
     });
 
-    GAME_BY_ID = new Map();
-    ALL_SORTED.forEach(g => GAME_BY_ID.set(g.id, g));
+    GAME_BY_ID = new Map(ALL_SORTED.map(g => [g.id, g]));
 
-    const now = new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-    $('lu').textContent = `${ALL_SORTED.length.toLocaleString()} juegos · ${now}`;
-
+    const now=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+    $('lu').textContent=`${ALL_SORTED.length.toLocaleString()} juegos · ${now}`;
     buildTierFilters();
     buildTagFilters();
     applyFilter();
     renderTotals();
-
   }catch(e){
-    console.error(e);
-    $('gamesArea').innerHTML = `<div class="err-box"><strong>No se pudo cargar el catálogo</strong>
+    $('gamesArea').innerHTML=`<div class="err-box"><strong>No se pudo cargar el catálogo</strong>
       El Google Sheet debe estar compartido como <b>"Cualquiera con el enlace puede ver"</b>.<br><br>
       <button onclick="loadGames(true)" style="margin-top:10px;background:var(--s2);border:1px solid var(--bdr);color:var(--txt);padding:7px 18px;border-radius:8px;cursor:pointer;font-family:var(--fB)">Reintentar</button></div>`;
-  }finally{
-    btn.classList.remove('spinning');
-  }
+  }finally{ btn.classList.remove('spinning'); }
 }
 
-// ── FILTROS UI ─────────────────────────────────────────────────────
 function buildTierFilters(){
-  const L = {all:'Todos',normal:'🟢 Normal',premium:'💛 Premium',special:'🟣 Especial'};
-  const on = {all:'on-all',normal:'on-normal',premium:'on-premium',special:'on-special'};
-  const tiers = ['all', ...new Set(ALL_SORTED.map(g => g.tier))];
-  $('tfs').innerHTML = tiers.map(t => `<button class="tf${activeTier===t?' '+on[t]:''}" onclick="setTier('${t}')">${L[t]||t}</button>`).join('');
+  const L={all:'Todos',normal:'🟢 Normal',premium:'💛 Premium',special:'🟣 Especial'};
+  const on={all:'on-all',normal:'on-normal',premium:'on-premium',special:'on-special'};
+  const tiers=['all',...new Set(ALL_SORTED.map(g=>g.tier))];
+  $('tfs').innerHTML=tiers.map(t=>`<button class="tf${activeTier===t?' '+on[t]:''}" onclick="setTier('${t}')">${L[t]||t}</button>`).join('');
 }
-
-function setTier(t){
-  activeTier = t;
-  buildTierFilters();
-  applyFilter();
-}
+function setTier(t){ activeTier=t; buildTierFilters(); applyFilter(); }
 
 function buildTagFilters(){
-  const freq = {};
-  ALL_SORTED.forEach(g => g.tags.forEach(t => { freq[t] = (freq[t] || 0) + 1; }));
-  const top = ['Todos', ...Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([t])=>t)];
-  $('tags').innerHTML = top.map(t => `<button class="tag${t===activeTag?' on':''}" onclick="setTag('${t}')">${esc(t)}</button>`).join('');
+  const freq={};
+  ALL_SORTED.forEach(g=>g.tags.forEach(t=>{freq[t]=(freq[t]||0)+1;}));
+  const top=['Todos',...Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([t])=>t)];
+  $('tags').innerHTML=top.map(t=>`<button class="tag${t===activeTag?' on':''}" onclick="setTag('${t}')">${t}</button>`).join('');
 }
+function setTag(t){ activeTag=t; buildTagFilters(); applyFilter(); }
 
-function setTag(t){
-  activeTag = t;
-  buildTagFilters();
-  applyFilter();
-}
-
-// ── FILTRAR ────────────────────────────────────────────────────────
 function applyFilter(){
-  const rawQ = ($('q').value || '').trim();
-  const q = rawQ.toLowerCase();
-  const nq = norm(rawQ);
+  const rawQ=($('q').value||'').trim();
+  const q=rawQ.toLowerCase();
+  const nq=norm(rawQ);
 
-  let result = ALL_SORTED.filter(g=>{
-    if(activeTier !== 'all' && g.tier !== activeTier) return false;
-    if(activeTag !== 'Todos' && !g.tags.includes(activeTag)) return false;
-    if(rawQ && !(g._q.includes(q) || g._nq.includes(nq))) return false;
+  let result=ALL_SORTED.filter(g=>{
+    if(activeTier!=='all'&&g.tier!==activeTier) return false;
+    if(activeTag!=='Todos'&&!g.tags.includes(activeTag)) return false;
+    if(rawQ&&!(g._q.includes(q)||g._nq.includes(nq))) return false;
     return true;
   });
 
   if(rawQ){
-    result = result.sort((a,b)=>{
-      const ae = a._q === q, be = b._q === q;
-      if(ae !== be) return ae ? -1 : 1;
-
-      const an = a._nq === nq, bn = b._nq === nq;
-      if(an !== bn) return an ? -1 : 1;
-
-      const as = a._q.startsWith(q), bs = b._q.startsWith(q);
-      if(as !== bs) return as ? -1 : 1;
-
-      const as2 = a._nq.startsWith(nq), bs2 = b._nq.startsWith(nq);
-      if(as2 !== bs2) return as2 ? -1 : 1;
-
-      const aw = a._q.includes(' ' + q), bw = b._q.includes(' ' + q);
-      if(aw !== bw) return aw ? -1 : 1;
-
-      const ai = a._nq.indexOf(nq);
-      const bi = b._nq.indexOf(nq);
-      if(ai !== bi) return ai - bi;
-
-      return collator.compare(a.name, b.name);
+    result=result.sort((a,b)=>{
+      const ae=a._q===q,     be=b._q===q;     if(ae!==be) return ae?-1:1;
+      const an=a._nq===nq,   bn=b._nq===nq;   if(an!==bn) return an?-1:1;
+      const as=a._q.startsWith(q),  bs=b._q.startsWith(q);  if(as!==bs) return as?-1:1;
+      const as2=a._nq.startsWith(nq),bs2=b._nq.startsWith(nq); if(as2!==bs2) return as2?-1:1;
+      const aw=a._q.includes(' '+q), bw=b._q.includes(' '+q); if(aw!==bw) return aw?-1:1;
+      return a._nq.indexOf(nq)-b._nq.indexOf(nq);
     });
   }
 
-  FILTERED = result;
-  renderOffset = 0;
-  $('cnt').textContent = `${FILTERED.length.toLocaleString()} juego${FILTERED.length !== 1 ? 's' : ''}`;
+  FILTERED=result;
+  renderOffset=0;
+  $('cnt').textContent=`${FILTERED.length.toLocaleString()} juego${FILTERED.length!==1?'s':''}`;
   buildVirtualGrid();
 }
 
 $('q').addEventListener('input',()=>{
   clearTimeout(searchTimer);
-  searchTimer = setTimeout(applyFilter, 150);
+  searchTimer=setTimeout(applyFilter,150);
 });
 
-// ── VIRTUAL SCROLL ─────────────────────────────────────────────────
 function buildVirtualGrid(){
-  $('gamesArea').innerHTML = '<div id="gridWrap"><div class="vgrid" id="grid"></div><div id="gridSpacer"></div></div>';
-  renderOffset = 0;
+  $('gamesArea').innerHTML='<div id="gridWrap"><div class="vgrid" id="grid"></div><div id="gridSpacer"></div></div>';
+  renderOffset=0;
+  LAST_FREE_IDS = calcTotal().freeNormalIds;
   renderNextChunk();
-  window.removeEventListener('scroll', onScroll);
-  window.addEventListener('scroll', onScroll, { passive:true });
-}
-
-function makeCardHTML(g){
-  const tier = g.tier || 'normal';
-  const inCart = cart.some(c => c.id === g.id);
-  const freeIds = calcTotal().freeNormalIds;
-  const isFree = freeIds.includes(g.id);
-  const sc = inCart ? `s${tier[0]}` : '';
-  const P = CFG.prices;
-
-  let ph = '';
-  if(tier === 'normal'){
-    ph = `<div class="pb2"><div class="cp">${fmt(P.normal.single)}</div><div class="cps">3×${fmt(P.normal.pack3)} | 6×${fmt(P.normal.pack6)}</div></div>`;
-  }else if(tier === 'premium'){
-    ph = `<div class="pb2"><div class="cp gp">${fmt(P.premium.solo)}</div><div class="cps gp">o ${fmt(P.premium.mixed)} combo</div></div>`;
-  }else{
-    ph = `<div class="pb2"><div class="cp sp2">${fmt(P.special.price)}</div><div class="cps sp2">🎁 +${P.special.gifts} regalos</div></div>`;
-  }
-
-  const tb = tier === 'premium'
-    ? `<div class="bdg tb tbp">PREMIUM</div>`
-    : tier === 'special'
-      ? `<div class="bdg tb tbs">ESPECIAL</div>`
-      : '';
-
-  return `
-    <div class="card ${sc}" data-id="${g.id}" onclick="toggleCart(${g.id})">
-      ${inCart ? `<div class="bdg sb sb${tier[0]}">✓ EN PEDIDO</div>` : tb}
-      ${isFree ? `<div class="bdg fb">🎁 GRATIS</div>` : ''}
-      <img class="cover" loading="lazy" src="${imgUrl(g.appId,g.image)}" onerror="imgFallback(this,${g.appId},${JSON.stringify(g.image)})" alt="">
-      <div class="card-body">
-        <div class="cn">${esc(g.name)}</div>
-        <div class="cf">
-          ${ph}
-          <button class="addb ${tier[0]}" onclick="event.stopPropagation();toggleCart(${g.id})">${inCart ? '✓' : '+'}</button>
-        </div>
-      </div>
-    </div>
-  `;
+  window.removeEventListener('scroll',onScroll);
+  window.addEventListener('scroll',onScroll,{passive:true});
 }
 
 function renderNextChunk(){
-  const grid = $('grid');
-  if(!grid || renderOffset >= FILTERED.length) return;
+  const grid=$('grid');
+  if(!grid||renderOffset>=FILTERED.length) return;
+  const end=Math.min(renderOffset+CFG.PAGE_SIZE,FILTERED.length);
+  let html='';
 
-  const end = Math.min(renderOffset + CFG.PAGE_SIZE, FILTERED.length);
-  let html = '';
+  for(let i=renderOffset;i<end;i++){
+    const g=FILTERED[i];
+    const tier=g.tier||'normal';
+    const inCart=cart.some(c=>c.id===g.id);
+    const isFree=LAST_FREE_IDS.includes(g.id);
+    const sc=inCart?`s${tier[0]}`:'';
+    const P=CFG.prices;
 
-  for(let i=renderOffset; i<end; i++){
-    html += makeCardHTML(FILTERED[i]);
+    let ph='';
+    if(tier==='normal')
+      ph=`<div class="pb2"><div class="cp">${fmt(P.normal.single)}</div><div class="cps">3×${fmt(P.normal.pack3)} | 6×${fmt(P.normal.pack6)}</div></div>`;
+    else if(tier==='premium')
+      ph=`<div class="pb2"><div class="cp gp">${fmt(P.premium.solo)}</div><div class="cps gp">o ${fmt(P.premium.mixed)} combo</div></div>`;
+    else
+      ph=`<div class="pb2"><div class="cp sp2">${fmt(P.special.price)}</div><div class="cps sp2">🎁 +${P.special.gifts} regalos</div></div>`;
+
+    const tb=tier==='premium'
+      ?`<div class="bdg tb tbp">PREMIUM</div>`
+      :tier==='special'
+      ?`<div class="bdg tb tbs">ESPECIAL</div>`
+      :'';
+
+    html+=`<div class="card ${sc}" data-id="${g.id}" onclick="toggleCart(${g.id})">
+      ${inCart?`<div class="bdg sb sb${tier[0]}">✓ EN PEDIDO</div>`:tb}
+      ${isFree?`<div class="bdg fb">🎁 GRATIS</div>`:''}
+      <img class="cover" loading="lazy" src="${imgUrl(g.appId,g.image)}" onerror="imgFallback(this,${g.appId},${JSON.stringify(g.image)})" alt="">
+      <div class="card-body"><div class="cn">${esc(g.name)}</div>
+      <div class="cf">${ph}<button class="addb ${tier[0]}" onclick="event.stopPropagation();toggleCart(${g.id})">${inCart?'✓':'+'}</button></div></div>
+    </div>`;
   }
 
   grid.insertAdjacentHTML('beforeend', html);
-  renderOffset = end;
+  renderOffset=end;
 
-  const wrap = $('gridWrap');
-  if(wrap) wrap.style.minHeight = grid.offsetHeight + 'px';
+  const wrap=$('gridWrap');
+  if(wrap && (renderOffset<=CFG.PAGE_SIZE || renderOffset%(CFG.PAGE_SIZE*3)===0)){
+    wrap.style.minHeight=grid.offsetHeight+'px';
+  }
 }
 
-let scrollThrottle = false;
+let scrollThrottle=false;
 function onScroll(){
-  if(scrollThrottle) return;
-  scrollThrottle = true;
+  if(scrollThrottle) return; scrollThrottle=true;
   requestAnimationFrame(()=>{
-    if(document.documentElement.scrollHeight - window.scrollY - window.innerHeight < 600){
-      renderNextChunk();
-    }
-    scrollThrottle = false;
+    if(document.documentElement.scrollHeight-window.scrollY-window.innerHeight<600) renderNextChunk();
+    scrollThrottle=false;
   });
 }
 
-// ── CARRITO ───────────────────────────────────────────────────────
-function calcTotal(){
-  const P = CFG.prices;
-  const normals = cart.filter(g => !g.tier || g.tier === 'normal');
-  const premiums = cart.filter(g => g.tier === 'premium');
-  const specials = cart.filter(g => g.tier === 'special');
-
-  const giftsAvail = specials.length * P.special.gifts;
-  const freeNormalIds = normals.slice(0, Math.min(giftsAvail, normals.length)).map(g => g.id);
-  const giftsUsed = freeNormalIds.length;
-  const giftsRem = giftsAvail - giftsUsed;
-
-  const paid = normals.filter(g => !freeNormalIds.includes(g.id));
-  const n = paid.length;
-  const pk6 = Math.floor(n / 6);
-  const r6 = n % 6;
-  const pk3 = Math.floor(r6 / 3);
-  const sg = r6 % 3;
-
-  const normTot = pk6 * P.normal.pack6 + pk3 * P.normal.pack3 + sg * P.normal.single;
-  const hasMix = normals.length > 0 || specials.length > 0;
-  const pUnit = hasMix ? P.premium.mixed : P.premium.solo;
-
-  return {
-    total: normTot + premiums.length * pUnit + specials.length * P.special.price,
-    normTot, freeNormalIds, giftsAvail, giftsRem, giftsUsed, pk6, pk3, sg, n, hasMix, pUnit,
-    normals, premiums, specials
-  };
-}
-
-function updateCartBadge(){
-  const n = cart.length;
-  [$('cartCountDesk'), $('cartBadge')].forEach(el=>{
-    if(!el) return;
-    el.textContent = n;
-    el.classList.add('pop');
-    setTimeout(()=>el.classList.remove('pop'),200);
-  });
-}
-
-function toggleCart(id){
-  const g = GAME_BY_ID.get(id);
-  if(!g) return;
-
-  const i = cart.findIndex(c => c.id === id);
-  if(i === -1) cart.push(g);
-  else cart.splice(i,1);
-
-  updateCartBadge();
-  refreshCard(id);
-  renderCartList();
-  renderTotals();
+function makeCard(g){
+  const tier=g.tier||'normal';
+  const inCart=cart.some(c=>c.id===g.id);
+  const isFree=LAST_FREE_IDS.includes(g.id);
+  const sc=inCart?`s${tier[0]}`:''; const P=CFG.prices;
+  let ph='';
+  if(tier==='normal')
+    ph=`<div class="pb2"><div class="cp">${fmt(P.normal.single)}</div><div class="cps">3×${fmt(P.normal.pack3)} | 6×${fmt(P.normal.pack6)}</div></div>`;
+  else if(tier==='premium')
+    ph=`<div class="pb2"><div class="cp gp">${fmt(P.premium.solo)}</div><div class="cps gp">o ${fmt(P.premium.mixed)} combo</div></div>`;
+  else
+    ph=`<div class="pb2"><div class="cp sp2">${fmt(P.special.price)}</div><div class="cps sp2">🎁 +${P.special.gifts} regalos</div></div>`;
+  const tb=tier==='premium'?`<div class="bdg tb tbp">PREMIUM</div>`:tier==='special'?`<div class="bdg tb tbs">ESPECIAL</div>`:'';
+  const div=document.createElement('div');
+  div.className=`card ${sc}`; div.dataset.id=g.id; div.onclick=()=>toggleCart(g.id);
+  div.innerHTML=`${inCart?`<div class="bdg sb sb${tier[0]}">✓ EN PEDIDO</div>`:tb}
+    ${isFree?`<div class="bdg fb">🎁 GRATIS</div>`:''}
+    <img class="cover" loading="lazy" src="${imgUrl(g.appId,g.image)}" onerror="imgFallback(this,${g.appId},${JSON.stringify(g.image)})" alt="">
+    <div class="card-body"><div class="cn">${esc(g.name)}</div>
+    <div class="cf">${ph}<button class="addb ${tier[0]}" onclick="event.stopPropagation();toggleCart(${g.id})">${inCart?'✓':'+'}</button></div></div>`;
+  return div;
 }
 
 function refreshCard(id){
-  const el = document.querySelector(`.card[data-id="${id}"]`);
-  if(!el) return;
-  const g = GAME_BY_ID.get(id);
-  if(!g) return;
-
-  const tmp = document.createElement('div');
-  tmp.innerHTML = makeCardHTML(g).trim();
-  el.replaceWith(tmp.firstElementChild);
+  const el=document.querySelector(`.card[data-id="${id}"]`); if(!el) return;
+  const g=GAME_BY_ID.get(id); if(g) el.replaceWith(makeCard(g));
 }
 
+function calcTotal(){
+  const P=CFG.prices;
+  const normals=cart.filter(g=>!g.tier||g.tier==='normal');
+  const premiums=cart.filter(g=>g.tier==='premium');
+  const specials=cart.filter(g=>g.tier==='special');
+  const giftsAvail=specials.length*P.special.gifts;
+  const freeNormalIds=normals.slice(0,Math.min(giftsAvail,normals.length)).map(g=>g.id);
+  const giftsUsed=freeNormalIds.length, giftsRem=giftsAvail-giftsUsed;
+  const paid=normals.filter(g=>!freeNormalIds.includes(g.id));
+  const n=paid.length,pk6=Math.floor(n/6),r6=n%6,pk3=Math.floor(r6/3),sg=r6%3;
+  const normTot=pk6*P.normal.pack6+pk3*P.normal.pack3+sg*P.normal.single;
+  const hasMix=normals.length>0||specials.length>0;
+  const pUnit=hasMix?P.premium.mixed:P.premium.solo;
+  return{total:normTot+premiums.length*pUnit+specials.length*P.special.price,
+    normTot,freeNormalIds,giftsAvail,giftsRem,giftsUsed,pk6,pk3,sg,n,hasMix,pUnit,normals,premiums,specials};
+}
+function updateCartBadge(){
+  const n=cart.length;
+  [$('cartCountDesk'),$('cartBadge')].forEach(el=>{
+    if(!el) return; el.textContent=n;
+    el.classList.add('pop'); setTimeout(()=>el.classList.remove('pop'),200);
+  });
+}
+function toggleCart(id){
+  const g=GAME_BY_ID.get(id); if(!g) return;
+  const i=cart.findIndex(c=>c.id===id);
+  i===-1?cart.push(g):cart.splice(i,1);
+  LAST_FREE_IDS = calcTotal().freeNormalIds;
+  updateCartBadge(); refreshCard(id); renderCartList(); renderTotals();
+}
 function renderCartList(){
-  const el = $('cl');
-  if(!cart.length){
-    el.innerHTML = '<div class="empty">🎮<br><br>Agregá juegos al pedido</div>';
-    updGN({giftsAvail:0,giftsRem:0});
-    return;
-  }
-
-  const c = calcTotal();
-  updGN(c);
-  const TL = {normal:'NORMAL',premium:'PREMIUM',special:'ESPECIAL + 2 REGALOS'};
-
-  el.innerHTML = cart.map(g=>{
-    const t = g.tier || 'normal';
-    const fr = c.freeNormalIds.includes(g.id);
-    return `<div class="ci"><img class="cimg" loading="lazy" src="${imgUrl(g.appId,g.image)}" onerror="imgFallback(this,${g.appId},${JSON.stringify(g.image)})" alt="">
+  const el=$('cl');
+  if(!cart.length){el.innerHTML='<div class="empty">🎮<br><br>Agregá juegos al pedido</div>';updGN({giftsAvail:0,giftsRem:0});return;}
+  const c=calcTotal(); updGN(c);
+  const TL={normal:'NORMAL',premium:'PREMIUM',special:'ESPECIAL + 2 REGALOS'};
+  el.innerHTML=cart.map(g=>{
+    const t=g.tier||'normal'; const fr=c.freeNormalIds.includes(g.id);
+    return`<div class="ci"><img class="cimg" loading="lazy" src="${imgUrl(g.appId,g.image)}" onerror="imgFallback(this,${g.appId},${JSON.stringify(g.image)})" alt="">
       <div class="cinfo"><div class="cname">${esc(g.name)}</div>
-      <div class="ctag ${fr?'f':t[0]}">${fr ? '🎁 GRATIS — regalo' : (TL[t] || '')}</div></div>
+      <div class="ctag ${fr?'f':t[0]}">${fr?'🎁 GRATIS — regalo':TL[t]||''}</div></div>
       <button class="rm" onclick="toggleCart(${g.id})">✕</button></div>`;
   }).join('');
 }
-
 function updGN({giftsAvail,giftsRem}){
-  const el = $('gn');
-  const tx = $('gntxt');
-
-  if(!giftsAvail){
-    el.classList.remove('show');
-    return;
-  }
-
+  const el=$('gn'),tx=$('gntxt');
+  if(!giftsAvail){el.classList.remove('show');return;}
   el.classList.add('show');
-
-  if(giftsRem > 0){
-    el.className = 'gn show pe';
-    tx.textContent = `Podés agregar ${giftsRem} juego${giftsRem>1?'s':''} normal${giftsRem>1?'es':''} de regalo`;
-  }else{
-    el.className = 'gn show ok';
-    tx.textContent = `${giftsAvail} regalo${giftsAvail>1?'s':''} aplicado${giftsAvail>1?'s':''} ✓`;
-  }
+  if(giftsRem>0){el.className='gn show pe';tx.textContent=`Podés agregar ${giftsRem} juego${giftsRem>1?'s':''} normal${giftsRem>1?'es':''} de regalo`;}
+  else{el.className='gn show ok';tx.textContent=`${giftsAvail} regalo${giftsAvail>1?'s':''} aplicado${giftsAvail>1?'s':''} ✓`;}
 }
-
 function renderTotals(){
-  const el = $('tots');
-  const c = calcTotal();
-  const P = CFG.prices;
-
-  if(!cart.length){
-    el.innerHTML = '';
-    $('wab').disabled = true;
-    return;
-  }
-
-  let h = '';
-
+  const el=$('tots'); const c=calcTotal(); const P=CFG.prices;
+  if(!cart.length){el.innerHTML='';$('wab').disabled=true;return;}
+  let h='';
   if(c.normals.length){
-    h += `<div class="trow hd"><span style="color:var(--acc)">🟢 Normales (${c.normals.length})</span></div>`;
-    if(c.giftsUsed>0) h += `<div class="trow sb2"><span class="lbl">${c.giftsUsed} regalo${c.giftsUsed>1?'s':''}</span><span style="color:var(--acc)">GRATIS</span></div>`;
-    if(c.pk6>0) h += `<div class="trow sb2"><span class="lbl">${c.pk6}× pack de 6</span><span>${fmt(c.pk6*P.normal.pack6)}</span></div>`;
-    if(c.pk3>0) h += `<div class="trow sb2"><span class="lbl">${c.pk3}× pack de 3</span><span>${fmt(c.pk3*P.normal.pack3)}</span></div>`;
-    if(c.sg>0) h += `<div class="trow sb2"><span class="lbl">${c.sg} suelto${c.sg>1?'s':''}</span><span>${fmt(c.sg*P.normal.single)}</span></div>`;
+    h+=`<div class="trow hd"><span style="color:var(--acc)">🟢 Normales (${c.normals.length})</span></div>`;
+    if(c.giftsUsed>0) h+=`<div class="trow sb2"><span class="lbl">${c.giftsUsed} regalo${c.giftsUsed>1?'s':''}</span><span style="color:var(--acc)">GRATIS</span></div>`;
+    if(c.pk6>0) h+=`<div class="trow sb2"><span class="lbl">${c.pk6}× pack de 6</span><span>${fmt(c.pk6*P.normal.pack6)}</span></div>`;
+    if(c.pk3>0) h+=`<div class="trow sb2"><span class="lbl">${c.pk3}× pack de 3</span><span>${fmt(c.pk3*P.normal.pack3)}</span></div>`;
+    if(c.sg>0)  h+=`<div class="trow sb2"><span class="lbl">${c.sg} suelto${c.sg>1?'s':''}</span><span>${fmt(c.sg*P.normal.single)}</span></div>`;
   }
-
   if(c.premiums.length){
-    const lbl = c.hasMix ? `${fmt(P.premium.mixed)} c/u combo` : `${fmt(P.premium.solo)} c/u`;
-    h += `<div class="trow hd"><span style="color:var(--gold)">💛 Premium (${c.premiums.length}) — ${lbl}</span></div>`;
-    if(c.hasMix){
-      const sv = c.premiums.length * (P.premium.solo - P.premium.mixed);
-      h += `<div class="trow dc"><span>↓ Desc. combo</span><span>-${fmt(sv)}</span></div>`;
-    }
+    const lbl=c.hasMix?`${fmt(P.premium.mixed)} c/u combo`:`${fmt(P.premium.solo)} c/u`;
+    h+=`<div class="trow hd"><span style="color:var(--gold)">💛 Premium (${c.premiums.length}) — ${lbl}</span></div>`;
+    if(c.hasMix){const sv=c.premiums.length*(P.premium.solo-P.premium.mixed);h+=`<div class="trow dc"><span>↓ Desc. combo</span><span>-${fmt(sv)}</span></div>`;}
   }
-
   if(c.specials.length){
-    h += `<div class="trow hd"><span style="color:var(--pur)">🟣 Especiales (${c.specials.length})</span></div>`;
-    if(c.giftsRem>0) h += `<div class="trow dp"><span>🎁 Faltan ${c.giftsRem} regalos</span><span>—</span></div>`;
+    h+=`<div class="trow hd"><span style="color:var(--pur)">🟣 Especiales (${c.specials.length})</span></div>`;
+    if(c.giftsRem>0) h+=`<div class="trow dp"><span>🎁 Faltan ${c.giftsRem} regalos</span><span>—</span></div>`;
   }
-
-  h += `<div class="trow tot"><span>TOTAL</span><span>${fmt(c.total)}</span></div>`;
-  el.innerHTML = h;
-  $('wab').disabled = false;
+  h+=`<div class="trow tot"><span>TOTAL</span><span>${fmt(c.total)}</span></div>`;
+  el.innerHTML=h; $('wab').disabled=false;
 }
 
-// ── WHATSAPP ──────────────────────────────────────────────────────
 function sendWA(){
   if(!cart.length) return;
-  const c = calcTotal();
-  const P = CFG.prices;
-  let ln = '', lp = '', ls = '';
-
+  const c=calcTotal(); const P=CFG.prices;
+  let ln='',lp='',ls='';
   if(c.normals.length){
-    ln = `\n🟢 *NORMALES (${c.normals.length}):*\n`;
-    c.normals.forEach(g => { ln += `  • ${g.name}${c.freeNormalIds.includes(g.id) ? ' 🎁 GRATIS' : ''}\n`; });
-    const pd = [];
+    ln=`\n🟢 *NORMALES (${c.normals.length}):*\n`;
+    c.normals.forEach(g=>{ln+=`  • ${g.name}${c.freeNormalIds.includes(g.id)?' 🎁 GRATIS':''}\n`;});
+    const pd=[];
     if(c.pk6>0) pd.push(`${c.pk6}× pack de 6 = ${fmt(c.pk6*P.normal.pack6)}`);
     if(c.pk3>0) pd.push(`${c.pk3}× pack de 3 = ${fmt(c.pk3*P.normal.pack3)}`);
-    if(c.sg>0) pd.push(`${c.sg} suelto${c.sg>1?'s':''} = ${fmt(c.sg*P.normal.single)}`);
-    if(pd.length) ln += `  📦 ${pd.join(' | ')}\n`;
+    if(c.sg>0)  pd.push(`${c.sg} suelto${c.sg>1?'s':''} = ${fmt(c.sg*P.normal.single)}`);
+    if(pd.length) ln+=`  📦 ${pd.join(' | ')}\n`;
   }
-
   if(c.premiums.length){
-    const lbl = c.hasMix ? `${fmt(P.premium.mixed)} c/u combo` : `${fmt(P.premium.solo)} c/u`;
-    lp = `\n💛 *PREMIUM — ${lbl}:*\n`;
-    c.premiums.forEach(g => { lp += `  • ${g.name}\n`; });
+    const lbl=c.hasMix?`${fmt(P.premium.mixed)} c/u combo`:`${fmt(P.premium.solo)} c/u`;
+    lp=`\n💛 *PREMIUM — ${lbl}:*\n`; c.premiums.forEach(g=>{lp+=`  • ${g.name}\n`;});
   }
-
   if(c.specials.length){
-    ls = `\n🟣 *ESPECIALES (${fmt(P.special.price)} c/u + ${P.special.gifts} regalos):*\n`;
-    c.specials.forEach(g => { ls += `  • ${g.name}\n`; });
-    if(c.giftsRem>0) ls += `  🎁 Faltan ${c.giftsRem} regalos por elegir\n`;
+    ls=`\n🟣 *ESPECIALES (${fmt(P.special.price)} c/u + ${P.special.gifts} regalos):*\n`;
+    c.specials.forEach(g=>{ls+=`  • ${g.name}\n`;});
+    if(c.giftsRem>0) ls+=`  🎁 Faltan ${c.giftsRem} regalos por elegir\n`;
   }
-
-  let msg = CFG.mensajeWA;
-  [
-    {storeName:CFG.storeName},
-    {aliasTienda:CFG.aliasTienda},
-    {listaNormal:ln},
-    {listaPremium:lp},
-    {listaEspecial:ls},
-    {total:fmt(c.total)}
-  ].forEach(v => Object.entries(v).forEach(([k,val]) => {
-    msg = msg.replaceAll(`{${k}}`, val);
-  }));
-
+  let msg=CFG.mensajeWA;
+  [{storeName:CFG.storeName},{aliasTienda:CFG.aliasTienda},{listaNormal:ln},{listaPremium:lp},{listaEspecial:ls},{total:fmt(c.total)}]
+    .forEach(v=>Object.entries(v).forEach(([k,val])=>{msg=msg.replaceAll(`{${k}}`,val);}));
   window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(msg)}`,'_blank');
 }
-
 function openWAConsulta(){
   window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent('👋 Hola! Quiero un juego que no está en la lista 👀 ¿Me pueden ayudar?')}`,'_blank');
 }
 
-// ── UI ────────────────────────────────────────────────────────────
-function openPanel(){
-  $('panel').classList.add('open');
-  $('overlay').classList.add('open');
-  renderCartList();
-  renderTotals();
-}
-
-function closePanel(){
-  $('panel').classList.remove('open');
-  $('overlay').classList.remove('open');
-}
-
+function openPanel(){ $('panel').classList.add('open'); $('overlay').classList.add('open'); renderCartList(); renderTotals(); }
+function closePanel(){ $('panel').classList.remove('open'); $('overlay').classList.remove('open'); }
 function openPedir(){ $('pedirModal').classList.add('open'); }
-function closePedir(e,f=false){ if(f || (e && e.target === $('pedirModal'))) $('pedirModal').classList.remove('open'); }
-
+function closePedir(e,f=false){ if(f||e&&e.target===$('pedirModal')) $('pedirModal').classList.remove('open'); }
 function openHow(){ $('howModal').classList.add('open'); }
-function closeHow(e,f=false){ if(f || (e && e.target === $('howModal'))) $('howModal').classList.remove('open'); }
+function closeHow(e,f=false){ if(f||e&&e.target===$('howModal')) $('howModal').classList.remove('open'); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 loadGames();
 </script>
+</body>
+</html>
