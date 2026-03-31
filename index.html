@@ -21,47 +21,33 @@ body{background:var(--bg);color:var(--txt);font-family:var(--fB);min-height:100v
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background-image:linear-gradient(rgba(0,229,160,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,160,.018) 1px,transparent 1px);
   background-size:48px 48px}
-
-/* ── HEADER ── */
 header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.93);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .logo{font-family:var(--fD);font-weight:700;font-size:1rem;color:#00d4ff;letter-spacing:2px;display:flex;align-items:center;gap:8px}
-.logo-mark{width:30px;height:30px;border-radius:7px;background:var(--acc);color:#000;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .hdr-right{display:flex;gap:8px;align-items:center}
 .refresh-btn{background:none;border:1px solid var(--bdr);color:var(--mut);padding:6px 10px;border-radius:7px;cursor:pointer;font-family:var(--fB);font-size:.78rem;display:flex;align-items:center;gap:4px;transition:all .15s}
 .refresh-btn:hover{border-color:var(--acc);color:var(--acc)}
 .refresh-btn.spinning .ic{display:inline-block;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.hdr-extra-btn{background:none;border:1px solid var(--bdr);color:#64b5f6;padding:6px 11px;border-radius:7px;cursor:pointer;font-family:var(--fB);font-size:.78rem;display:flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
-.hdr-extra-btn:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.18)}
-.hdr-btn{background:none;border:1px solid var(--bdr);color:#64b5f6;padding:6px 11px;border-radius:7px;cursor:pointer;font-family:var(--fB);font-size:.78rem;transition:all .15s;white-space:nowrap}
-.hdr-btn:hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.15)}
-
-/* CART BTN — solo desktop */
 .cart-btn-desk{background:var(--s2);border:1px solid var(--bdr);color:var(--txt);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:var(--fB);font-size:.85rem;font-weight:500;display:flex;align-items:center;gap:6px;transition:all .2s;white-space:nowrap}
 .cart-btn-desk:hover{background:var(--acc-dim);border-color:var(--acc);color:var(--acc)}
 .cart-count{background:var(--acc);color:#000;font-size:.62rem;font-weight:700;min-width:18px;height:18px;border-radius:9px;padding:0 4px;display:flex;align-items:center;justify-content:center;font-family:var(--fD);transition:transform .15s}
 .cart-count.pop{transform:scale(1.5)}
-
-/* ── PRICE BANNER ── */
 .price-banner{background:#060d1a;border-bottom:1px solid var(--bdr)}
 .pb-inner{display:flex;align-items:center;height:48px;gap:7px;padding:0 20px;overflow-x:auto;scrollbar-width:none;justify-content:center}
 .pb-inner::-webkit-scrollbar{display:none}
 .pb-label{font-family:var(--fD);font-size:.62rem;font-weight:700;letter-spacing:2px;color:var(--mut);text-transform:uppercase;white-space:nowrap;flex-shrink:0}
 .pb-pill{white-space:nowrap;padding:4px 11px;border-radius:18px;font-size:.73rem;font-family:var(--fD);font-weight:600;flex-shrink:0}
-@media(max-width:768px){
-  .price-banner{background:#060d1a}
-  .pb-inner{flex-direction:column;height:auto;align-items:flex-start;padding:10px 14px;gap:6px;overflow-x:visible}
-  .pb-sep{display:none}
-  .pb-label{margin-bottom:2px;font-size:.6rem}
-  .pb-pill{font-size:.75rem;padding:5px 13px;text-align:left;width:auto}
-}
-.pb-pill.n{background:rgba(0,229,160,.15);border:1px solid rgba(0,229,160,.4);color:#00e5a0;font-weight:700}
-.pb-pill.p{background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.4);color:#f5a623;font-weight:700}
-.pb-pill.s{background:rgba(181,124,245,.15);border:1px solid rgba(181,124,245,.4);color:#b57cf5;font-weight:700}
+.pb-pill.n{background:rgba(0,229,160,.15);border:1px solid rgba(0,229,160,.4);color:#00e5a0}
+.pb-pill.p{background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.4);color:#f5a623}
+.pb-pill.s{background:rgba(181,124,245,.15);border:1px solid rgba(181,124,245,.4);color:#b57cf5}
 .pb-sep{color:var(--s3);font-size:14px;flex-shrink:0}
-
-/* ── MAIN ── */
-main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px 20px}
+@media(max-width:768px){
+  .pb-inner{flex-direction:column;height:auto;align-items:flex-start;padding:10px 14px;gap:6px}
+  .pb-sep{display:none}
+  .pb-label{font-size:.6rem}
+  .pb-pill{font-size:.75rem;padding:5px 13px}
+}
+main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 .toolbar{display:flex;gap:9px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
 .sw{flex:1;min-width:180px;position:relative}
 .sw input{width:100%;background:var(--s1);border:1px solid var(--bdr);color:var(--txt);padding:11px 13px 11px 40px;border-radius:9px;font-family:var(--fB);font-size:.95rem;outline:none;transition:border-color .2s}
@@ -81,11 +67,8 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px 20p
 .lu{font-size:.7rem;color:var(--mut)}
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 0;gap:18px;color:var(--mut)}
 .spinner{width:38px;height:38px;border:2px solid var(--s3);border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite}
-.load-detail{font-size:.8rem;opacity:.7}
 .err-box{background:rgba(255,64,96,.07);border:1px solid rgba(255,64,96,.18);color:#ff8090;padding:20px 24px;border-radius:10px;text-align:center;max-width:480px;margin:60px auto;font-size:.88rem;line-height:1.6}
 .err-box strong{display:block;font-family:var(--fD);margin-bottom:8px}
-
-/* ── GRID ── */
 #gridWrap{position:relative;width:100%}
 .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--col),1fr));gap:13px;position:absolute;width:100%}
 #gridSpacer{width:100%}
@@ -118,49 +101,19 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px 20p
 .bdg.tbp{background:#1e1200;border:1px solid rgba(245,166,35,.3);color:var(--gold)}
 .bdg.tbs{background:#150c22;border:1px solid rgba(181,124,245,.3);color:var(--pur)}
 .bdg.fb{top:5px;left:5px;background:#0e2318;border:1px solid rgba(0,229,160,.3);color:var(--acc)}
-
-/* ── BOTTOM NAV (mobile) ── */
-.bottom-nav{
-  display:none;
-  position:fixed;bottom:0;left:0;right:0;z-index:300;
-  background:rgba(13,17,32,.97);backdrop-filter:blur(20px);
-  border-top:1px solid var(--bdr);
-  height:var(--nav-h);padding:0 8px;
-  align-items:center;justify-content:space-around;gap:4px;
-}
-.bnav-btn{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:3px;padding:6px 2px;border-radius:10px;cursor:pointer;
-  border:none;background:none;color:var(--mut);
-  font-family:var(--fD);font-size:.52rem;font-weight:600;letter-spacing:.3px;
-  text-transform:uppercase;transition:all .2s;position:relative;
-  -webkit-tap-highlight-color:transparent;
-}
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:300;background:rgba(13,17,32,.97);backdrop-filter:blur(20px);border-top:1px solid var(--bdr);height:var(--nav-h);padding:0 8px;align-items:center;justify-content:space-around;gap:4px}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 2px;border-radius:10px;cursor:pointer;border:none;background:none;color:var(--mut);font-family:var(--fD);font-size:.52rem;font-weight:600;letter-spacing:.3px;text-transform:uppercase;transition:all .2s;position:relative;-webkit-tap-highlight-color:transparent}
 .bnav-btn:active{transform:scale(.95)}
 .bnav-btn .icon{font-size:22px;line-height:1;margin-bottom:1px}
 .bnav-btn.cart-nav{color:var(--acc)}
 .bnav-btn.cart-nav .icon{position:relative}
-.cart-badge{
-  position:absolute;top:-4px;right:-8px;
-  background:var(--acc);color:#000;font-size:.55rem;font-weight:700;
-  min-width:16px;height:16px;border-radius:8px;padding:0 3px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--fD);transition:transform .15s;
-}
+.cart-badge{position:absolute;top:-4px;right:-8px;background:var(--acc);color:#000;font-size:.55rem;font-weight:700;min-width:16px;height:16px;border-radius:8px;padding:0 3px;display:flex;align-items:center;justify-content:center;font-family:var(--fD);transition:transform .15s}
 .cart-badge.pop{transform:scale(1.5)}
 .bnav-btn.info-nav{color:#64b5f6}
 .bnav-btn.wa-nav{color:#4ade80}
-
-/* ── MODAL "¿CÓMO FUNCIONA?" ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:400;opacity:0;pointer-events:none;transition:opacity .25s;display:flex;align-items:flex-end;justify-content:center}
 .modal-overlay.open{opacity:1;pointer-events:all}
-.modal-sheet{
-  background:var(--s1);border:1px solid var(--bdr);
-  border-radius:20px 20px 0 0;
-  width:100%;max-width:560px;max-height:85vh;overflow-y:auto;
-  padding:24px 22px 32px;
-  transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);
-}
+.modal-sheet{background:var(--s1);border:1px solid var(--bdr);border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:85vh;overflow-y:auto;padding:24px 22px 32px;transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1)}
 .modal-overlay.open .modal-sheet{transform:translateY(0)}
 .modal-handle{width:40px;height:4px;background:var(--s3);border-radius:2px;margin:0 auto 20px;cursor:pointer}
 .modal-title{font-family:var(--fD);font-size:1rem;font-weight:700;color:var(--acc);letter-spacing:1.5px;margin-bottom:20px;text-align:center}
@@ -174,14 +127,11 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px 20p
 .price-card .pc-label{font-family:var(--fD);font-size:.68rem;font-weight:700;letter-spacing:.5px;margin-bottom:6px}
 .price-card.nc .pc-label{color:var(--acc)}
 .price-card.pc .pc-label{color:var(--gold)}
-.price-card.sc .pc-label{grid-column:span 2}
 .price-card.sc{grid-column:span 2;background:var(--pur-dim);border-color:rgba(181,124,245,.2)}
 .price-card.sc .pc-label{color:var(--pur)}
 .price-card p{font-size:.75rem;color:var(--mut);line-height:1.6}
 .modal-close{width:100%;background:var(--s2);border:1px solid var(--bdr);color:var(--mut);padding:12px;border-radius:9px;cursor:pointer;font-family:var(--fD);font-size:.8rem;font-weight:700;letter-spacing:1px;margin-top:20px;transition:all .15s}
 .modal-close:hover{border-color:var(--acc);color:var(--acc)}
-
-/* ── OVERLAY + PANEL (carrito) ── */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:300;opacity:0;pointer-events:none;transition:opacity .28s}
 .overlay.open{opacity:1;pointer-events:all}
 .panel{position:fixed;top:0;right:0;bottom:0;width:min(490px,100vw);background:var(--s1);border-left:1px solid var(--bdr);z-index:301;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1)}
@@ -218,14 +168,10 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px 20p
 .wa{width:100%;background:#25D366;color:#fff;border:none;padding:13px;border-radius:9px;font-family:var(--fD);font-size:.88rem;font-weight:700;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;text-transform:uppercase}
 .wa:hover:not(:disabled){background:#1db954;transform:translateY(-1px);box-shadow:0 4px 18px rgba(37,211,102,.4)}
 .wa:disabled{background:var(--s2);color:var(--mut);cursor:not-allowed;transform:none;box-shadow:none}
-
-/* ── RESPONSIVE ── */
 @media(max-width:768px){
   :root{--col:155px}
   .bottom-nav{display:flex}
   .cart-btn-desk{display:none}
-  .hdr-extra-btn{display:none}
-  .hdr-btn{display:none}
   main{padding:16px 14px}
   header{padding:0 14px}
   .pb-inner{padding:0 14px}
@@ -239,7 +185,13 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px 20p
 <body>
 
 <header>
-  <div class="logo"><img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCATzBQADASIAAhEBAxEB/8QAHQABAAEEAwEAAAAAAAAAAAAAAAgCAwYHAQQFCf/EAF0QAQABAgQDAwUHCg8OBwEBAAABAgMEBQYREiExEkFRCBMiYXEUMoGRsbLRFRZSU3SSk5ShwQkXIyc2N0JUVWNkcnODhCQlJjM0RUNERWJ1gqLhGDhGVmWzwvDx/8QAGwEBAAEFAQAAAAAAAAAAAAAAAAQBAgMFBgf/xAA8EQEAAgEDAQUFBgUDAwUBAAAAAQIDBAURMQYSIUFRExQicZEyNFJhgbEkM0LB0RUjoQcW4SU1Q1Pwcv/aAAwDAQACEQMRAD8AhkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA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" alt="GameDrop" style="width:34px;height:34px;object-fit:contain;border-radius:0"/><span>GAMEDROP</span></div>
+  <div class="logo">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;border-radius:7px">
+      <rect width="32" height="32" rx="7" fill="#00e5a0"/>
+      <path d="M8 16h6M11 13v6M18 14h6M21 18h3" stroke="#000" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <span>GAMEDROP</span>
+  </div>
   <div class="hdr-right">
     <button class="refresh-btn" id="refreshBtn" onclick="loadGames(true)"><span class="ic">↻</span> Actualizar</button>
     <button class="cart-btn-desk" onclick="openPanel()">🛒 Mi Pedido <div class="cart-count" id="cartCountDesk">0</div></button>
@@ -268,108 +220,62 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px 20p
     <span style="color:var(--s3);font-size:14px">·</span>
     <div class="filters" id="tags"></div>
   </div>
-  <div id="gamesArea"><div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span><span class="load-detail" id="loadDetail"></span></div></div>
+  <div id="gamesArea"><div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span></div></div>
 </main>
 
-<!-- BOTTOM NAV -->
 <nav class="bottom-nav">
   <button class="bnav-btn cart-nav" onclick="openPanel()">
     <div class="icon" style="position:relative">🛒<span class="cart-badge" id="cartBadge">0</span></div>
     <span>Mi Pedido</span>
   </button>
   <button class="bnav-btn info-nav" onclick="openPedir()">
-    <div class="icon">📋</div>
-    <span>Cómo pedir</span>
+    <div class="icon">📋</div><span>Cómo pedir</span>
   </button>
   <button class="bnav-btn" style="color:var(--pur)" onclick="openHow()">
-    <div class="icon">⚡</div>
-    <span>¿Cómo funciona?</span>
+    <div class="icon">⚡</div><span>¿Cómo funciona?</span>
   </button>
   <button class="bnav-btn wa-nav" onclick="openWAConsulta()">
-    <div class="icon">💬</div>
-    <span>Mijuego no esta</span>
+    <div class="icon">💬</div><span>Mi juego no está</span>
   </button>
 </nav>
 
 <!-- MODAL CÓMO PEDIR -->
 <div class="modal-overlay" id="pedirModal" onclick="closePedir(event)">
   <div class="modal-sheet">
-    <div class="modal-handle" onclick="closePedir(null, true)"></div>
+    <div class="modal-handle" onclick="closePedir(null,true)"></div>
     <div class="modal-title">CÓMO PEDIR</div>
-    <div class="how-step">
-      <div class="how-num">1</div>
-      <div class="how-text">
-        <strong>Buscá tus juegos</strong>
-        <p>Usá el buscador o filtrá por categoría. Tocá el botón <b>+</b> para agregar juegos a tu pedido.</p>
-      </div>
-    </div>
-    <div class="how-step">
-      <div class="how-num">2</div>
-      <div class="how-text">
-        <strong>Revisá tu pedido</strong>
-        <p>Tocá 🛒 <b>Mi Pedido</b> para ver los juegos seleccionados y el total con descuentos aplicados.</p>
-      </div>
-    </div>
-    <div class="how-step">
-      <div class="how-num">3</div>
-      <div class="how-text">
-        <strong>Enviá el pedido por WhatsApp</strong>
-        <p>Tocá el botón verde y te abrimos WhatsApp con el resumen completo listo para enviar.</p>
-      </div>
-    </div>
+    <div class="how-step"><div class="how-num">1</div><div class="how-text"><strong>Buscá tus juegos</strong><p>Usá el buscador o filtrá por categoría. Tocá <b>+</b> para agregar juegos.</p></div></div>
+    <div class="how-step"><div class="how-num">2</div><div class="how-text"><strong>Revisá tu pedido</strong><p>Tocá 🛒 <b>Mi Pedido</b> para ver los juegos y el total con descuentos.</p></div></div>
+    <div class="how-step"><div class="how-num">3</div><div class="how-text"><strong>Enviá por WhatsApp</strong><p>Tocá el botón verde y te abrimos WhatsApp con el resumen listo.</p></div></div>
     <hr class="how-divider"/>
     <div style="font-family:var(--fD);font-size:.75rem;color:var(--mut);letter-spacing:.5px;margin-bottom:12px;text-transform:uppercase">Precios y promos</div>
     <div class="price-grid">
-      <div class="price-card nc">
-        <div class="pc-label">🟢 Normal</div>
-        <p>$9.900 c/u<br>3 juegos → $19.900<br>6 juegos → $29.900</p>
-      </div>
-      <div class="price-card pc">
-        <div class="pc-label">💛 Premium</div>
-        <p>$14.000 solos<br>$10.000 en combo<br>con otros juegos</p>
-      </div>
-      <div class="price-card sc">
-        <div class="pc-label">🟣 Especial</div>
-        <p>$25.000 c/u + elegís 2 juegos normales de regalo</p>
-      </div>
+      <div class="price-card nc"><div class="pc-label">🟢 Normal</div><p>$9.900 c/u<br>3 juegos → $19.900<br>6 juegos → $29.900</p></div>
+      <div class="price-card pc"><div class="pc-label">💛 Premium</div><p>$14.000 solos<br>$10.000 en combo</p></div>
+      <div class="price-card sc"><div class="pc-label">🟣 Especial</div><p>$25.000 c/u + elegís 2 juegos normales de regalo</p></div>
     </div>
-    <button class="modal-close" onclick="closePedir(null, true)">CERRAR</button>
+    <button class="modal-close" onclick="closePedir(null,true)">CERRAR</button>
   </div>
 </div>
 
-<!-- MODAL ¿CÓMO FUNCIONA? -->
+<!-- MODAL CÓMO FUNCIONA -->
 <div class="modal-overlay" id="howModal" onclick="closeHow(event)">
   <div class="modal-sheet">
-    <div class="modal-handle" onclick="closeHow(null, true)"></div>
+    <div class="modal-handle" onclick="closeHow(null,true)"></div>
     <div class="modal-title" style="color:var(--pur)">¿CÓMO FUNCIONA?</div>
-    <div class="how-step">
-      <div class="how-num" style="background:var(--pur-dim);border-color:rgba(224,64,251,.25);color:var(--pur)">⚡</div>
-      <div class="how-text">
-        <strong>Activación instantánea</strong>
-        <p>Te enviamos la <b>key y el activador</b>. La activación demora <b>1 minuto</b> y ya podés descargar y jugar desde tu propia cuenta de Steam.</p>
-      </div>
-    </div>
-    <div class="how-step">
-      <div class="how-num" style="background:var(--pur-dim);border-color:rgba(224,64,251,.25);color:var(--pur)">🔒</div>
-      <div class="how-text">
-        <strong>100% seguro</strong>
-        <p>No vendemos cuentas compartidas ni pedimos datos personales. El juego queda permanentemente en tu cuenta.</p>
-      </div>
-    </div>
+    <div class="how-step"><div class="how-num" style="background:var(--pur-dim);border-color:rgba(181,124,245,.25);color:var(--pur)">⚡</div><div class="how-text"><strong>Activación instantánea</strong><p>Te enviamos la <b>key y el activador</b>. Demora <b>1 minuto</b> y ya podés jugar desde tu propia cuenta.</p></div></div>
+    <div class="how-step"><div class="how-num" style="background:var(--pur-dim);border-color:rgba(181,124,245,.25);color:var(--pur)">🔒</div><div class="how-text"><strong>100% seguro</strong><p>No vendemos cuentas compartidas. El juego queda permanentemente en tu cuenta.</p></div></div>
     <hr class="how-divider"/>
     <div style="background:var(--pur-dim);border:1px solid rgba(181,124,245,.2);border-radius:10px;padding:14px 16px;text-align:center">
       <div style="font-family:var(--fD);font-size:.72rem;color:var(--pur);letter-spacing:.5px;margin-bottom:8px;text-transform:uppercase">Más info y reseñas</div>
-      <p style="font-size:.82rem;color:var(--mut);margin-bottom:12px">Encontrá reseñas de clientes y más información en nuestro Instagram</p>
-      <a href="https://www.instagram.com/gamedrop_oficial/" target="_blank"
-         style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;padding:9px 20px;border-radius:22px;font-family:var(--fD);font-size:.78rem;font-weight:700;letter-spacing:.8px;text-decoration:none">
-        📸 @gamedrop_oficial
-      </a>
+      <p style="font-size:.82rem;color:var(--mut);margin-bottom:12px">Encontrá reseñas de clientes en nuestro Instagram</p>
+      <a href="https://www.instagram.com/gamedrop_oficial/" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;padding:9px 20px;border-radius:22px;font-family:var(--fD);font-size:.78rem;font-weight:700;letter-spacing:.8px;text-decoration:none">📸 @gamedrop_oficial</a>
     </div>
-    <button class="modal-close" onclick="closeHow(null, true)">CERRAR</button>
+    <button class="modal-close" onclick="closeHow(null,true)">CERRAR</button>
   </div>
 </div>
 
-<!-- OVERLAY + PANEL CARRITO -->
+<!-- PANEL CARRITO -->
 <div class="overlay" id="overlay" onclick="closePanel()"></div>
 <div class="panel" id="panel">
   <div class="phd"><span class="pt">🛒 MI PEDIDO</span><button class="xb" onclick="closePanel()">✕</button></div>
@@ -383,251 +289,253 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px 20p
 
 <script>
 const CFG = {
-  storeName:   "GAMEDROP",
-  whatsapp:    "5491173597848",
-  aliasTienda: "gamedrop",
-  currency:    "$",
-  sheetId:     "1gXrcWhPm9uBI4L10I7RYDQi-FXEPk5NCwZ1OcY9OJ0s",
+  storeName:   'GAMEDROP',
+  whatsapp:    '5491173597848',
+  aliasTienda: 'gamedrop',
+  currency:    '$',
+  sheetId:     '1gXrcWhPm9uBI4L10I7RYDQi-FXEPk5NCwZ1OcY9OJ0s',
   prices: {
     normal:  {single:9900,pack3:19900,pack6:29900},
     premium: {solo:14000,mixed:10000},
     special: {price:25000,gifts:2},
   },
-  mensajeWA: `🎮 *PEDIDO {storeName}*\n━━━━━━━━━━━━━━━━━━━━\n{listaNormal}{listaPremium}{listaEspecial}\n💳 *TOTAL: {total}*\n🏦 Transferir a: *{aliasTienda}*\n━━━━━━━━━━━━━━━━━━━━\n¡Muchas gracias! Confirmamos tu pedido a la brevedad 🙌`,
+  mensajeWA: '🎮 *PEDIDO {storeName}*\n━━━━━━━━━━━━━━━━━━━━\n{listaNormal}{listaPremium}{listaEspecial}\n💳 *TOTAL: {total}*\n🏦 Transferir a: *{aliasTienda}*\n━━━━━━━━━━━━━━━━━━━━\n¡Muchas gracias! Confirmamos tu pedido a la brevedad 🙌',
   PAGE_SIZE: 60,
 };
 
-let ALL=[], FILTERED=[], cart=[], activeTag="Todos", activeTier="all", renderOffset=0, searchTimer=null;
-const $=id=>document.getElementById(id);
-const fmt=n=>CFG.currency+Number(n).toLocaleString('es-AR');
-const img=(id,custom)=>custom||`https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${id}/header.jpg`;
+// ─────────────────────────────────────────────────────────────────
+// ALL_SORTED = array master, ordenado 1 sola vez al cargar.
+// Los filtros y clicks en tags/tier NUNCA vuelven a ordenarlo.
+// Solo se re-ordena al buscar texto, y solo sobre los resultados filtrados.
+// ─────────────────────────────────────────────────────────────────
+let ALL_SORTED = [];
+let FILTERED   = [];
+let cart       = [];
+let activeTag  = 'Todos';
+let activeTier = 'all';
+let renderOffset = 0;
+let searchTimer  = null;
 
-// ── NORMALIZACIÓN ──────────────────────────────────────────────────────────
-function normalizeSearch(str){
-  return (str||'')
-    .toString()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g,'')
-    .replace(/[''`"´]/g,'')
-    .replace(/[^a-z0-9]+/g,'');
+const $ = id => document.getElementById(id);
+const fmt = n => CFG.currency + Number(n).toLocaleString('es-AR');
+const imgUrl = (appId, custom) => custom || `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appId}/header.jpg`;
+
+function norm(str){
+  return (str||'').toString().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[''`"´]/g,'').replace(/[^a-z0-9]+/g,'');
 }
 
-// ── FEATURED: lista de juegos que van primero en orden por defecto ──────────
-const FEATURED_GAMES = [
-  {terms:['crimsondesert']},
-  {terms:['residentevilrequiem']},
-  {terms:['cyberpunk2077']},
-  {terms:['eldenring']},
-  {terms:['thelastofusparti','lastofusparti','thelastofus1','lastofus1']},
-  {terms:['marvelsspidermanremastered','spidermanremastered']},
-  {terms:['marvelsspiderman2','spiderman2']},
-  {terms:['godofwarragnarok','gowragnarok']},
-  {terms:['hogwartslegacy']},
-  {terms:['godofwar']},
-  {terms:['thelastofuspartii','lastofuspartii','thelastofus2','lastofus2']},
-  {terms:['darksoulsremastered','darksouls1']},
-  {terms:['darksoulsii','darksouls2']},
-  {terms:['darksoulsiii','darksouls3']},
-  {terms:['f125']},
-  {terms:['blackmythwukong','wukong']},
-  {terms:['stellarblade','stelarblade']},
+// Featured: calculado 1 vez por juego al parsear el sheet
+const FEATURED = [
+  ['crimsondesert'],
+  ['residentevilrequiem'],
+  ['cyberpunk2077'],
+  ['eldenring'],
+  ['thelastofusparti','lastofus1'],
+  ['spidermanremastered'],
+  ['spiderman2'],
+  ['godofwarragnarok'],
+  ['hogwartslegacy'],
+  ['godofwar'],
+  ['thelastofuspartii','lastofus2'],
+  ['darksoulsremastered','darksouls1'],
+  ['darksoulsii','darksouls2'],
+  ['darksoulsiii','darksouls3'],
+  ['f125'],
+  ['blackmythwukong','wukong'],
+  ['stellarblade'],
 ];
-const FEATURED_MAX = Number.MAX_SAFE_INTEGER;
-
-// Calcula el rank UNA sola vez por juego al momento de cargar
-function calcFeaturedRank(nq){
-  for(let i=0;i<FEATURED_GAMES.length;i++){
-    if(FEATURED_GAMES[i].terms.some(t=>nq.includes(t))) return i;
-  }
-  return FEATURED_MAX;
+function featuredRank(nq){
+  for(let i=0;i<FEATURED.length;i++)
+    if(FEATURED[i].some(t=>nq.includes(t))) return i;
+  return 99999;
 }
 
-// ── IMAGEN FALLBACK ────────────────────────────────────────────────────────
-function imgFallback(el,appId,custom){
-  if(custom&&el.dataset.tried!=='custom'){el.dataset.tried='custom';el.src=custom;return;}
-  const t=el.dataset.tried||'';
-  if(t===''){
+function imgFallback(el, appId, custom){
+  const t = el.dataset.tried||'';
+  if(!t && custom){ el.dataset.tried='custom'; el.src=custom; return; }
+  if(t===''||t==='custom'){
     el.dataset.tried='cf';
     el.src='https://cdn.cloudflare.steamstatic.com/steam/apps/'+appId+'/header.jpg';
-  }else if(t==='cf'){
-    el.dataset.tried='assets';
-    el.src='https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/'+appId+'/header.jpg';
-  }else if(t==='assets'){
-    el.dataset.tried='capsule';
+  } else if(t==='cf'){
+    el.dataset.tried='cap';
     el.src='https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/'+appId+'/capsule_616x353.jpg';
-  }else if(t==='capsule'){
-    el.dataset.tried='steamdb';
-    el.src='https://cdn.cloudflare.steamstatic.com/steam/apps/'+appId+'/capsule_616x353.jpg';
-  }else{
+  } else {
     el.onerror=null;
-    el.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22460%22 height=%22215%22><rect fill=%22%23141828%22 width=%22100%25%22 height=%22100%25%22/><text y=%2250%25%22 x=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%235b6680%22 font-size=%2212%22 font-family=%22sans-serif%22>Sin imagen</text></svg>';
+    el.src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='460' height='215'%3E%3Crect fill='%23141828' width='100%25' height='100%25'/%3E%3Ctext y='50%25' x='50%25' dominant-baseline='middle' text-anchor='middle' fill='%235b6680' font-size='12' font-family='sans-serif'%3ESin imagen%3C/text%3E%3C/svg%3E";
   }
 }
 
-// ── CARGA DESDE SHEETS ─────────────────────────────────────────────────────
+// ── CARGA ──────────────────────────────────────────────────────────────────
 async function loadGames(manual=false){
-  const btn=$('refreshBtn');btn.classList.add('spinning');
-  if(!manual) $('gamesArea').innerHTML=`<div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span><span class="load-detail" id="loadDetail">Conectando...</span></div>`;
+  const btn=$('refreshBtn'); btn.classList.add('spinning');
+  if(!manual) $('gamesArea').innerHTML='<div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span></div>';
   const url=`https://docs.google.com/spreadsheets/d/${CFG.sheetId}/gviz/tq?tqx=out:json&t=${Date.now()}`;
   try{
-    const res=await fetch(url);const text=await res.text();
+    const text=await fetch(url).then(r=>r.text());
     const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);\s*$/)[1]);
     const table=json.table;
-    const cols={};table.cols.forEach((c,i)=>{if(c.label)cols[c.label.toLowerCase().trim()]=i;});
-    const gc=(row,name)=>{const i=cols[name];if(i===undefined||!row.c||!row.c[i]||row.c[i].v===null)return '';return String(row.c[i].v!==undefined?row.c[i].v:row.c[i].f||'');};
+    const cols={};
+    table.cols.forEach((c,i)=>{ if(c.label) cols[c.label.toLowerCase().trim()]=i; });
+    const gc=(row,name)=>{
+      const i=cols[name];
+      if(i===undefined||!row.c||!row.c[i]||row.c[i].v===null) return '';
+      return String(row.c[i].v!==undefined?row.c[i].v:row.c[i].f||'');
+    };
 
-    ALL = table.rows
-      .filter(row => gc(row,'available').toUpperCase()==='TRUE' && gc(row,'name') && gc(row,'appid'))
-      .map((row, i) => {
-        const name = gc(row,'name').trim();
-        const _q   = name.toLowerCase();
-        const _nq  = normalizeSearch(name);          // ← precalculado 1 vez
-        return {
+    const raw=table.rows
+      .filter(row=>gc(row,'available').toUpperCase()==='TRUE'&&gc(row,'name')&&gc(row,'appid'))
+      .map((row,i)=>{
+        const name=gc(row,'name').trim();
+        const _nq=norm(name);
+        return{
           id:    parseInt(gc(row,'id'))||i+1,
           name,
           appId: parseInt(gc(row,'appid'))||0,
-          tier:  (['normal','premium','special'].includes(gc(row,'tier').toLowerCase())
-                    ? gc(row,'tier').toLowerCase() : 'normal'),
+          tier:  ['normal','premium','special'].includes(gc(row,'tier').toLowerCase())
+                   ?gc(row,'tier').toLowerCase():'normal',
           price: parseInt(gc(row,'price'))||CFG.prices.normal.single,
           tags:  gc(row,'tags').split(',').map(t=>t.trim()).filter(Boolean),
           image: gc(row,'imageurl')||'',
-          _q,
+          _q:    name.toLowerCase(),
           _nq,
-          _featuredRank: calcFeaturedRank(_nq),      // ← precalculado 1 vez
+          _rank: featuredRank(_nq), // ← calculado 1 sola vez
         };
       });
 
+    // Ordenar UNA SOLA VEZ: featured primero, luego alfabético
+    ALL_SORTED=raw.sort((a,b)=>{
+      const d=a._rank-b._rank;
+      return d!==0?d:a.name.localeCompare(b.name,'es',{sensitivity:'base'});
+    });
+
     const now=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-    $('lu').textContent=`${ALL.length.toLocaleString()} juegos · ${now}`;
-    buildTierFilters();buildTagFilters();applyFilter();renderTotals();
-  }catch(err){
+    $('lu').textContent=`${ALL_SORTED.length.toLocaleString()} juegos · ${now}`;
+    buildTierFilters();
+    buildTagFilters();
+    applyFilter();
+    renderTotals();
+  }catch(e){
     $('gamesArea').innerHTML=`<div class="err-box"><strong>No se pudo cargar el catálogo</strong>
       El Google Sheet debe estar compartido como <b>"Cualquiera con el enlace puede ver"</b>.<br><br>
-      Compartir → Cambiar a cualquiera con el enlace → Lector<br><br>
       <button onclick="loadGames(true)" style="margin-top:10px;background:var(--s2);border:1px solid var(--bdr);color:var(--txt);padding:7px 18px;border-radius:8px;cursor:pointer;font-family:var(--fB)">Reintentar</button></div>`;
-  }finally{btn.classList.remove('spinning');}
+  }finally{ btn.classList.remove('spinning'); }
 }
 
-// ── FILTROS ────────────────────────────────────────────────────────────────
+// ── FILTROS UI ─────────────────────────────────────────────────────────────
 function buildTierFilters(){
-  const tiers=['all',...new Set(ALL.map(g=>g.tier))];
   const L={all:'Todos',normal:'🟢 Normal',premium:'💛 Premium',special:'🟣 Especial'};
   const on={all:'on-all',normal:'on-normal',premium:'on-premium',special:'on-special'};
+  const tiers=['all',...new Set(ALL_SORTED.map(g=>g.tier))];
   $('tfs').innerHTML=tiers.map(t=>`<button class="tf${activeTier===t?' '+on[t]:''}" onclick="setTier('${t}')">${L[t]||t}</button>`).join('');
 }
-function setTier(t){activeTier=t;buildTierFilters();applyFilter();}
+function setTier(t){ activeTier=t; buildTierFilters(); applyFilter(); }
 
 function buildTagFilters(){
-  const freq={};ALL.forEach(g=>g.tags.forEach(t=>{freq[t]=(freq[t]||0)+1;}));
-  const top20=['Todos',...Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([t])=>t)];
-  $('tags').innerHTML=top20.map(t=>`<button class="tag${t===activeTag?' on':''}" onclick="setTag('${t}')">${t}</button>`).join('');
+  const freq={};
+  ALL_SORTED.forEach(g=>g.tags.forEach(t=>{freq[t]=(freq[t]||0)+1;}));
+  const top=['Todos',...Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([t])=>t)];
+  $('tags').innerHTML=top.map(t=>`<button class="tag${t===activeTag?' on':''}" onclick="setTag('${t}')">${t}</button>`).join('');
 }
-function setTag(t){activeTag=t;buildTagFilters();applyFilter();}
+function setTag(t){ activeTag=t; buildTagFilters(); applyFilter(); }
 
-// ── FILTRAR + ORDENAR ──────────────────────────────────────────────────────
+// ── FILTRAR ────────────────────────────────────────────────────────────────
+// Sin búsqueda → solo .filter() sobre ALL_SORTED (ya ordenado). Sin sort. Instantáneo.
+// Con búsqueda → filter + sort por relevancia sobre los resultados.
 function applyFilter(){
-  const rawQ = ($('q').value||'').trim();
-  const q    = rawQ.toLowerCase();
-  const nq   = normalizeSearch(rawQ);
+  const rawQ=($('q').value||'').trim();
+  const q=rawQ.toLowerCase();
+  const nq=norm(rawQ);
 
-  FILTERED = ALL.filter(g => {
-    if(activeTier !== 'all' && g.tier !== activeTier) return false;
-    if(activeTag !== 'Todos' && !g.tags.includes(activeTag)) return false;
-    if(rawQ && !(g._q.includes(q) || g._nq.includes(nq))) return false;
+  let result=ALL_SORTED.filter(g=>{
+    if(activeTier!=='all'&&g.tier!==activeTier) return false;
+    if(activeTag!=='Todos'&&!g.tags.includes(activeTag)) return false;
+    if(rawQ&&!(g._q.includes(q)||g._nq.includes(nq))) return false;
     return true;
-  }).sort((a, b) => {
-    // Sin búsqueda: featured primero (rank ya calculado), luego alfabético
-    if(!rawQ){
-      const diff = a._featuredRank - b._featuredRank;  // ← O(1), sin recalcular
-      if(diff !== 0) return diff;
-      return a.name.localeCompare(b.name, 'es', {sensitivity:'base'});
-    }
-
-    // Con búsqueda: ordenar por relevancia
-    const aExactText = a._q === q;
-    const bExactText = b._q === q;
-    if(aExactText !== bExactText) return aExactText ? -1 : 1;
-
-    const aExactNorm = a._nq === nq;
-    const bExactNorm = b._nq === nq;
-    if(aExactNorm !== bExactNorm) return aExactNorm ? -1 : 1;
-
-    const aStartsText = a._q.startsWith(q);
-    const bStartsText = b._q.startsWith(q);
-    if(aStartsText !== bStartsText) return aStartsText ? -1 : 1;
-
-    const aStartsNorm = a._nq.startsWith(nq);
-    const bStartsNorm = b._nq.startsWith(nq);
-    if(aStartsNorm !== bStartsNorm) return aStartsNorm ? -1 : 1;
-
-    const aWord = a._q.includes(' '+q);
-    const bWord = b._q.includes(' '+q);
-    if(aWord !== bWord) return aWord ? -1 : 1;
-
-    const aIdx = a._nq.indexOf(nq);
-    const bIdx = b._nq.indexOf(nq);
-    if(aIdx !== bIdx) return aIdx - bIdx;
-
-    return a.name.localeCompare(b.name, 'es', {sensitivity:'base'});
   });
 
-  renderOffset = 0;
-  $('cnt').textContent = `${FILTERED.length.toLocaleString()} juego${FILTERED.length !== 1 ? 's' : ''}`;
+  // Solo re-ordenar cuando hay texto de búsqueda
+  if(rawQ){
+    result=result.sort((a,b)=>{
+      const ae=a._q===q,     be=b._q===q;     if(ae!==be) return ae?-1:1;
+      const an=a._nq===nq,   bn=b._nq===nq;   if(an!==bn) return an?-1:1;
+      const as=a._q.startsWith(q),  bs=b._q.startsWith(q);  if(as!==bs) return as?-1:1;
+      const as2=a._nq.startsWith(nq),bs2=b._nq.startsWith(nq); if(as2!==bs2) return as2?-1:1;
+      const aw=a._q.includes(' '+q), bw=b._q.includes(' '+q); if(aw!==bw) return aw?-1:1;
+      return a._nq.indexOf(nq)-b._nq.indexOf(nq);
+    });
+  }
+
+  FILTERED=result;
+  renderOffset=0;
+  $('cnt').textContent=`${FILTERED.length.toLocaleString()} juego${FILTERED.length!==1?'s':''}`;
   buildVirtualGrid();
 }
 
-$('q').addEventListener('input', ()=>{clearTimeout(searchTimer);searchTimer=setTimeout(applyFilter,150);});
+$('q').addEventListener('input',()=>{
+  clearTimeout(searchTimer);
+  searchTimer=setTimeout(applyFilter,150);
+});
 
 // ── VIRTUAL SCROLL ─────────────────────────────────────────────────────────
 function buildVirtualGrid(){
   $('gamesArea').innerHTML='<div id="gridWrap"><div class="vgrid" id="grid"></div><div id="gridSpacer"></div></div>';
-  renderOffset=0;renderNextChunk();
+  renderOffset=0;
+  renderNextChunk();
   window.removeEventListener('scroll',onScroll);
   window.addEventListener('scroll',onScroll,{passive:true});
 }
 function renderNextChunk(){
-  const grid=$('grid');if(!grid||renderOffset>=FILTERED.length)return;
+  const grid=$('grid');
+  if(!grid||renderOffset>=FILTERED.length) return;
   const end=Math.min(renderOffset+CFG.PAGE_SIZE,FILTERED.length);
   const frag=document.createDocumentFragment();
   for(let i=renderOffset;i<end;i++) frag.appendChild(makeCard(FILTERED[i]));
-  grid.appendChild(frag);renderOffset=end;
-  const wrap=$('gridWrap');if(wrap)wrap.style.minHeight=grid.offsetHeight+'px';
+  grid.appendChild(frag);
+  renderOffset=end;
+  const wrap=$('gridWrap');
+  if(wrap) wrap.style.minHeight=grid.offsetHeight+'px';
 }
 let scrollThrottle=false;
 function onScroll(){
-  if(scrollThrottle)return;scrollThrottle=true;
+  if(scrollThrottle) return; scrollThrottle=true;
   requestAnimationFrame(()=>{
-    const fromBottom=document.documentElement.scrollHeight-window.scrollY-window.innerHeight;
-    if(fromBottom<600)renderNextChunk();scrollThrottle=false;
+    if(document.documentElement.scrollHeight-window.scrollY-window.innerHeight<600) renderNextChunk();
+    scrollThrottle=false;
   });
 }
 
 // ── CARD ───────────────────────────────────────────────────────────────────
 function makeCard(g){
-  const tier=g.tier||'normal';const inCart=cart.some(c=>c.id===g.id);
-  const freeIds=calcTotal().freeNormalIds;const isFree=freeIds.includes(g.id);
-  const sc=inCart?`s${tier[0]}`:'';const P=CFG.prices;
+  const tier=g.tier||'normal';
+  const inCart=cart.some(c=>c.id===g.id);
+  const freeIds=calcTotal().freeNormalIds;
+  const isFree=freeIds.includes(g.id);
+  const sc=inCart?`s${tier[0]}`:''; const P=CFG.prices;
   let ph='';
-  if(tier==='normal') ph=`<div class="pb2"><div class="cp">${fmt(P.normal.single)}</div><div class="cps">3×${fmt(P.normal.pack3)} | 6×${fmt(P.normal.pack6)}</div></div>`;
-  else if(tier==='premium') ph=`<div class="pb2"><div class="cp gp">${fmt(P.premium.solo)}</div><div class="cps gp">o ${fmt(P.premium.mixed)} combo</div></div>`;
-  else ph=`<div class="pb2"><div class="cp sp2">${fmt(P.special.price)}</div><div class="cps sp2">🎁 +${P.special.gifts} regalos</div></div>`;
+  if(tier==='normal')
+    ph=`<div class="pb2"><div class="cp">${fmt(P.normal.single)}</div><div class="cps">3×${fmt(P.normal.pack3)} | 6×${fmt(P.normal.pack6)}</div></div>`;
+  else if(tier==='premium')
+    ph=`<div class="pb2"><div class="cp gp">${fmt(P.premium.solo)}</div><div class="cps gp">o ${fmt(P.premium.mixed)} combo</div></div>`;
+  else
+    ph=`<div class="pb2"><div class="cp sp2">${fmt(P.special.price)}</div><div class="cps sp2">🎁 +${P.special.gifts} regalos</div></div>`;
   const tb=tier==='premium'?`<div class="bdg tb tbp">PREMIUM</div>`:tier==='special'?`<div class="bdg tb tbs">ESPECIAL</div>`:'';
   const div=document.createElement('div');
-  div.className=`card ${sc}`;div.dataset.id=g.id;div.onclick=()=>toggleCart(g.id);
+  div.className=`card ${sc}`; div.dataset.id=g.id; div.onclick=()=>toggleCart(g.id);
   div.innerHTML=`${inCart?`<div class="bdg sb sb${tier[0]}">✓ EN PEDIDO</div>`:tb}
     ${isFree?`<div class="bdg fb">🎁 GRATIS</div>`:''}
-    <img class="cover" loading="lazy" src="${img(g.appId,g.image)}" onerror="imgFallback(this,${g.appId},${JSON.stringify(g.image)})" alt="">
+    <img class="cover" loading="lazy" src="${imgUrl(g.appId,g.image)}" onerror="imgFallback(this,${g.appId},${JSON.stringify(g.image)})" alt="">
     <div class="card-body"><div class="cn">${esc(g.name)}</div>
     <div class="cf">${ph}<button class="addb ${tier[0]}" onclick="event.stopPropagation();toggleCart(${g.id})">${inCart?'✓':'+'}</button></div></div>`;
   return div;
 }
 function refreshCard(id){
-  const el=document.querySelector(`.card[data-id="${id}"]`);if(!el)return;
-  const g=ALL.find(x=>x.id===id);if(!g)return;el.replaceWith(makeCard(g));
+  const el=document.querySelector(`.card[data-id="${id}"]`); if(!el) return;
+  const g=ALL_SORTED.find(x=>x.id===id); if(g) el.replaceWith(makeCard(g));
 }
 
-// ── TOTALES ────────────────────────────────────────────────────────────────
+// ── CARRITO ────────────────────────────────────────────────────────────────
 function calcTotal(){
   const P=CFG.prices;
   const normals=cart.filter(g=>!g.tier||g.tier==='normal');
@@ -635,7 +543,7 @@ function calcTotal(){
   const specials=cart.filter(g=>g.tier==='special');
   const giftsAvail=specials.length*P.special.gifts;
   const freeNormalIds=normals.slice(0,Math.min(giftsAvail,normals.length)).map(g=>g.id);
-  const giftsUsed=freeNormalIds.length,giftsRem=giftsAvail-giftsUsed;
+  const giftsUsed=freeNormalIds.length, giftsRem=giftsAvail-giftsUsed;
   const paid=normals.filter(g=>!freeNormalIds.includes(g.id));
   const n=paid.length,pk6=Math.floor(n/6),r6=n%6,pk3=Math.floor(r6/3),sg=r6%3;
   const normTot=pk6*P.normal.pack6+pk3*P.normal.pack3+sg*P.normal.single;
@@ -644,50 +552,49 @@ function calcTotal(){
   return{total:normTot+premiums.length*pUnit+specials.length*P.special.price,
     normTot,freeNormalIds,giftsAvail,giftsRem,giftsUsed,pk6,pk3,sg,n,hasMix,pUnit,normals,premiums,specials};
 }
-
 function updateCartBadge(){
   const n=cart.length;
   [$('cartCountDesk'),$('cartBadge')].forEach(el=>{
-    if(!el)return;el.textContent=n;
-    el.classList.add('pop');setTimeout(()=>el.classList.remove('pop'),200);
+    if(!el) return; el.textContent=n;
+    el.classList.add('pop'); setTimeout(()=>el.classList.remove('pop'),200);
   });
 }
-
 function toggleCart(id){
-  const g=ALL.find(x=>x.id===id);if(!g)return;
-  const i=cart.findIndex(c=>c.id===id);i===-1?cart.push(g):cart.splice(i,1);
-  updateCartBadge();refreshCard(id);renderCartList();renderTotals();
+  const g=ALL_SORTED.find(x=>x.id===id); if(!g) return;
+  const i=cart.findIndex(c=>c.id===id);
+  i===-1?cart.push(g):cart.splice(i,1);
+  updateCartBadge(); refreshCard(id); renderCartList(); renderTotals();
 }
-
 function renderCartList(){
   const el=$('cl');
-  if(!cart.length){el.innerHTML=`<div class="empty">🎮<br><br>Agregá juegos al pedido</div>`;updGN({giftsAvail:0,giftsRem:0});return;}
-  const c=calcTotal();updGN(c);
+  if(!cart.length){el.innerHTML='<div class="empty">🎮<br><br>Agregá juegos al pedido</div>';updGN({giftsAvail:0,giftsRem:0});return;}
+  const c=calcTotal(); updGN(c);
   const TL={normal:'NORMAL',premium:'PREMIUM',special:'ESPECIAL + 2 REGALOS'};
   el.innerHTML=cart.map(g=>{
-    const t=g.tier||'normal';const fr=c.freeNormalIds.includes(g.id);
-    return`<div class="ci"><img class="cimg" loading="lazy" src="${img(g.appId,g.image)}" onerror="imgFallback(this,${g.appId},${JSON.stringify(g.image)})" alt="">
+    const t=g.tier||'normal'; const fr=c.freeNormalIds.includes(g.id);
+    return`<div class="ci"><img class="cimg" loading="lazy" src="${imgUrl(g.appId,g.image)}" onerror="imgFallback(this,${g.appId},${JSON.stringify(g.image)})" alt="">
       <div class="cinfo"><div class="cname">${esc(g.name)}</div>
       <div class="ctag ${fr?'f':t[0]}">${fr?'🎁 GRATIS — regalo':TL[t]||''}</div></div>
       <button class="rm" onclick="toggleCart(${g.id})">✕</button></div>`;
   }).join('');
 }
 function updGN({giftsAvail,giftsRem}){
-  const el=$('gn'),tx=$('gntxt');if(!giftsAvail){el.classList.remove('show');return;}
+  const el=$('gn'),tx=$('gntxt');
+  if(!giftsAvail){el.classList.remove('show');return;}
   el.classList.add('show');
   if(giftsRem>0){el.className='gn show pe';tx.textContent=`Podés agregar ${giftsRem} juego${giftsRem>1?'s':''} normal${giftsRem>1?'es':''} de regalo`;}
   else{el.className='gn show ok';tx.textContent=`${giftsAvail} regalo${giftsAvail>1?'s':''} aplicado${giftsAvail>1?'s':''} ✓`;}
 }
 function renderTotals(){
-  const el=$('tots');const c=calcTotal();const P=CFG.prices;
+  const el=$('tots'); const c=calcTotal(); const P=CFG.prices;
   if(!cart.length){el.innerHTML='';$('wab').disabled=true;return;}
   let h='';
   if(c.normals.length){
     h+=`<div class="trow hd"><span style="color:var(--acc)">🟢 Normales (${c.normals.length})</span></div>`;
-    if(c.giftsUsed>0)h+=`<div class="trow sb2"><span class="lbl">${c.giftsUsed} regalo${c.giftsUsed>1?'s':''}</span><span style="color:var(--acc)">GRATIS</span></div>`;
-    if(c.pk6>0)h+=`<div class="trow sb2"><span class="lbl">${c.pk6}× pack de 6</span><span>${fmt(c.pk6*P.normal.pack6)}</span></div>`;
-    if(c.pk3>0)h+=`<div class="trow sb2"><span class="lbl">${c.pk3}× pack de 3</span><span>${fmt(c.pk3*P.normal.pack3)}</span></div>`;
-    if(c.sg>0)h+=`<div class="trow sb2"><span class="lbl">${c.sg} suelto${c.sg>1?'s':''}</span><span>${fmt(c.sg*P.normal.single)}</span></div>`;
+    if(c.giftsUsed>0) h+=`<div class="trow sb2"><span class="lbl">${c.giftsUsed} regalo${c.giftsUsed>1?'s':''}</span><span style="color:var(--acc)">GRATIS</span></div>`;
+    if(c.pk6>0) h+=`<div class="trow sb2"><span class="lbl">${c.pk6}× pack de 6</span><span>${fmt(c.pk6*P.normal.pack6)}</span></div>`;
+    if(c.pk3>0) h+=`<div class="trow sb2"><span class="lbl">${c.pk3}× pack de 3</span><span>${fmt(c.pk3*P.normal.pack3)}</span></div>`;
+    if(c.sg>0)  h+=`<div class="trow sb2"><span class="lbl">${c.sg} suelto${c.sg>1?'s':''}</span><span>${fmt(c.sg*P.normal.single)}</span></div>`;
   }
   if(c.premiums.length){
     const lbl=c.hasMix?`${fmt(P.premium.mixed)} c/u combo`:`${fmt(P.premium.solo)} c/u`;
@@ -696,57 +603,53 @@ function renderTotals(){
   }
   if(c.specials.length){
     h+=`<div class="trow hd"><span style="color:var(--pur)">🟣 Especiales (${c.specials.length})</span></div>`;
-    if(c.giftsRem>0)h+=`<div class="trow dp"><span>🎁 Faltan ${c.giftsRem} regalos</span><span>—</span></div>`;
+    if(c.giftsRem>0) h+=`<div class="trow dp"><span>🎁 Faltan ${c.giftsRem} regalos</span><span>—</span></div>`;
   }
   h+=`<div class="trow tot"><span>TOTAL</span><span>${fmt(c.total)}</span></div>`;
-  el.innerHTML=h;$('wab').disabled=false;
+  el.innerHTML=h; $('wab').disabled=false;
 }
 
 // ── WHATSAPP ───────────────────────────────────────────────────────────────
 function sendWA(){
-  if(!cart.length)return;
-  const c=calcTotal();const P=CFG.prices;
+  if(!cart.length) return;
+  const c=calcTotal(); const P=CFG.prices;
   let ln='',lp='',ls='';
   if(c.normals.length){
     ln=`\n🟢 *NORMALES (${c.normals.length}):*\n`;
     c.normals.forEach(g=>{ln+=`  • ${g.name}${c.freeNormalIds.includes(g.id)?' 🎁 GRATIS':''}\n`;});
     const pd=[];
-    if(c.pk6>0)pd.push(`${c.pk6}× pack de 6 = ${fmt(c.pk6*P.normal.pack6)}`);
-    if(c.pk3>0)pd.push(`${c.pk3}× pack de 3 = ${fmt(c.pk3*P.normal.pack3)}`);
-    if(c.sg>0)pd.push(`${c.sg} suelto${c.sg>1?'s':''} = ${fmt(c.sg*P.normal.single)}`);
-    if(pd.length)ln+=`  📦 ${pd.join(' | ')}\n`;
+    if(c.pk6>0) pd.push(`${c.pk6}× pack de 6 = ${fmt(c.pk6*P.normal.pack6)}`);
+    if(c.pk3>0) pd.push(`${c.pk3}× pack de 3 = ${fmt(c.pk3*P.normal.pack3)}`);
+    if(c.sg>0)  pd.push(`${c.sg} suelto${c.sg>1?'s':''} = ${fmt(c.sg*P.normal.single)}`);
+    if(pd.length) ln+=`  📦 ${pd.join(' | ')}\n`;
   }
   if(c.premiums.length){
     const lbl=c.hasMix?`${fmt(P.premium.mixed)} c/u combo`:`${fmt(P.premium.solo)} c/u`;
-    lp=`\n💛 *PREMIUM — ${lbl}:*\n`;c.premiums.forEach(g=>{lp+=`  • ${g.name}\n`;});
+    lp=`\n💛 *PREMIUM — ${lbl}:*\n`; c.premiums.forEach(g=>{lp+=`  • ${g.name}\n`;});
   }
   if(c.specials.length){
     ls=`\n🟣 *ESPECIALES (${fmt(P.special.price)} c/u + ${P.special.gifts} regalos):*\n`;
     c.specials.forEach(g=>{ls+=`  • ${g.name}\n`;});
-    if(c.giftsRem>0)ls+=`  🎁 Faltan ${c.giftsRem} regalos por elegir\n`;
+    if(c.giftsRem>0) ls+=`  🎁 Faltan ${c.giftsRem} regalos por elegir\n`;
   }
   let msg=CFG.mensajeWA;
   [{storeName:CFG.storeName},{aliasTienda:CFG.aliasTienda},{listaNormal:ln},{listaPremium:lp},{listaEspecial:ls},{total:fmt(c.total)}]
     .forEach(v=>Object.entries(v).forEach(([k,val])=>{msg=msg.replaceAll(`{${k}}`,val);}));
   window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(msg)}`,'_blank');
 }
-
 function openWAConsulta(){
-  const msg=`👋 Hola! Quiero un juego que no está en la lista 👀 ¿Me pueden ayudar?`;
-  window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(msg)}`,'_blank');
+  window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent('👋 Hola! Quiero un juego que no está en la lista 👀 ¿Me pueden ayudar?')}`,'_blank');
 }
 
-// ── PANEL / MODALES ────────────────────────────────────────────────────────
-function openPanel(){$('panel').classList.add('open');$('overlay').classList.add('open');renderCartList();renderTotals();}
-function closePanel(){$('panel').classList.remove('open');$('overlay').classList.remove('open');}
-function openPedir(){$('pedirModal').classList.add('open');}
-function closePedir(e,force=false){if(force||e&&e.target===$('pedirModal'))$('pedirModal').classList.remove('open');}
-function openHow(){$('howModal').classList.add('open');}
-function closeHow(e,force=false){if(force||e&&e.target===$('howModal'))$('howModal').classList.remove('open');}
+// ── UI ─────────────────────────────────────────────────────────────────────
+function openPanel(){ $('panel').classList.add('open'); $('overlay').classList.add('open'); renderCartList(); renderTotals(); }
+function closePanel(){ $('panel').classList.remove('open'); $('overlay').classList.remove('open'); }
+function openPedir(){ $('pedirModal').classList.add('open'); }
+function closePedir(e,f=false){ if(f||e&&e.target===$('pedirModal')) $('pedirModal').classList.remove('open'); }
+function openHow(){ $('howModal').classList.add('open'); }
+function closeHow(e,f=false){ if(f||e&&e.target===$('howModal')) $('howModal').classList.remove('open'); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-
-// ── INIT ───────────────────────────────────────────────────────────────────
 loadGames();
 </script>
 </body>
