@@ -414,9 +414,38 @@ function normalizeSearch(str){
     .toString()
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g,'')
-    .replace(/['’`"]/g,'')
+    .replace(/[\u0300-\u036f]/g,'')
+    .replace(/['’`"´]/g,'')
     .replace(/[^a-z0-9]+/g,'');
+}
+
+const FEATURED_GAMES = [
+  {label:'CRIMSON DESERT', terms:['crimsondesert']},
+  {label:'RESIDENT EVIL REQUIEM', terms:['residentevilrequiem']},
+  {label:'Cyberpunk 2077', terms:['cyberpunk2077']},
+  {label:'ELDEN RING', terms:['eldenring']},
+  {label:'The Last of Us Part I', terms:['thelastofusparti','lastofusparti','thelastofus1','lastofus1']},
+  {label:'Marvel’s Spider-Man Remastered', terms:['marvelsspidermanremastered','spidermanremastered']},
+  {label:'Marvel’s Spider-Man 2', terms:['marvelsspiderman2','spiderman2']},
+  {label:'God of War Ragnarök', terms:['godofwarragnarok','gowragnarok']},
+  {label:'Hogwarts Legacy', terms:['hogwartslegacy']},
+  {label:'God of War', terms:['godofwar']},
+  {label:'The Last of Us Part II', terms:['thelastofuspartii','lastofuspartii','thelastofus2','lastofus2']},
+  {label:'Dark Souls 1', terms:['darksoulsremastered','darksouls1']},
+  {label:'Dark Souls 2', terms:['darksoulsii','darksouls2']},
+  {label:'Dark Souls 3', terms:['darksoulsiii','darksouls3']},
+  {label:'F1 25', terms:['f125']},
+  {label:'Black Myth: Wukong', terms:['blackmythwukong','wukong']},
+  {label:'Stellar Blade', terms:['stellarblade','stelarblade']}
+];
+
+function getFeaturedRank(game){
+  const nq = game && game._nq ? game._nq : normalizeSearch(game?.name || '');
+  for(let i=0;i<FEATURED_GAMES.length;i++){
+    const item = FEATURED_GAMES[i];
+    if(item.terms.some(term => nq.includes(term))) return i;
+  }
+  return Number.MAX_SAFE_INTEGER;
 }
 
 function imgFallback(el,appId,custom){
@@ -454,20 +483,12 @@ async function loadGames(manual=false){
     const cols={};table.cols.forEach((c,i)=>{if(c.label)cols[c.label.toLowerCase().trim()]=i;});
     const gc=(row,name)=>{const i=cols[name];if(i===undefined||!row.c||!row.c[i]||row.c[i].v===null)return '';return String(row.c[i].v!==undefined?row.c[i].v:row.c[i].f||'');};
     ALL=table.rows.filter(row=>gc(row,'available').toUpperCase()==='TRUE'&&gc(row,'name')&&gc(row,'appid'))
-      .map((row,i)=>{
-        const name=gc(row,'name').trim();
-        return {
-          id:parseInt(gc(row,'id'))||i+1,
-          name,
-          appId:parseInt(gc(row,'appid'))||0,
-          tier:(['normal','premium','special'].includes(gc(row,'tier').toLowerCase())?gc(row,'tier').toLowerCase():'normal'),
-          price:parseInt(gc(row,'price'))||CFG.prices.normal.single,
-          tags:gc(row,'tags').split(',').map(t=>t.trim()).filter(Boolean),
-          image:gc(row,'imageurl')||'',
-          _q:name.toLowerCase(),
-          _nq:normalizeSearch(name)
-        };
-      });
+      .map((row,i)=>({id:parseInt(gc(row,'id'))||i+1,name:gc(row,'name').trim(),appId:parseInt(gc(row,'appid'))||0,
+        tier:(['normal','premium','special'].includes(gc(row,'tier').toLowerCase())?gc(row,'tier').toLowerCase():'normal'),
+        price:parseInt(gc(row,'price'))||CFG.prices.normal.single,
+        tags:gc(row,'tags').split(',').map(t=>t.trim()).filter(Boolean),
+        image:gc(row,'imageurl')||'',
+        _q:gc(row,'name').toLowerCase()}));
     const now=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
     $('lu').textContent=`${ALL.length.toLocaleString()} juegos · ${now}`;
     buildTierFilters();buildTagFilters();applyFilter();renderTotals();
@@ -499,47 +520,50 @@ function applyFilter(){
   const q=rawQ.toLowerCase();
   const nq=normalizeSearch(rawQ);
 
-  FILTERED=ALL
-    .filter(g=>{
-      if(activeTier!=='all'&&g.tier!==activeTier)return false;
-      if(activeTag!=='Todos'&&!g.tags.includes(activeTag))return false;
-      if(!rawQ)return true;
-      return (g._q&&g._q.includes(q))||(g._nq&&g._nq.includes(nq));
-    })
-    .sort((a,b)=>{
-      if(!rawQ)return a.name.localeCompare(b.name,'es',{sensitivity:'base'});
-
-      const aQ=a._q||'';
-      const bQ=b._q||'';
-      const aN=a._nq||'';
-      const bN=b._nq||'';
-
-      const qExactA=aQ===q;
-      const qExactB=bQ===q;
-      if(qExactA!==qExactB)return qExactA?-1:1;
-
-      const nqExactA=aN===nq;
-      const nqExactB=bN===nq;
-      if(nqExactA!==nqExactB)return nqExactA?-1:1;
-
-      const qStartsA=aQ.startsWith(q);
-      const qStartsB=bQ.startsWith(q);
-      if(qStartsA!==qStartsB)return qStartsA?-1:1;
-
-      const nqStartsA=aN.startsWith(nq);
-      const nqStartsB=bN.startsWith(nq);
-      if(nqStartsA!==nqStartsB)return nqStartsA?-1:1;
-
-      const qWordA=aQ.includes(' '+q);
-      const qWordB=bQ.includes(' '+q);
-      if(qWordA!==qWordB)return qWordA?-1:1;
-
-      const idxA=aN.indexOf(nq);
-      const idxB=bN.indexOf(nq);
-      if(idxA!==idxB)return idxA-idxB;
-
+  FILTERED=ALL.filter(g=>{
+    if(activeTier!=='all'&&g.tier!==activeTier)return false;
+    if(activeTag!=='Todos'&&!g.tags.includes(activeTag))return false;
+    if(rawQ && !((g._q&&g._q.includes(q))||(g._nq&&g._nq.includes(nq)))) return false;
+    return true;
+  }).sort((a,b)=>{
+    if(!rawQ){
+      const aFeatured=getFeaturedRank(a);
+      const bFeatured=getFeaturedRank(b);
+      if(aFeatured!==bFeatured)return aFeatured-bFeatured;
       return a.name.localeCompare(b.name,'es',{sensitivity:'base'});
-    });
+    }
+
+    const aQ=a._q||'';
+    const bQ=b._q||'';
+    const aN=a._nq||'';
+    const bN=b._nq||'';
+
+    const aExactText=aQ===q;
+    const bExactText=bQ===q;
+    if(aExactText!==bExactText)return aExactText?-1:1;
+
+    const aExactNorm=aN===nq;
+    const bExactNorm=bN===nq;
+    if(aExactNorm!==bExactNorm)return aExactNorm?-1:1;
+
+    const aStartsText=aQ.startsWith(q);
+    const bStartsText=bQ.startsWith(q);
+    if(aStartsText!==bStartsText)return aStartsText?-1:1;
+
+    const aStartsNorm=aN.startsWith(nq);
+    const bStartsNorm=bN.startsWith(nq);
+    if(aStartsNorm!==bStartsNorm)return aStartsNorm?-1:1;
+
+    const aWord=aQ.includes(' '+q);
+    const bWord=bQ.includes(' '+q);
+    if(aWord!==bWord)return aWord?-1:1;
+
+    const aIdx=aN.indexOf(nq);
+    const bIdx=bN.indexOf(nq);
+    if(aIdx!==bIdx)return aIdx-bIdx;
+
+    return a.name.localeCompare(b.name,'es',{sensitivity:'base'});
+  });
 
   renderOffset=0;
   $('cnt').textContent=`${FILTERED.length.toLocaleString()} juego${FILTERED.length!==1?'s':''}`;
