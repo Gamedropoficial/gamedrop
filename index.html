@@ -478,12 +478,27 @@ function setTag(t){activeTag=t;buildTagFilters();applyFilter();}
 
 function applyFilter(){
   const q=($('q').value||'').toLowerCase().trim();
+  const scoreGame=(g)=>{
+    if(!q)return {score:0,name:g.name.toLowerCase()};
+    const name=(g.name||'').toLowerCase();
+    if(name===q)return {score:0,name};
+    if(name.startsWith(q))return {score:1,name};
+    if(name.split(/[^a-z0-9]+/i).some(word=>word.startsWith(q)))return {score:2,name};
+    return {score:3,name};
+  };
+
   FILTERED=ALL.filter(g=>{
     if(activeTier!=='all'&&g.tier!==activeTier)return false;
     if(activeTag!=='Todos'&&!g.tags.includes(activeTag))return false;
     if(q&&!g._q.includes(q))return false;
     return true;
+  }).sort((a,b)=>{
+    const sa=scoreGame(a);
+    const sb=scoreGame(b);
+    if(sa.score!==sb.score)return sa.score-sb.score;
+    return sa.name.localeCompare(sb.name,'es',{sensitivity:'base'});
   });
+
   renderOffset=0;
   $('cnt').textContent=`${FILTERED.length.toLocaleString()} juego${FILTERED.length!==1?'s':''}`;
   buildVirtualGrid();
