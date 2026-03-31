@@ -11,8 +11,7 @@ const CFG = {
     special: {price:25000,gifts:2},
   },
   mensajeWA: '🎮 *PEDIDO {storeName}*\n━━━━━━━━━━━━━━━━━━━━\n{listaNormal}{listaPremium}{listaEspecial}\n💳 *TOTAL: {total}*\n🏦 Transferir a: *{aliasTienda}*\n━━━━━━━━━━━━━━━━━━━━\n¡Muchas gracias! Confirmamos tu pedido a la brevedad 🙌',
-  PAGE_SIZE: 24,
-  PARSE_CHUNK: 400,
+  PAGE_SIZE: 24
 };
 
 let ALL_SORTED = [];
@@ -23,20 +22,17 @@ let activeTier = 'all';
 let renderOffset = 0;
 let searchTimer  = null;
 let GAME_BY_ID   = new Map();
-let TAG_FREQ     = Object.create(null);
-
-const collator = new Intl.Collator('es', { sensitivity:'base' });
-const idle = window.requestIdleCallback || ((cb)=>setTimeout(()=>cb({timeRemaining:()=>16}),1));
 
 const $ = id => document.getElementById(id);
 const fmt = n => CFG.currency + Number(n).toLocaleString('es-AR');
 const imgUrl = (appId, custom) => custom || `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appId}/header.jpg`;
+const collator = new Intl.Collator('es', { sensitivity:'base' });
 
 function norm(str){
   return (str || '').toString().toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g,'')
-    .replace(/[’'`"´]/g,'')
+    .replace(/['’`"´]/g,'')
     .replace(/[^a-z0-9]+/g,'');
 }
 
@@ -67,14 +63,6 @@ function featuredRank(nq){
   return 99999;
 }
 
-function esc(s){
-  return String(s)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
-}
-
 function imgFallback(el, appId, custom){
   const t = el.dataset.tried || '';
   if(!t && custom){
@@ -94,34 +82,15 @@ function imgFallback(el, appId, custom){
   }
 }
 
-function compareBase(a,b){
-  return collator.compare(a.name, b.name);
+function esc(s){
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
 }
 
-function compareSearch(a,b,q,nq){
-  const ae = a._q === q, be = b._q === q;
-  if(ae !== be) return ae ? -1 : 1;
-
-  const an = a._nq === nq, bn = b._nq === nq;
-  if(an !== bn) return an ? -1 : 1;
-
-  const as = a._q.startsWith(q), bs = b._q.startsWith(q);
-  if(as !== bs) return as ? -1 : 1;
-
-  const as2 = a._nq.startsWith(nq), bs2 = b._nq.startsWith(nq);
-  if(as2 !== bs2) return as2 ? -1 : 1;
-
-  const aw = a._q.includes(' ' + q), bw = b._q.includes(' ' + q);
-  if(aw !== bw) return aw ? -1 : 1;
-
-  const ai = a._nq.indexOf(nq);
-  const bi = b._nq.indexOf(nq);
-  if(ai !== bi) return ai - bi;
-
-  return collator.compare(a.name, b.name);
-}
-
-// ── CARGA ─────────────────────────────────────────────────────────
+// ── CARGA ─────────────────────────────────────────────────────────────
 async function loadGames(manual=false){
   const btn = $('refreshBtn');
   btn.classList.add('spinning');
@@ -130,13 +99,18 @@ async function loadGames(manual=false){
     $('gamesArea').innerHTML = '<div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span></div>';
   }
 
-  try{
-    const url = `https://docs.google.com/spreadsheets/d/${CFG.sheetId}/gviz/tq?tqx=out:json&t=${Date.now()}`;
-    const text = await fetch(url).then(r => r.text());
-    const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);\s*$/)[1]);
-    const table = json.table;
+  const url = `https://docs.google.com/spreadsheets/d/${CFG.sheetId}/gviz/tq?tqx=out:json&t=${Date.now()}`;
 
+  try{
+    const text = await fetch(url).then(r => r.text());
+    const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);\s*$/);
+
+    if(!match) throw new Error('No se pudo parsear la respuesta del sheet');
+
+    const json = JSON.parse(match[1]);
+    const table = json.table;
     const cols = {};
+
     table.cols.forEach((c,i)=>{
       if(c.label) cols[c.label.toLowerCase().trim()] = i;
     });
@@ -147,66 +121,34 @@ async function loadGames(manual=false){
       return String(row.c[i].v !== undefined ? row.c[i].v : (row.c[i].f || ''));
     };
 
-    const rows = table.rows;
-    const parsed = [];
-    TAG_FREQ = Object.create(null);
+    const raw = table.rows
+      .filter(row => gc(row,'available').toUpperCase() === 'TRUE' && gc(row,'name') && gc(row,'appid'))
+      .map((row,i)=>{
+        const name = gc(row,'name').trim();
+        const _nq = norm(name);
 
-    let idx = 0;
+        return {
+          id: parseInt(gc(row,'id')) || i + 1,
+          name,
+          appId: parseInt(gc(row,'appid')) || 0,
+          tier: ['normal','premium','special'].includes(gc(row,'tier').toLowerCase()) ? gc(row,'tier').toLowerCase() : 'normal',
+          price: parseInt(gc(row,'price')) || CFG.prices.normal.single,
+          tags: gc(row,'tags').split(',').map(t => t.trim()).filter(Boolean),
+          image: gc(row,'imageurl') || '',
+          _q: name.toLowerCase(),
+          _nq,
+          _rank: featuredRank(_nq)
+        };
+      });
 
-    await new Promise(resolve=>{
-      function step(){
-        const end = Math.min(idx + CFG.PARSE_CHUNK, rows.length);
-
-        for(; idx < end; idx++){
-          const row = rows[idx];
-          if(gc(row,'available').toUpperCase() !== 'TRUE') continue;
-
-          const name = gc(row,'name').trim();
-          const appId = parseInt(gc(row,'appid')) || 0;
-          if(!name || !appId) continue;
-
-          const tierRaw = gc(row,'tier').toLowerCase();
-          const tier = ['normal','premium','special'].includes(tierRaw) ? tierRaw : 'normal';
-          const tags = gc(row,'tags').split(',').map(t=>t.trim()).filter(Boolean);
-          const _nq = norm(name);
-
-          const game = {
-            id: parseInt(gc(row,'id')) || parsed.length + 1,
-            name,
-            appId,
-            tier,
-            price: parseInt(gc(row,'price')) || CFG.prices.normal.single,
-            tags,
-            image: gc(row,'imageurl') || '',
-            _q: name.toLowerCase(),
-            _nq,
-            _rank: featuredRank(_nq)
-          };
-
-          parsed.push(game);
-
-          for(let j=0;j<tags.length;j++){
-            TAG_FREQ[tags[j]] = (TAG_FREQ[tags[j]] || 0) + 1;
-          }
-        }
-
-        if(idx < rows.length){
-          idle(step);
-        } else {
-          resolve();
-        }
-      }
-
-      step();
-    });
-
-    parsed.sort((a,b)=>{
+    ALL_SORTED = raw.sort((a,b)=>{
       const d = a._rank - b._rank;
-      return d !== 0 ? d : collator.compare(a.name, b.name);
+      if(d !== 0) return d;
+      return collator.compare(a.name, b.name);
     });
 
-    ALL_SORTED = parsed;
-    GAME_BY_ID = new Map(ALL_SORTED.map(g => [g.id, g]));
+    GAME_BY_ID = new Map();
+    ALL_SORTED.forEach(g => GAME_BY_ID.set(g.id, g));
 
     const now = new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
     $('lu').textContent = `${ALL_SORTED.length.toLocaleString()} juegos · ${now}`;
@@ -215,7 +157,9 @@ async function loadGames(manual=false){
     buildTagFilters();
     applyFilter();
     renderTotals();
+
   }catch(e){
+    console.error(e);
     $('gamesArea').innerHTML = `<div class="err-box"><strong>No se pudo cargar el catálogo</strong>
       El Google Sheet debe estar compartido como <b>"Cualquiera con el enlace puede ver"</b>.<br><br>
       <button onclick="loadGames(true)" style="margin-top:10px;background:var(--s2);border:1px solid var(--bdr);color:var(--txt);padding:7px 18px;border-radius:8px;cursor:pointer;font-family:var(--fB)">Reintentar</button></div>`;
@@ -224,14 +168,12 @@ async function loadGames(manual=false){
   }
 }
 
-// ── FILTROS UI ───────────────────────────────────────────────────
+// ── FILTROS UI ─────────────────────────────────────────────────────
 function buildTierFilters(){
   const L = {all:'Todos',normal:'🟢 Normal',premium:'💛 Premium',special:'🟣 Especial'};
   const on = {all:'on-all',normal:'on-normal',premium:'on-premium',special:'on-special'};
   const tiers = ['all', ...new Set(ALL_SORTED.map(g => g.tier))];
-  $('tfs').innerHTML = tiers.map(t =>
-    `<button class="tf${activeTier===t?' '+on[t]:''}" onclick="setTier('${t}')">${L[t]||t}</button>`
-  ).join('');
+  $('tfs').innerHTML = tiers.map(t => `<button class="tf${activeTier===t?' '+on[t]:''}" onclick="setTier('${t}')">${L[t]||t}</button>`).join('');
 }
 
 function setTier(t){
@@ -241,14 +183,10 @@ function setTier(t){
 }
 
 function buildTagFilters(){
-  const top = ['Todos', ...Object.entries(TAG_FREQ)
-    .sort((a,b)=>b[1]-a[1])
-    .slice(0,20)
-    .map(([t])=>t)];
-
-  $('tags').innerHTML = top.map(t =>
-    `<button class="tag${t===activeTag?' on':''}" onclick="setTag('${t}')">${esc(t)}</button>`
-  ).join('');
+  const freq = {};
+  ALL_SORTED.forEach(g => g.tags.forEach(t => { freq[t] = (freq[t] || 0) + 1; }));
+  const top = ['Todos', ...Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([t])=>t)];
+  $('tags').innerHTML = top.map(t => `<button class="tag${t===activeTag?' on':''}" onclick="setTag('${t}')">${esc(t)}</button>`).join('');
 }
 
 function setTag(t){
@@ -257,7 +195,7 @@ function setTag(t){
   applyFilter();
 }
 
-// ── FILTRAR ──────────────────────────────────────────────────────
+// ── FILTRAR ────────────────────────────────────────────────────────
 function applyFilter(){
   const rawQ = ($('q').value || '').trim();
   const q = rawQ.toLowerCase();
@@ -271,21 +209,42 @@ function applyFilter(){
   });
 
   if(rawQ){
-    result.sort((a,b)=>compareSearch(a,b,q,nq));
+    result = result.sort((a,b)=>{
+      const ae = a._q === q, be = b._q === q;
+      if(ae !== be) return ae ? -1 : 1;
+
+      const an = a._nq === nq, bn = b._nq === nq;
+      if(an !== bn) return an ? -1 : 1;
+
+      const as = a._q.startsWith(q), bs = b._q.startsWith(q);
+      if(as !== bs) return as ? -1 : 1;
+
+      const as2 = a._nq.startsWith(nq), bs2 = b._nq.startsWith(nq);
+      if(as2 !== bs2) return as2 ? -1 : 1;
+
+      const aw = a._q.includes(' ' + q), bw = b._q.includes(' ' + q);
+      if(aw !== bw) return aw ? -1 : 1;
+
+      const ai = a._nq.indexOf(nq);
+      const bi = b._nq.indexOf(nq);
+      if(ai !== bi) return ai - bi;
+
+      return collator.compare(a.name, b.name);
+    });
   }
 
   FILTERED = result;
   renderOffset = 0;
-  $('cnt').textContent = `${FILTERED.length.toLocaleString()} juego${FILTERED.length!==1?'s':''}`;
+  $('cnt').textContent = `${FILTERED.length.toLocaleString()} juego${FILTERED.length !== 1 ? 's' : ''}`;
   buildVirtualGrid();
 }
 
-$('q').addEventListener('input', ()=>{
+$('q').addEventListener('input',()=>{
   clearTimeout(searchTimer);
-  searchTimer = setTimeout(applyFilter, 120);
+  searchTimer = setTimeout(applyFilter, 150);
 });
 
-// ── VIRTUAL SCROLL ───────────────────────────────────────────────
+// ── VIRTUAL SCROLL ─────────────────────────────────────────────────
 function buildVirtualGrid(){
   $('gamesArea').innerHTML = '<div id="gridWrap"><div class="vgrid" id="grid"></div><div id="gridSpacer"></div></div>';
   renderOffset = 0;
@@ -326,7 +285,7 @@ function makeCardHTML(g){
         <div class="cn">${esc(g.name)}</div>
         <div class="cf">
           ${ph}
-          <button class="addb ${tier[0]}" onclick="event.stopPropagation();toggleCart(${g.id})">${inCart?'✓':'+'}</button>
+          <button class="addb ${tier[0]}" onclick="event.stopPropagation();toggleCart(${g.id})">${inCart ? '✓' : '+'}</button>
         </div>
       </div>
     </div>
@@ -340,7 +299,7 @@ function renderNextChunk(){
   const end = Math.min(renderOffset + CFG.PAGE_SIZE, FILTERED.length);
   let html = '';
 
-  for(let i=renderOffset;i<end;i++){
+  for(let i=renderOffset; i<end; i++){
     html += makeCardHTML(FILTERED[i]);
   }
 
@@ -348,28 +307,25 @@ function renderNextChunk(){
   renderOffset = end;
 
   const wrap = $('gridWrap');
-  if(wrap && (renderOffset <= CFG.PAGE_SIZE || renderOffset % (CFG.PAGE_SIZE * 3) === 0)){
-    wrap.style.minHeight = grid.offsetHeight + 'px';
-  }
+  if(wrap) wrap.style.minHeight = grid.offsetHeight + 'px';
 }
 
 let scrollThrottle = false;
 function onScroll(){
   if(scrollThrottle) return;
   scrollThrottle = true;
-
   requestAnimationFrame(()=>{
-    if(document.documentElement.scrollHeight - window.scrollY - window.innerHeight < 700){
+    if(document.documentElement.scrollHeight - window.scrollY - window.innerHeight < 600){
       renderNextChunk();
     }
     scrollThrottle = false;
   });
 }
 
-// ── CARRITO ──────────────────────────────────────────────────────
+// ── CARRITO ───────────────────────────────────────────────────────
 function calcTotal(){
   const P = CFG.prices;
-  const normals  = cart.filter(g => !g.tier || g.tier === 'normal');
+  const normals = cart.filter(g => !g.tier || g.tier === 'normal');
   const premiums = cart.filter(g => g.tier === 'premium');
   const specials = cart.filter(g => g.tier === 'special');
 
@@ -381,9 +337,9 @@ function calcTotal(){
   const paid = normals.filter(g => !freeNormalIds.includes(g.id));
   const n = paid.length;
   const pk6 = Math.floor(n / 6);
-  const r6  = n % 6;
+  const r6 = n % 6;
   const pk3 = Math.floor(r6 / 3);
-  const sg  = r6 % 3;
+  const sg = r6 % 3;
 
   const normTot = pk6 * P.normal.pack6 + pk3 * P.normal.pack3 + sg * P.normal.single;
   const hasMix = normals.length > 0 || specials.length > 0;
@@ -402,7 +358,7 @@ function updateCartBadge(){
     if(!el) return;
     el.textContent = n;
     el.classList.add('pop');
-    setTimeout(()=>el.classList.remove('pop'), 200);
+    setTimeout(()=>el.classList.remove('pop'),200);
   });
 }
 
@@ -441,21 +397,15 @@ function renderCartList(){
 
   const c = calcTotal();
   updGN(c);
+  const TL = {normal:'NORMAL',premium:'PREMIUM',special:'ESPECIAL + 2 REGALOS'};
 
-  const TL = {normal:'NORMAL', premium:'PREMIUM', special:'ESPECIAL + 2 REGALOS'};
   el.innerHTML = cart.map(g=>{
     const t = g.tier || 'normal';
     const fr = c.freeNormalIds.includes(g.id);
-    return `
-      <div class="ci">
-        <img class="cimg" loading="lazy" src="${imgUrl(g.appId,g.image)}" onerror="imgFallback(this,${g.appId},${JSON.stringify(g.image)})" alt="">
-        <div class="cinfo">
-          <div class="cname">${esc(g.name)}</div>
-          <div class="ctag ${fr?'f':t[0]}">${fr ? '🎁 GRATIS — regalo' : (TL[t] || '')}</div>
-        </div>
-        <button class="rm" onclick="toggleCart(${g.id})">✕</button>
-      </div>
-    `;
+    return `<div class="ci"><img class="cimg" loading="lazy" src="${imgUrl(g.appId,g.image)}" onerror="imgFallback(this,${g.appId},${JSON.stringify(g.image)})" alt="">
+      <div class="cinfo"><div class="cname">${esc(g.name)}</div>
+      <div class="ctag ${fr?'f':t[0]}">${fr ? '🎁 GRATIS — regalo' : (TL[t] || '')}</div></div>
+      <button class="rm" onclick="toggleCart(${g.id})">✕</button></div>`;
   }).join('');
 }
 
@@ -497,7 +447,7 @@ function renderTotals(){
     if(c.giftsUsed>0) h += `<div class="trow sb2"><span class="lbl">${c.giftsUsed} regalo${c.giftsUsed>1?'s':''}</span><span style="color:var(--acc)">GRATIS</span></div>`;
     if(c.pk6>0) h += `<div class="trow sb2"><span class="lbl">${c.pk6}× pack de 6</span><span>${fmt(c.pk6*P.normal.pack6)}</span></div>`;
     if(c.pk3>0) h += `<div class="trow sb2"><span class="lbl">${c.pk3}× pack de 3</span><span>${fmt(c.pk3*P.normal.pack3)}</span></div>`;
-    if(c.sg>0)  h += `<div class="trow sb2"><span class="lbl">${c.sg} suelto${c.sg>1?'s':''}</span><span>${fmt(c.sg*P.normal.single)}</span></div>`;
+    if(c.sg>0) h += `<div class="trow sb2"><span class="lbl">${c.sg} suelto${c.sg>1?'s':''}</span><span>${fmt(c.sg*P.normal.single)}</span></div>`;
   }
 
   if(c.premiums.length){
@@ -519,36 +469,32 @@ function renderTotals(){
   $('wab').disabled = false;
 }
 
-// ── WHATSAPP ─────────────────────────────────────────────────────
+// ── WHATSAPP ──────────────────────────────────────────────────────
 function sendWA(){
   if(!cart.length) return;
-
   const c = calcTotal();
   const P = CFG.prices;
   let ln = '', lp = '', ls = '';
 
   if(c.normals.length){
     ln = `\n🟢 *NORMALES (${c.normals.length}):*\n`;
-    c.normals.forEach(g=>{
-      ln += `  • ${g.name}${c.freeNormalIds.includes(g.id) ? ' 🎁 GRATIS' : ''}\n`;
-    });
-
+    c.normals.forEach(g => { ln += `  • ${g.name}${c.freeNormalIds.includes(g.id) ? ' 🎁 GRATIS' : ''}\n`; });
     const pd = [];
     if(c.pk6>0) pd.push(`${c.pk6}× pack de 6 = ${fmt(c.pk6*P.normal.pack6)}`);
     if(c.pk3>0) pd.push(`${c.pk3}× pack de 3 = ${fmt(c.pk3*P.normal.pack3)}`);
-    if(c.sg>0)  pd.push(`${c.sg} suelto${c.sg>1?'s':''} = ${fmt(c.sg*P.normal.single)}`);
+    if(c.sg>0) pd.push(`${c.sg} suelto${c.sg>1?'s':''} = ${fmt(c.sg*P.normal.single)}`);
     if(pd.length) ln += `  📦 ${pd.join(' | ')}\n`;
   }
 
   if(c.premiums.length){
     const lbl = c.hasMix ? `${fmt(P.premium.mixed)} c/u combo` : `${fmt(P.premium.solo)} c/u`;
     lp = `\n💛 *PREMIUM — ${lbl}:*\n`;
-    c.premiums.forEach(g=>{ lp += `  • ${g.name}\n`; });
+    c.premiums.forEach(g => { lp += `  • ${g.name}\n`; });
   }
 
   if(c.specials.length){
     ls = `\n🟣 *ESPECIALES (${fmt(P.special.price)} c/u + ${P.special.gifts} regalos):*\n`;
-    c.specials.forEach(g=>{ ls += `  • ${g.name}\n`; });
+    c.specials.forEach(g => { ls += `  • ${g.name}\n`; });
     if(c.giftsRem>0) ls += `  🎁 Faltan ${c.giftsRem} regalos por elegir\n`;
   }
 
@@ -560,11 +506,9 @@ function sendWA(){
     {listaPremium:lp},
     {listaEspecial:ls},
     {total:fmt(c.total)}
-  ].forEach(v=>{
-    Object.entries(v).forEach(([k,val])=>{
-      msg = msg.replaceAll(`{${k}}`, val);
-    });
-  });
+  ].forEach(v => Object.entries(v).forEach(([k,val]) => {
+    msg = msg.replaceAll(`{${k}}`, val);
+  }));
 
   window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(msg)}`,'_blank');
 }
@@ -573,7 +517,7 @@ function openWAConsulta(){
   window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent('👋 Hola! Quiero un juego que no está en la lista 👀 ¿Me pueden ayudar?')}`,'_blank');
 }
 
-// ── UI ───────────────────────────────────────────────────────────
+// ── UI ────────────────────────────────────────────────────────────
 function openPanel(){
   $('panel').classList.add('open');
   $('overlay').classList.add('open');
@@ -587,14 +531,10 @@ function closePanel(){
 }
 
 function openPedir(){ $('pedirModal').classList.add('open'); }
-function closePedir(e,f=false){
-  if(f || (e && e.target === $('pedirModal'))) $('pedirModal').classList.remove('open');
-}
+function closePedir(e,f=false){ if(f || (e && e.target === $('pedirModal'))) $('pedirModal').classList.remove('open'); }
 
 function openHow(){ $('howModal').classList.add('open'); }
-function closeHow(e,f=false){
-  if(f || (e && e.target === $('howModal'))) $('howModal').classList.remove('open');
-}
+function closeHow(e,f=false){ if(f || (e && e.target === $('howModal'))) $('howModal').classList.remove('open'); }
 
 loadGames();
 </script>
