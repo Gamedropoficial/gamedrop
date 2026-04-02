@@ -87,7 +87,7 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 .cp.gp{color:var(--gold)}.cp.sp2{color:var(--pur)}
 .cps{font-size:.61rem;color:var(--mut);margin-top:2px}
 .cps.gp{color:rgba(245,166,35,.5)}.cps.sp2{color:rgba(181,124,245,.5)}
-.addb{width:26px;height:26px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .15s;flex-shrink:0;font-weight:bold;border:1px solid;line-height:1}
+.addb{width:28px;height:28px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s;flex-shrink:0;font-weight:bold;border:1px solid;line-height:1}
 .addb.n{border-color:var(--acc);background:var(--acc-dim);color:var(--acc)}
 .addb.n:hover,.card.sn .addb.n{background:var(--acc);color:#000}
 .addb.p{border-color:var(--gold);background:var(--gold-dim);color:var(--gold)}
@@ -153,7 +153,7 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 .cname{font-size:.82rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ctag{font-size:.65rem;margin-top:2px;font-weight:600;font-family:var(--fD)}
 .ctag.n{color:var(--mut)}.ctag.p{color:var(--gold)}.ctag.s{color:var(--pur)}.ctag.f{color:var(--acc)}
-.rm{background:none;border:none;color:var(--mut);cursor:pointer;font-size:13px;padding:4px;border-radius:4px;transition:color .15s;flex-shrink:0}
+.rm{background:none;border:none;color:var(--mut);cursor:pointer;font-size:16px;padding:4px;border-radius:4px;transition:color .15s;flex-shrink:0}
 .rm:hover{color:var(--red)}
 .empty{text-align:center;color:var(--mut);padding:48px 0;font-size:.88rem}
 .pft{border-top:1px solid var(--bdr);padding:14px 20px;flex-shrink:0}
@@ -237,7 +237,7 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
   <div class="modal-sheet">
     <div class="modal-handle" onclick="closePedir(null,true)"></div>
     <div class="modal-title">CÓMO PEDIR</div>
-    <div class="how-step"><div class="how-num">1</div><div class="how-text"><strong>Buscá tus juegos</strong><p>Usá el buscador o filtrá por categoría. Tocá <b>+</b> para agregar juegos.</p></div></div>
+    <div class="how-step"><div class="how-num">1</div><div class="how-text"><strong>Buscá tus juegos</strong><p>Usá el buscador o filtrá por categoría. Tocá la card o el <b>+</b> para agregar juegos.</p></div></div>
     <div class="how-step"><div class="how-num">2</div><div class="how-text"><strong>Revisá tu pedido</strong><p>Tocá 🛒 <b>Mi Pedido</b> para ver los juegos y el total con descuentos.</p></div></div>
     <div class="how-step"><div class="how-num">3</div><div class="how-text"><strong>Enviá por WhatsApp</strong><p>Tocá el botón verde y te abrimos WhatsApp con el resumen listo.</p></div></div>
     <hr class="how-divider"/>
@@ -515,7 +515,8 @@ function makeCard(g){
   const tier = g.tier || 'normal';
   const qty = getCartQty(g.id);
   const inCart = qty > 0;
-  const maxed = qty >= CFG.MAX_PER_GAME;
+  const canAdd = qty < CFG.MAX_PER_GAME;
+  const canRemove = qty > 0;
   const c = calcTotal();
   const freeCount = c.freeNormalCounts[g.id] || 0;
   const isFree = freeCount > 0;
@@ -531,17 +532,29 @@ function makeCard(g){
     ph=`<div class="pb2"><div class="cp sp2">${fmt(P.special.price)}</div><div class="cps sp2">🎁 +${P.special.gifts} regalos</div></div>`;
 
   const tb=tier==='premium'?`<div class="bdg tb tbp">PREMIUM</div>`:tier==='special'?`<div class="bdg tb tbs">ESPECIAL</div>`:'';
+
   const div=document.createElement('div');
   div.className=`card ${sc}`;
   div.dataset.id=g.id;
   div.onclick=()=>addToCart(g.id);
+
   div.innerHTML=`${inCart?`<div class="bdg sb sb${tier[0]}">${qty}× EN PEDIDO</div>`:tb}
     ${isFree?`<div class="bdg fb">🎁 GRATIS</div>`:''}
     <img class="cover" loading="lazy" src="${imgUrl(g.appId,g.image)}" onerror="imgFallback(this,${g.appId},${JSON.stringify(g.image)})" alt="">
-    <div class="card-body"><div class="cn">${esc(g.name)}</div>
-    <div class="cf">${ph}<button class="addb ${tier[0]}" onclick="event.stopPropagation();addToCart(${g.id})" ${maxed ? 'disabled style="opacity:.45;cursor:not-allowed"' : ''}>${qty || '+'}</button></div></div>`;
+    <div class="card-body">
+      <div class="cn">${esc(g.name)}</div>
+      <div class="cf">
+        ${ph}
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+          <button class="addb ${tier[0]}" onclick="event.stopPropagation();removeFromCart(${g.id})" ${!canRemove ? 'disabled style="opacity:.35;cursor:not-allowed"' : ''}>−</button>
+          <div style="min-width:18px;text-align:center;font-family:var(--fD);font-size:.8rem;font-weight:700;color:${tier==='premium'?'var(--gold)':tier==='special'?'var(--pur)':'var(--acc)'}">${qty}</div>
+          <button class="addb ${tier[0]}" onclick="event.stopPropagation();addToCart(${g.id})" ${!canAdd ? 'disabled style="opacity:.35;cursor:not-allowed"' : ''}>+</button>
+        </div>
+      </div>
+    </div>`;
   return div;
 }
+
 function refreshCard(id){
   const els=document.querySelectorAll(`.card[data-id="${id}"]`);
   if(!els.length) return;
@@ -571,7 +584,7 @@ function calcTotal(){
   const r6=paidNormalsCount%6;
   const pk3=Math.floor(r6/3);
   const sg=r6%3;
-  const normTot=pk6*P.normal.pack6+pk3*P.normal.pack3+sg*P.normal.single;
+  const normTot=pk6*CFG.prices.normal.pack6+pk3*CFG.prices.normal.pack3+sg*CFG.prices.normal.single;
 
   const hasMix = (premiums.length >= 2) || normals.length > 0 || specials.length > 0;
   const pUnit = hasMix ? P.premium.mixed : P.premium.solo;
@@ -650,9 +663,10 @@ function renderCartList(){
         <div class="cname">${esc(g.name)} ×${g.qty}</div>
         <div class="ctag ${freeCount>0?'f':t[0]}">${tagText}</div>
       </div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <button class="rm" onclick="event.stopPropagation();addToCart(${g.id})" ${g.qty>=CFG.MAX_PER_GAME?'style="opacity:.35;cursor:not-allowed" disabled':''}>＋</button>
-        <button class="rm" onclick="event.stopPropagation();removeFromCart(${g.id})">✕</button>
+      <div style="display:flex;align-items:center;gap:6px">
+        <button class="rm" onclick="event.stopPropagation();removeFromCart(${g.id})">−</button>
+        <div style="min-width:18px;text-align:center;font-family:var(--fD);font-size:.8rem;font-weight:700;color:${t==='premium'?'var(--gold)':t==='special'?'var(--pur)':'var(--acc)'}">${g.qty}</div>
+        <button class="rm" onclick="event.stopPropagation();addToCart(${g.id})" ${g.qty>=CFG.MAX_PER_GAME?'style="opacity:.35;cursor:not-allowed" disabled':''}>+</button>
       </div>
     </div>`;
   }).join('');
