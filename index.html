@@ -556,8 +556,8 @@ function calcTotal(){
   const paid=normals.filter(g=>!freeNormalIds.includes(g.id));
   const n=paid.length,pk6=Math.floor(n/6),r6=n%6,pk3=Math.floor(r6/3),sg=r6%3;
   const normTot=pk6*P.normal.pack6+pk3*P.normal.pack3+sg*P.normal.single;
-  const hasMix=normals.length>0||specials.length>0;
-  const pUnit=hasMix?P.premium.mixed:P.premium.solo;
+  const hasMix = (premiums.length >= 2) || normals.length > 0 || specials.length > 0;
+  const pUnit = hasMix ? P.premium.mixed : P.premium.solo;
   return{total:normTot+premiums.length*pUnit+specials.length*P.special.price,
     normTot,freeNormalIds,giftsAvail,giftsRem,giftsUsed,pk6,pk3,sg,n,hasMix,pUnit,normals,premiums,specials};
 }
