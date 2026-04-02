@@ -185,13 +185,7 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 <body>
 
 <header>
-  <div class="logo">
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;border-radius:7px">
-      <rect width="32" height="32" rx="7" fill="#00e5a0"/>
-      <path d="M8 16h6M11 13v6M18 14h6M21 18h3" stroke="#000" stroke-width="2.2" stroke-linecap="round"/>
-    </svg>
-    <span>GAMEDROP</span>
-  </div>
+  <div class="logo"><img id="logo-img" src="" alt="GameDrop" style="width:34px;height:34px;object-fit:contain;border-radius:0"/><span>GAMEDROP</span></div>
   <div class="hdr-right">
     <button class="refresh-btn" id="refreshBtn" onclick="loadGames(true)"><span class="ic">↻</span> Actualizar</button>
     <button class="cart-btn-desk" onclick="openPanel()">🛒 Mi Pedido <div class="cart-count" id="cartCountDesk">0</div></button>
@@ -239,6 +233,7 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
   </button>
 </nav>
 
+<!-- MODAL CÓMO PEDIR -->
 <div class="modal-overlay" id="pedirModal" onclick="closePedir(event)">
   <div class="modal-sheet">
     <div class="modal-handle" onclick="closePedir(null,true)"></div>
@@ -257,6 +252,7 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
   </div>
 </div>
 
+<!-- MODAL CÓMO FUNCIONA -->
 <div class="modal-overlay" id="howModal" onclick="closeHow(event)">
   <div class="modal-sheet">
     <div class="modal-handle" onclick="closeHow(null,true)"></div>
@@ -273,6 +269,7 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
   </div>
 </div>
 
+<!-- PANEL CARRITO -->
 <div class="overlay" id="overlay" onclick="closePanel()"></div>
 <div class="panel" id="panel">
   <div class="phd"><span class="pt">🛒 MI PEDIDO</span><button class="xb" onclick="closePanel()">✕</button></div>
@@ -297,9 +294,14 @@ const CFG = {
     special: {price:25000,gifts:2},
   },
   mensajeWA: '🎮 *PEDIDO {storeName}*\n━━━━━━━━━━━━━━━━━━━━\n{listaNormal}{listaPremium}{listaEspecial}\n💳 *TOTAL: {total}*\n🏦 Transferir a: *{aliasTienda}*\n━━━━━━━━━━━━━━━━━━━━\n¡Muchas gracias! Confirmamos tu pedido a la brevedad 🙌',
-  PAGE_SIZE: 24,
+  PAGE_SIZE: 60,
 };
 
+// ─────────────────────────────────────────────────────────────────
+// ALL_SORTED = array master, ordenado 1 sola vez al cargar.
+// Los filtros y clicks en tags/tier NUNCA vuelven a ordenarlo.
+// Solo se re-ordena al buscar texto, y solo sobre los resultados filtrados.
+// ─────────────────────────────────────────────────────────────────
 let ALL_SORTED = [];
 let FILTERED   = [];
 let cart       = [];
@@ -307,8 +309,6 @@ let activeTag  = 'Todos';
 let activeTier = 'all';
 let renderOffset = 0;
 let searchTimer  = null;
-let LAST_FREE_IDS = [];
-let GAME_BY_ID = new Map();
 
 const $ = id => document.getElementById(id);
 const fmt = n => CFG.currency + Number(n).toLocaleString('es-AR');
@@ -320,6 +320,7 @@ function norm(str){
     .replace(/[''`"´]/g,'').replace(/[^a-z0-9]+/g,'');
 }
 
+// Featured: calculado 1 vez por juego al parsear el sheet
 const FEATURED = [
   ['crimsondesert'],
   ['residentevilrequiem'],
@@ -360,6 +361,9 @@ function imgFallback(el, appId, custom){
   }
 }
 
+// ── CARGA EN DOS FASES ─────────────────────────────────────────────────────
+// Fase 1: parsear + mostrar primeras 60 cards SIN hacer el sort pesado
+// Fase 2: sort + filtros completos en el siguiente tick (no bloquea UI)
 async function loadGames(manual=false){
   const btn=$('refreshBtn'); btn.classList.add('spinning');
   if(!manual) $('gamesArea').innerHTML='<div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span></div>';
@@ -376,11 +380,11 @@ async function loadGames(manual=false){
       return String(row.c[i].v!==undefined?row.c[i].v:row.c[i].f||'');
     };
 
-    const raw=table.rows
+    // ── FASE 1: parseo rápido sin norm/rank, renderizar primeras 60 cards YA ──
+    const rawFast=table.rows
       .filter(row=>gc(row,'available').toUpperCase()==='TRUE'&&gc(row,'name')&&gc(row,'appid'))
       .map((row,i)=>{
         const name=gc(row,'name').trim();
-        const _nq=norm(name);
         return{
           id:    parseInt(gc(row,'id'))||i+1,
           name,
@@ -391,24 +395,36 @@ async function loadGames(manual=false){
           tags:  gc(row,'tags').split(',').map(t=>t.trim()).filter(Boolean),
           image: gc(row,'imageurl')||'',
           _q:    name.toLowerCase(),
-          _nq,
-          _rank: featuredRank(_nq),
+          _nq:   '',   // se rellena en fase 2
+          _rank: 99999, // se rellena en fase 2
         };
       });
 
-    ALL_SORTED=raw.sort((a,b)=>{
-      const d=a._rank-b._rank;
-      return d!==0?d:a.name.localeCompare(b.name,'es',{sensitivity:'base'});
-    });
+    // Mostrar las primeras 60 cards inmediatamente (orden del sheet, sin sort)
+    FILTERED=rawFast.slice(0,CFG.PAGE_SIZE);
+    $('cnt').textContent=`${rawFast.length.toLocaleString()} juegos`;
+    buildVirtualGrid();
 
-    GAME_BY_ID = new Map(ALL_SORTED.map(g => [g.id, g]));
+    // ── FASE 2: calcular norms/ranks, sort completo, reconstruir ──────────────
+    setTimeout(()=>{
+      for(let i=0;i<rawFast.length;i++){
+        rawFast[i]._nq   = norm(rawFast[i].name);
+        rawFast[i]._rank = featuredRank(rawFast[i]._nq);
+      }
 
-    const now=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-    $('lu').textContent=`${ALL_SORTED.length.toLocaleString()} juegos · ${now}`;
-    buildTierFilters();
-    buildTagFilters();
-    applyFilter();
-    renderTotals();
+      ALL_SORTED=rawFast.sort((a,b)=>{
+        const d=a._rank-b._rank;
+        return d!==0?d:a.name.localeCompare(b.name,'es',{sensitivity:'base'});
+      });
+
+      const now=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+      $('lu').textContent=`${ALL_SORTED.length.toLocaleString()} juegos · ${now}`;
+      buildTierFilters();
+      buildTagFilters();
+      applyFilter();  // reconstruye la grilla con el orden correcto
+      renderTotals();
+    }, 0);
+
   }catch(e){
     $('gamesArea').innerHTML=`<div class="err-box"><strong>No se pudo cargar el catálogo</strong>
       El Google Sheet debe estar compartido como <b>"Cualquiera con el enlace puede ver"</b>.<br><br>
@@ -416,6 +432,7 @@ async function loadGames(manual=false){
   }finally{ btn.classList.remove('spinning'); }
 }
 
+// ── FILTROS UI ─────────────────────────────────────────────────────────────
 function buildTierFilters(){
   const L={all:'Todos',normal:'🟢 Normal',premium:'💛 Premium',special:'🟣 Especial'};
   const on={all:'on-all',normal:'on-normal',premium:'on-premium',special:'on-special'};
@@ -432,6 +449,9 @@ function buildTagFilters(){
 }
 function setTag(t){ activeTag=t; buildTagFilters(); applyFilter(); }
 
+// ── FILTRAR ────────────────────────────────────────────────────────────────
+// Sin búsqueda → solo .filter() sobre ALL_SORTED (ya ordenado). Sin sort. Instantáneo.
+// Con búsqueda → filter + sort por relevancia sobre los resultados.
 function applyFilter(){
   const rawQ=($('q').value||'').trim();
   const q=rawQ.toLowerCase();
@@ -444,6 +464,7 @@ function applyFilter(){
     return true;
   });
 
+  // Solo re-ordenar cuando hay texto de búsqueda
   if(rawQ){
     result=result.sort((a,b)=>{
       const ae=a._q===q,     be=b._q===q;     if(ae!==be) return ae?-1:1;
@@ -466,61 +487,25 @@ $('q').addEventListener('input',()=>{
   searchTimer=setTimeout(applyFilter,150);
 });
 
+// ── VIRTUAL SCROLL ─────────────────────────────────────────────────────────
 function buildVirtualGrid(){
   $('gamesArea').innerHTML='<div id="gridWrap"><div class="vgrid" id="grid"></div><div id="gridSpacer"></div></div>';
   renderOffset=0;
-  LAST_FREE_IDS = calcTotal().freeNormalIds;
   renderNextChunk();
   window.removeEventListener('scroll',onScroll);
   window.addEventListener('scroll',onScroll,{passive:true});
 }
-
 function renderNextChunk(){
   const grid=$('grid');
   if(!grid||renderOffset>=FILTERED.length) return;
   const end=Math.min(renderOffset+CFG.PAGE_SIZE,FILTERED.length);
-  let html='';
-
-  for(let i=renderOffset;i<end;i++){
-    const g=FILTERED[i];
-    const tier=g.tier||'normal';
-    const inCart=cart.some(c=>c.id===g.id);
-    const isFree=LAST_FREE_IDS.includes(g.id);
-    const sc=inCart?`s${tier[0]}`:'';
-    const P=CFG.prices;
-
-    let ph='';
-    if(tier==='normal')
-      ph=`<div class="pb2"><div class="cp">${fmt(P.normal.single)}</div><div class="cps">3×${fmt(P.normal.pack3)} | 6×${fmt(P.normal.pack6)}</div></div>`;
-    else if(tier==='premium')
-      ph=`<div class="pb2"><div class="cp gp">${fmt(P.premium.solo)}</div><div class="cps gp">o ${fmt(P.premium.mixed)} combo</div></div>`;
-    else
-      ph=`<div class="pb2"><div class="cp sp2">${fmt(P.special.price)}</div><div class="cps sp2">🎁 +${P.special.gifts} regalos</div></div>`;
-
-    const tb=tier==='premium'
-      ?`<div class="bdg tb tbp">PREMIUM</div>`
-      :tier==='special'
-      ?`<div class="bdg tb tbs">ESPECIAL</div>`
-      :'';
-
-    html+=`<div class="card ${sc}" data-id="${g.id}" onclick="toggleCart(${g.id})">
-      ${inCart?`<div class="bdg sb sb${tier[0]}">✓ EN PEDIDO</div>`:tb}
-      ${isFree?`<div class="bdg fb">🎁 GRATIS</div>`:''}
-      <img class="cover" loading="lazy" src="${imgUrl(g.appId,g.image)}" onerror="imgFallback(this,${g.appId},${JSON.stringify(g.image)})" alt="">
-      <div class="card-body"><div class="cn">${esc(g.name)}</div>
-      <div class="cf">${ph}<button class="addb ${tier[0]}" onclick="event.stopPropagation();toggleCart(${g.id})">${inCart?'✓':'+'}</button></div></div>
-    </div>`;
-  }
-
-  grid.insertAdjacentHTML('beforeend', html);
+  const frag=document.createDocumentFragment();
+  for(let i=renderOffset;i<end;i++) frag.appendChild(makeCard(FILTERED[i]));
+  grid.appendChild(frag);
   renderOffset=end;
-
   const wrap=$('gridWrap');
-  if(wrap && (renderOffset<=CFG.PAGE_SIZE || renderOffset%(CFG.PAGE_SIZE*3)===0)){
-    wrap.style.minHeight=grid.offsetHeight+'px';
-  }
+  if(wrap) wrap.style.minHeight=grid.offsetHeight+'px';
 }
-
 let scrollThrottle=false;
 function onScroll(){
   if(scrollThrottle) return; scrollThrottle=true;
@@ -530,10 +515,12 @@ function onScroll(){
   });
 }
 
+// ── CARD ───────────────────────────────────────────────────────────────────
 function makeCard(g){
   const tier=g.tier||'normal';
   const inCart=cart.some(c=>c.id===g.id);
-  const isFree=LAST_FREE_IDS.includes(g.id);
+  const freeIds=calcTotal().freeNormalIds;
+  const isFree=freeIds.includes(g.id);
   const sc=inCart?`s${tier[0]}`:''; const P=CFG.prices;
   let ph='';
   if(tier==='normal')
@@ -552,12 +539,12 @@ function makeCard(g){
     <div class="cf">${ph}<button class="addb ${tier[0]}" onclick="event.stopPropagation();toggleCart(${g.id})">${inCart?'✓':'+'}</button></div></div>`;
   return div;
 }
-
 function refreshCard(id){
   const el=document.querySelector(`.card[data-id="${id}"]`); if(!el) return;
-  const g=GAME_BY_ID.get(id); if(g) el.replaceWith(makeCard(g));
+  const g=ALL_SORTED.find(x=>x.id===id); if(g) el.replaceWith(makeCard(g));
 }
 
+// ── CARRITO ────────────────────────────────────────────────────────────────
 function calcTotal(){
   const P=CFG.prices;
   const normals=cart.filter(g=>!g.tier||g.tier==='normal');
@@ -582,10 +569,9 @@ function updateCartBadge(){
   });
 }
 function toggleCart(id){
-  const g=GAME_BY_ID.get(id); if(!g) return;
+  const g=ALL_SORTED.find(x=>x.id===id); if(!g) return;
   const i=cart.findIndex(c=>c.id===id);
   i===-1?cart.push(g):cart.splice(i,1);
-  LAST_FREE_IDS = calcTotal().freeNormalIds;
   updateCartBadge(); refreshCard(id); renderCartList(); renderTotals();
 }
 function renderCartList(){
@@ -632,6 +618,7 @@ function renderTotals(){
   el.innerHTML=h; $('wab').disabled=false;
 }
 
+// ── WHATSAPP ───────────────────────────────────────────────────────────────
 function sendWA(){
   if(!cart.length) return;
   const c=calcTotal(); const P=CFG.prices;
@@ -663,6 +650,7 @@ function openWAConsulta(){
   window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent('👋 Hola! Quiero un juego que no está en la lista 👀 ¿Me pueden ayudar?')}`,'_blank');
 }
 
+// ── UI ─────────────────────────────────────────────────────────────────────
 function openPanel(){ $('panel').classList.add('open'); $('overlay').classList.add('open'); renderCartList(); renderTotals(); }
 function closePanel(){ $('panel').classList.remove('open'); $('overlay').classList.remove('open'); }
 function openPedir(){ $('pedirModal').classList.add('open'); }
@@ -672,6 +660,29 @@ function closeHow(e,f=false){ if(f||e&&e.target===$('howModal')) $('howModal').c
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 loadGames();
+
+// ── LOGO ───────────────────────────────────────────────────────────────────
+// Para restaurar tu logo original, abrí la consola del navegador y pegá:
+//   setLogo("TU_BASE64_AQUI")
+// Después de eso se guarda automáticamente y no hace falta hacerlo de nuevo.
+(function(){
+  const b64=localStorage.getItem('gd_logo');
+  const el=document.getElementById('logo-img');
+  if(!el) return;
+  if(b64){
+    el.src='data:image/png;base64,'+b64;
+    el.style.display='block';
+  } else {
+    // Fallback SVG si no hay logo guardado
+    el.src="data:image/svg+xml,%3Csvg width='34' height='34' viewBox='0 0 34 34' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='34' height='34' rx='7' fill='%2300e5a0'/%3E%3Cpath d='M8 17h7M11.5 13.5v7M18 14.5h8M22 19h4' stroke='%23000' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E";
+  }
+})();
+function setLogo(base64){
+  localStorage.setItem('gd_logo', base64);
+  const el=document.getElementById('logo-img');
+  if(el){ el.src='data:image/png;base64,'+base64; }
+  console.log('✅ Logo guardado');
+}
 </script>
 </body>
 </html>
