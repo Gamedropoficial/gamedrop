@@ -337,7 +337,7 @@ const CFG = {
     premium: {solo:14000,mixed:10000},
     special: {price:25000,gifts:2},
   },
-  mensajeWA: '🔥 *PEDIDO {storeName}*\n━━━━━━━━━━━━━━━━━━━━\n{listaNormal}{listaPremium}{listaEspecial}\n *TOTAL: {total}*\n',
+  mensajeWA: '*PEDIDO {storeName}*\n━━━━━━━━━━━━━━━━━━━━\n{listaNormal}{listaPremium}{listaEspecial}\n *TOTAL: {total}*\n',
   PAGE_SIZE: 60,
   MAX_PER_GAME: 2,
 };
@@ -799,6 +799,13 @@ function sendWA(){
   let msg=CFG.mensajeWA;
   [{storeName:CFG.storeName},{aliasTienda:CFG.aliasTienda},{listaNormal:ln},{listaPremium:lp},{listaEspecial:ls},{total:fmt(c.total)}]
     .forEach(v=>Object.entries(v).forEach(([k,val])=>{msg=msg.replaceAll(`{${k}}`,val);}));
+  msg = msg
+  .replace(/🟢/g, '\u{1F7E2}')
+  .replace(/💛/g, '\u{1F49B}')
+  .replace(/🟣/g, '\u{1F7E3}')
+  .replace(/🎁/g, '\u{1F381}')
+  .replace(/📦/g, '\u{1F4E6}')
+  .replace(/📱/g, '\u{1F4F1}');
 
   window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(msg)}`,'_blank');
 }
