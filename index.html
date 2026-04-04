@@ -773,7 +773,7 @@ function sendWA(){
   let ln = '', lp = '', ls = '';
 
   if(c.normals.length){
-    ln = `\n${E.n} (${c.normals.length}):*\n`;
+    ln = `\n${E.n} *NORMALES (${c.normals.length}):*\n`;
     normalsGrouped.forEach(g=>{
       const freeCount = c.freeNormalCounts[g.id] || 0;
       ln += `  • ${g.name}${g.qty > 1 ? ` x${g.qty}` : ''}${freeCount > 0 ? ` ${E.gift} GRATIS x${freeCount}` : ''}\n`;
@@ -788,14 +788,14 @@ function sendWA(){
 
   if(c.premiums.length){
     const lbl = c.hasMix ? `${fmt(P.premium.mixed)} c/u combo` : `${fmt(P.premium.solo)} c/u`;
-    lp = `\n${E.p} — ${lbl}:*\n`;
+    lp = `\n${E.p} *PREMIUM — ${lbl}:*\n`;
     premiumsGrouped.forEach(g=>{
       lp += `  • ${g.name}${g.qty > 1 ? ` x${g.qty}` : ''}\n`;
     });
   }
 
   if(c.specials.length){
-    ls = `\n${E.s} (${fmt(P.special.price)} c/u + ${P.special.gifts} regalos):*\n`;
+    ls = `\n${E.s} *ESPECIALES (${fmt(P.special.price)} c/u + ${P.special.gifts} regalos):*\n`;
     specialsGrouped.forEach(g=>{
       ls += `  • ${g.name}${g.qty > 1 ? ` x${g.qty}` : ''}\n`;
     });
