@@ -767,14 +767,14 @@ function sendWA(){
   const premiumsGrouped = groupCartItems(c.premiums);
   const specialsGrouped = groupCartItems(c.specials);
   const E = isDesktop()
-  ? { n: '✅', p: '⭐', s: '🎮' }
-  : { n: '🟢', p: '💛', s: '🟣' };
+  ? { n: '[ NORMALES', p: '[ PREMIUM', s: '[ ESPECIALES', pkg: '  -' }
+  : { n: '🟢', p: '💛', s: '🟣', pkg: '  📦' };
 
 
   let ln = '', lp = '', ls = '';
 
   if(c.normals.length){
-    ln = `\n${E.n} *NORMALES (${c.normals.length}):*\n`;
+    ln = `\n${E.n} (${c.normals.length}):*\n`;
     normalsGrouped.forEach(g=>{
       const freeCount = c.freeNormalCounts[g.id] || 0;
       ln += `  • ${g.name}${g.qty > 1 ? ` x${g.qty}` : ''}${freeCount > 0 ? ` \u{1F381} GRATIS x${freeCount}` : ''}\n`;
@@ -784,19 +784,19 @@ function sendWA(){
     if(c.pk6 > 0) pd.push(`${c.pk6}× pack de 6 = ${fmt(c.pk6 * P.normal.pack6)}`);
     if(c.pk3 > 0) pd.push(`${c.pk3}× pack de 3 = ${fmt(c.pk3 * P.normal.pack3)}`);
     if(c.sg  > 0) pd.push(`${c.sg} suelto${c.sg > 1 ? 's' : ''} = ${fmt(c.sg * P.normal.single)}`);
-    if(pd.length) ln += `  ${isDesktop() ? '📌' : '📦'} ${pd.join(' | ')}\n`;
+    if(pd.length) ln += `${E.pkg} ${pd.join(' | ')}\n`;
   }
 
   if(c.premiums.length){
     const lbl = c.hasMix ? `${fmt(P.premium.mixed)} c/u combo` : `${fmt(P.premium.solo)} c/u`;
-    lp = `\n${E.p} *PREMIUM — ${lbl}:*\n`;
+    lp = `\n${E.p} — ${lbl}:*\n`;
     premiumsGrouped.forEach(g=>{
       lp += `  • ${g.name}${g.qty > 1 ? ` x${g.qty}` : ''}\n`;
     });
   }
 
   if(c.specials.length){
-    ls = `\n${E.s} *ESPECIALES (${fmt(P.special.price)} c/u + ${P.special.gifts} regalos):*\n`;
+    ls = `\n${E.s} (${fmt(P.special.price)} c/u + ${P.special.gifts} regalos):*\n`;
     specialsGrouped.forEach(g=>{
       ls += `  • ${g.name}${g.qty > 1 ? ` x${g.qty}` : ''}\n`;
     });
