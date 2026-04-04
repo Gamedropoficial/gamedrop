@@ -337,7 +337,7 @@ const CFG = {
     premium: {solo:14000,mixed:10000},
     special: {price:25000,gifts:2},
   },
-  mensajeWA: '*PEDIDO {storeName}*\n========================\n{listaNormal}{listaPremium}{listaEspecial}\n *TOTAL: {total}*\n',
+  mensajeWA: '*PEDIDO {storeName}*\n━━━━━━━━━━━━━━━━━━━━\n{listaNormal}{listaPremium}{listaEspecial}\n━━━━━━━━━━━━━━━━━━━━\n *TOTAL: {total}*\n',
   PAGE_SIZE: 60,
   MAX_PER_GAME: 2,
 };
@@ -682,7 +682,7 @@ function renderCartList(){
 
   const c=calcTotal();
   updGN(c);
-  const TL={normal:'NORMAL',premium:'PREMIUM',special:'ESPECIAL + 2 REGALOS'};
+  const TL={normal:'NORMAL',premium:'PREMIUM',special:'ESPECIAL + 2 juegos de REGALO'};
   const grouped=groupCartItems(cart);
 
   el.innerHTML=grouped.map(g=>{
@@ -749,7 +749,7 @@ function renderTotals(){
   }
   if(c.specials.length){
     h+=`<div class="trow hd"><span style="color:var(--pur)">🟣 Especiales (${c.specials.length})</span></div>`;
-    if(c.giftsRem>0) h+=`<div class="trow dp"><span>🎁 Faltan ${c.giftsRem} regalos</span><span>—</span></div>`;
+    if(c.giftsRem>0) h+=`<div class="trow dp"><span>🎁 Faltan ${c.giftsRem} juegos de regalo(normal)</span><span>—</span></div>`;
   }
   h+=`<div class="trow tot"><span>TOTAL</span><span>${fmt(c.total)}</span></div>`;
   el.innerHTML=h;
@@ -800,7 +800,7 @@ function sendWA(){
     specialsGrouped.forEach(g=>{
       ls += `  • ${g.name}${g.qty > 1 ? ` x${g.qty}` : ''}\n`;
     });
-    if(c.giftsRem > 0) ls += `  \u{1F381} Faltan ${c.giftsRem} regalos por elegir\n`;
+    if(c.giftsRem > 0) ls += `  \u{1F381} Faltan ${c.giftsRem} juegos de regalo por elegir\n`;
   }
 
   let msg = CFG.mensajeWA;
