@@ -767,9 +767,8 @@ function sendWA(){
   const premiumsGrouped = groupCartItems(c.premiums);
   const specialsGrouped = groupCartItems(c.specials);
   const E = isDesktop()
-  ? { n: '[ NORMALES', p: '[ PREMIUM', s: '[ ESPECIALES', pkg: '  -' }
-  : { n: '🟢', p: '💛', s: '🟣', pkg: '  📦' };
-
+  ? { n: '[ NORMALES', p: '[ PREMIUM', s: '[ ESPECIALES', pkg: '  -', gift: '(GRATIS)', giftPkg: '  -' }
+  : { n: '🟢', p: '💛', s: '🟣', pkg: '  📦', gift: '🎁', giftPkg: '  🎁' };
 
   let ln = '', lp = '', ls = '';
 
@@ -777,7 +776,7 @@ function sendWA(){
     ln = `\n${E.n} (${c.normals.length}):*\n`;
     normalsGrouped.forEach(g=>{
       const freeCount = c.freeNormalCounts[g.id] || 0;
-      ln += `  • ${g.name}${g.qty > 1 ? ` x${g.qty}` : ''}${freeCount > 0 ? ` \u{1F381} GRATIS x${freeCount}` : ''}\n`;
+      ln += `  • ${g.name}${g.qty > 1 ? ` x${g.qty}` : ''}${freeCount > 0 ? ` ${E.gift} GRATIS x${freeCount}` : ''}\n`;
     });
 
     const pd = [];
@@ -800,7 +799,7 @@ function sendWA(){
     specialsGrouped.forEach(g=>{
       ls += `  • ${g.name}${g.qty > 1 ? ` x${g.qty}` : ''}\n`;
     });
-    if(c.giftsRem > 0) ls += `  \u{1F381} Faltan ${c.giftsRem} juegos de regalo por elegir\n`;
+    if(c.giftsRem > 0) ls += `  ${E.giftPkg} Faltan ${c.giftsRem} juegos de regalo por elegir\n`;
   }
 
   let msg = CFG.mensajeWA;
