@@ -767,7 +767,7 @@ function sendWA(){
   const premiumsGrouped = groupCartItems(c.premiums);
   const specialsGrouped = groupCartItems(c.specials);
   const E = isDesktop()
-  ? { n: '[ NORMALES', p: '[ PREMIUM', s: '[ ESPECIALES', pkg: '  -', gift: '(GRATIS)', giftPkg: '  -' }
+  ? { n: '', p: '', s: '', pkg: '  -', gift: '', giftPkg: '' }
   : { n: '🟢', p: '💛', s: '🟣', pkg: '  📦', gift: '🎁', giftPkg: '  🎁' };
 
   let ln = '', lp = '', ls = '';
