@@ -784,7 +784,7 @@ function sendWA(){
     if(c.pk6 > 0) pd.push(`${c.pk6}× pack de 6 = ${fmt(c.pk6 * P.normal.pack6)}`);
     if(c.pk3 > 0) pd.push(`${c.pk3}× pack de 3 = ${fmt(c.pk3 * P.normal.pack3)}`);
     if(c.sg  > 0) pd.push(`${c.sg} suelto${c.sg > 1 ? 's' : ''} = ${fmt(c.sg * P.normal.single)}`);
-    if(pd.length) ln += `  \u{1F4E6} ${pd.join(' | ')}\n`;
+    if(pd.length) ln += `  ${isDesktop() ? '📌' : '📦'} ${pd.join(' | ')}\n`;
   }
 
   if(c.premiums.length){
