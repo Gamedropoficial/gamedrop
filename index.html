@@ -334,7 +334,7 @@ const CFG = {
 let ALL_SORTED = [];
 let FILTERED   = [];
 let cart       = [];
-let activeTag  = 'Todos';
+let activeTag  = 'all';
 let activeTier = 'all';
 let renderOffset = 0;
 let searchTimer  = null;
@@ -388,6 +388,30 @@ function imgFallback(el,appId,custom){
 
 // ── Tier map compacto → nombre completo ──────────────────────────────────────
 const TM = { n:'normal', p:'premium', s:'special' };
+
+// ── Filtros fijos en español ──────────────────────────────────────────────────
+// tags: array de tags ingleses del sheet que activa este filtro (OR)
+// sin tags → filtro especial por key
+const CUSTOM_FILTERS = [
+  { label:'Todos',          key:'all' },
+  { label:'Populares',      key:'popular' },
+  { label:'Nuevos',         key:'new' },
+  { label:'Single Player',  key:'sp',         tags:['Singleplayer'] },
+  { label:'Acción',         key:'action',     tags:['Action'] },
+  { label:'RPG',            key:'rpg',        tags:['RPG'] },
+  { label:'Shooter',        key:'shooter',    tags:['Shooter','FPS'] },
+  { label:'Terror',         key:'horror',     tags:['Horror','Survival Horror'] },
+  { label:'Mundo Abierto',  key:'openworld',  tags:['Open World'] },
+  { label:'Historia',       key:'story',      tags:['Story Rich'] },
+  { label:'Aventura',       key:'adventure',  tags:['Adventure'] },
+  { label:'Soulslike',      key:'souls',      tags:['Souls-like'] },
+  { label:'Simulación',     key:'sim',        tags:['Simulation'] },
+  { label:'Carreras',       key:'racing',     tags:['Racing'] },
+  { label:'1ª Persona',     key:'fp',         tags:['First-Person'] },
+  { label:'3ª Persona',     key:'tp',         tags:['Third Person','Third-Person Shooter'] },
+  { label:'Indie',          key:'indie',      tags:['Indie'] },
+  { label:'Casual',         key:'casual',     tags:['Casual'] },
+];
 
 function parseGames(d){
   return d.map((g,i)=>{
@@ -450,7 +474,7 @@ async function loadGames(manual=false){
     if(full?.d?.length){
       ALL_SORTED=sortGames(parseGames(full.d));
       const now=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-      const noFilters=!($('q').value||'').trim()&&activeTag==='Todos'&&activeTier==='all';
+      const noFilters=!($('q').value||'').trim()&&activeTag==='all'&&activeTier==='all';
       if(noFilters){
         FILTERED=ALL_SORTED.slice();
         // Filtros ya son correctos desde Fase 1 — no se tocan
@@ -482,18 +506,13 @@ function buildTierFilters(metaTiers){
 }
 function setTier(t){activeTier=t;buildTierFilters();applyFilter();}
 
-function buildTagFilters(metaTags){
-  let top;
-  if(metaTags){
-    top=['Todos',...metaTags];
-  } else {
-    const freq={};
-    ALL_SORTED.forEach(g=>g.tags.forEach(t=>{freq[t]=(freq[t]||0)+1;}));
-    top=['Todos',...Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([t])=>t)];
-  }
-  $('tags').innerHTML=top.map(t=>`<button class="tag${t===activeTag?' on':''}" onclick="setTag('${t}')">${t}</button>`).join('');
+function buildTagFilters(){
+  // Filtros fijos — el parámetro metaTags ya no se usa
+  $('tags').innerHTML=CUSTOM_FILTERS.map(f=>
+    `<button class="tag${activeTag===f.key?' on':''}" onclick="setTag('${f.key}')">${f.label}</button>`
+  ).join('');
 }
-function setTag(t){activeTag=t;buildTagFilters();applyFilter();}
+function setTag(k){activeTag=k;buildTagFilters();applyFilter();}
 
 function applyFilter(){
   const rawQ=($('q').value||'').trim();
@@ -502,7 +521,16 @@ function applyFilter(){
 
   let result=ALL_SORTED.filter(g=>{
     if(activeTier!=='all'&&g.tier!==activeTier) return false;
-    if(activeTag!=='Todos'&&!g.tags.includes(activeTag)) return false;
+    if(activeTag!=='all'){
+      const f=CUSTOM_FILTERS.find(f=>f.key===activeTag);
+      if(f?.tags){
+        // Filtro por tags: al menos uno de los tags del filtro debe estar en el juego
+        if(!f.tags.some(t=>g.tags.includes(t))) return false;
+      } else if(activeTag==='popular'||activeTag==='new'){
+        // Populares y Nuevos = los 60 juegos featured (IDs 1–60)
+        if(g.id>60) return false;
+      }
+    }
     if(rawQ&&!(g._q.includes(q)||g._nq.includes(nq))) return false;
     return true;
   });
