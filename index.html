@@ -410,22 +410,11 @@ function parseGames(d){
   });
 }
 
-function applyAndRender(games, partial=false){
-  ALL_SORTED=games.sort((a,b)=>{
+function sortGames(games){
+  return games.sort((a,b)=>{
     const d=a._rank-b._rank;
     return d!==0?d:a._sheetIndex-b._sheetIndex;
   });
-  buildTierFilters();
-  buildTagFilters();
-  applyFilter();
-  renderTotals();
-  const now=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-  $('lu').textContent=partial
-    ?`Cargando... · ${now}`
-    :`${ALL_SORTED.length.toLocaleString()} juegos · ${now}`;
-  $('cnt').textContent=partial
-    ?`${ALL_SORTED.length.toLocaleString()}+ juegos`
-    :`${ALL_SORTED.length.toLocaleString()} juegos`;
 }
 
 // ── Two-phase loading ─────────────────────────────────────────────────────────
@@ -438,17 +427,40 @@ async function loadGames(manual=false){
   const base=CFG.catalogUrl+'?t='+Date.now();
 
   try{
-    // Fase 1 — primeros 60, render inmediato
+    // ── Fase 1: primeros 60 featured, render inmediato ──────────────────────
     const first=await fetch(base+'&chunk=first').then(r=>r.json());
     if(first?.d?.length){
-      applyAndRender(parseGames(first.d),true);
-      btn.classList.remove('spinning'); // el spinner se va rápido
+      ALL_SORTED=sortGames(parseGames(first.d));
+      FILTERED=ALL_SORTED.slice();
+      buildTierFilters();
+      buildTagFilters();
+      buildVirtualGrid();           // renderiza las 60 cards
+      renderTotals();
+      btn.classList.remove('spinning');
+      // Contador vacío hasta tener el total real
+      $('cnt').textContent='';
+      $('lu').textContent='';
     }
 
-    // Fase 2 — catálogo completo, merge silencioso
+    // ── Fase 2: catálogo completo — SIN tocar el DOM ─────────────────────────
     const full=await fetch(base).then(r=>r.json());
     if(full?.d?.length){
-      applyAndRender(parseGames(full.d),false);
+      ALL_SORTED=sortGames(parseGames(full.d));
+      const now=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+      const noFilters=!($('q').value||'').trim()&&activeTag==='Todos'&&activeTier==='all';
+      if(noFilters){
+        // El grid ya tiene las 60 cards — solo actualizamos FILTERED y los filtros
+        // El scroll handler continuará cargando desde renderOffset=60 automáticamente
+        FILTERED=ALL_SORTED.slice();
+        buildTierFilters();
+        buildTagFilters();
+      } else {
+        // El usuario ya filtró mientras cargaba → re-render con datos completos
+        applyFilter();
+      }
+      $('cnt').textContent=`${ALL_SORTED.length.toLocaleString()} juego${ALL_SORTED.length!==1?'s':''}`;
+      $('lu').textContent=`${ALL_SORTED.length.toLocaleString()} juegos · ${now}`;
+      renderTotals();
     }
 
   }catch(e){
