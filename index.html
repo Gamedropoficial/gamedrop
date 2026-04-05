@@ -69,12 +69,15 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.93);backdrop-fi
 }
 main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 .toolbar{display:flex;gap:9px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.toolbar-filters-row{display:flex;gap:5px;width:100%;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap}
+.toolbar-filters-row::-webkit-scrollbar{display:none}
 .sw{flex:1;min-width:180px;position:relative}
 .sw input{width:100%;background:var(--s1);border:1px solid var(--bdr);color:var(--txt);padding:11px 13px 11px 40px;border-radius:9px;font-family:var(--fB);font-size:.95rem;outline:none;transition:border-color .2s}
 .sw input:focus{border-color:var(--acc)}
 .sw input::placeholder{color:var(--mut)}
 .si{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--mut);font-size:14px;pointer-events:none}
-.filters{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.filters{display:flex;gap:5px;align-items:center;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap;max-width:100%}
+.filters::-webkit-scrollbar{display:none}
 .tag,.tf{background:var(--s1);border:1px solid var(--bdr);color:var(--mut);padding:6px 10px;border-radius:7px;cursor:pointer;font-family:var(--fB);font-size:.76rem;transition:all .15s;white-space:nowrap}
 .tag:hover,.tf:hover{border-color:rgba(255,255,255,.15);color:var(--txt)}
 .tag.on,.tf.on-all{border-color:var(--acc);color:var(--acc);background:var(--acc-dim)}
@@ -235,6 +238,8 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
     <div class="pb-pill p">💛 Premium: $14.000 | $10.000 c/u desde 2 o mas juegos</div>
     <div class="pb-sep">·</div>
     <div class="pb-pill s">🟣 Especial: $25.000 + 2 juegos normales de regalo</div>
+    <div class="pb-sep">·</div>
+    <div class="pb-pill" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--mut);font-size:.68rem">📦 Todos los juegos incluyen sus DLC</div>
   </div>
 </div>
 
@@ -245,10 +250,9 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
   </div>
   <div class="toolbar">
     <div class="sw"><span class="si">🔍</span><input type="text" id="q" placeholder="Buscar juego..."/></div>
-    <div class="filters" id="tfs"></div>
-    <span style="color:var(--s3);font-size:14px">·</span>
-    <div class="filters" id="tags"></div>
   </div>
+  <div class="toolbar-filters-row" id="tfs"></div>
+  <div class="toolbar-filters-row" style="margin-top:7px;margin-bottom:16px" id="tags"></div>
   <div id="gamesArea"><div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span></div></div>
 </main>
 
@@ -281,6 +285,9 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
       <div class="price-card nc"><div class="pc-label">🟢 Normal</div><p>$9.900 c/u<br>3 juegos → $19.900<br>6 juegos → $29.900</p></div>
       <div class="price-card pc"><div class="pc-label">💛 Premium</div><p>$14.000 solo<br>$10.000 c/u desde 2 o mas juegos </p></div>
       <div class="price-card sc"><div class="pc-label">🟣 Especial</div><p>$25.000 c/u + elegís 2 juegos normales de regalo</p></div>
+    </div>
+    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:11px 14px;text-align:center;margin-top:16px">
+      <span style="font-size:.78rem;color:var(--mut)">📦 Todos los juegos incluyen sus DLC</span>
     </div>
     <button class="modal-close" onclick="closePedir(null,true)">CERRAR</button>
   </div>
