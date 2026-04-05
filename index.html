@@ -430,7 +430,7 @@ async function loadGames(manual=false){
             ? gc(row,'tier').toLowerCase()
             : 'normal',
           price: parseInt(gc(row,'price')) || CFG.prices.normal.single,
-          tags: gc(row,'tags').split(',').map(t=>t.trim()).filter(Boolean),
+          tags: gc(row,'tags')   .split(',')   .map(t=>t.trim())   .filter(Boolean)   .map(t => t.toLowerCase() === 'multiplayer' ? 'Open World' : t),
           image: gc(row,'imageurl') || '',
           _q: name.toLowerCase(),
           _nq: nq,
