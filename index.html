@@ -428,34 +428,32 @@ async function loadGames(manual=false){
 
   try{
     // ── Fase 1: primeros 60 featured, render inmediato ──────────────────────
+    // Los filtros de tier/tag NO se construyen aquí — solo una vez en Fase 2
     const first=await fetch(base+'&chunk=first').then(r=>r.json());
     if(first?.d?.length){
       ALL_SORTED=sortGames(parseGames(first.d));
       FILTERED=ALL_SORTED.slice();
-      buildTierFilters();
-      buildTagFilters();
-      buildVirtualGrid();           // renderiza las 60 cards
+      buildVirtualGrid();           // renderiza las 60 cards sin tocar filtros
       renderTotals();
       btn.classList.remove('spinning');
-      // Contador vacío hasta tener el total real
       $('cnt').textContent='';
       $('lu').textContent='';
     }
 
-    // ── Fase 2: catálogo completo — SIN tocar el DOM ─────────────────────────
+    // ── Fase 2: catálogo completo — filtros se renderizan una sola vez ───────
     const full=await fetch(base).then(r=>r.json());
     if(full?.d?.length){
       ALL_SORTED=sortGames(parseGames(full.d));
       const now=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
       const noFilters=!($('q').value||'').trim()&&activeTag==='Todos'&&activeTier==='all';
+      // Siempre construimos filtros aquí — es la única vez que se renderizan
+      buildTierFilters();
+      buildTagFilters();
       if(noFilters){
-        // El grid ya tiene las 60 cards — solo actualizamos FILTERED y los filtros
-        // El scroll handler continuará cargando desde renderOffset=60 automáticamente
+        // Grid intacto — solo actualizamos FILTERED para que el scroll cargue desde card 61
         FILTERED=ALL_SORTED.slice();
-        buildTierFilters();
-        buildTagFilters();
       } else {
-        // El usuario ya filtró mientras cargaba → re-render con datos completos
+        // El usuario filtró mientras cargaba → re-render completo con datos reales
         applyFilter();
       }
       $('cnt').textContent=`${ALL_SORTED.length.toLocaleString()} juego${ALL_SORTED.length!==1?'s':''}`;
