@@ -74,25 +74,26 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 .sw input:focus{border-color:var(--acc)}
 .sw input::placeholder{color:var(--mut)}
 .si{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--mut);font-size:14px;pointer-events:none}
-/* Fila tiers — al lado del buscador en PC */
-.tier-row{display:flex;gap:5px;align-items:center;flex-wrap:wrap;flex-shrink:0}
-/* Fila tags — debajo del buscador en PC */
-.tag-row{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.tier-row{display:flex;gap:5px;align-items:center;flex-wrap:nowrap;flex-shrink:0}
+.tier-row-mob{display:none;gap:5px;margin-bottom:8px;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap}
+.tier-row-mob::-webkit-scrollbar{display:none}
+.tag-row{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
 .tag,.tf{background:var(--s1);border:1px solid var(--bdr);color:var(--mut);padding:6px 10px;border-radius:7px;cursor:pointer;font-family:var(--fB);font-size:.76rem;transition:all .15s;white-space:nowrap}
 .tag:hover,.tf:hover{border-color:rgba(255,255,255,.15);color:var(--txt)}
 .tag.on,.tf.on-all{border-color:var(--acc);color:var(--acc);background:var(--acc-dim)}
 .tf.on-normal{border-color:var(--acc);color:var(--acc);background:var(--acc-dim)}
 .tf.on-premium{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
 .tf.on-special{border-color:var(--pur);color:var(--pur);background:var(--pur-dim)}
-/* Botón categoría — solo mobile */
 .cat-btn{display:none;flex-shrink:0;background:var(--s1);border:1px solid var(--bdr);color:var(--mut);padding:6px 11px;border-radius:7px;cursor:pointer;font-family:var(--fB);font-size:.76rem;white-space:nowrap;transition:all .15s}
 .cat-btn.active{border-color:var(--acc);color:var(--acc);background:var(--acc-dim)}
 .cat-dropdown{display:none;position:fixed;left:0;right:0;bottom:var(--nav-h);z-index:299;background:var(--s2);border-top:1px solid var(--bdr);padding:12px 14px 14px;flex-wrap:wrap;gap:7px;box-shadow:0 -8px 24px rgba(0,0,0,.5)}
 .cat-dropdown.open{display:flex}
 @media(max-width:768px){
   .sw input{font-size:.85rem;padding:10px 11px 10px 36px}
+  .tier-row{display:none}      /* tiers NO van en la toolbar en mobile */
+  .tier-row-mob{display:flex}  /* tiers van en su propia fila debajo */
+  .tag-row{display:none}       /* tags van en el dropdown */
   .cat-btn{display:flex;align-items:center;gap:5px}
-  .tag-row{display:none}  /* tags se muestran en dropdown */
 }
 .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
 .st{font-family:var(--fD);font-size:1.1rem;font-weight:700}
@@ -257,13 +258,14 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
     <div style="display:flex;align-items:baseline;gap:10px"><h1 class="st">Catálogo</h1><span class="sc" id="cnt"></span></div>
     <span class="lu" id="lu"></span>
   </div>
-  <!-- Fila 1: buscador + tiers (PC) / buscador + botón categoría (mobile) -->
+  <!-- Fila 1: buscador + botón categoría (mobile) / buscador + tiers (PC) -->
   <div class="toolbar">
     <div class="sw"><span class="si">🔍</span><input type="text" id="q" placeholder="Buscar juego..."/></div>
     <div id="tfs" class="tier-row"></div>
     <button class="cat-btn" id="catBtn" onclick="toggleCatDropdown()">Categoría ▾</button>
   </div>
-  <!-- Fila 2: categorías (solo PC) -->
+  <!-- Fila 2: tiers en mobile / tags en PC -->
+  <div class="tier-row-mob" id="tfsMob"></div>
   <div class="tag-row" id="tags" style="margin-bottom:12px"></div>
   <!-- Dropdown categorías mobile -->
   <div class="cat-dropdown" id="catDropdown"></div>
@@ -547,18 +549,20 @@ function setTag(k){
 
 let _tierHTML='', _tagHTML='';
 function _renderAllFilters(){
-  const tfsEl=document.getElementById('tfs');
-  const tagsEl=document.getElementById('tags');
-  const ddEl=document.getElementById('catDropdown');
-  const btnEl=document.getElementById('catBtn');
-  if(tfsEl) tfsEl.innerHTML=_tierHTML;
-  if(tagsEl) tagsEl.innerHTML=_tagHTML;
-  if(ddEl)   ddEl.innerHTML=_tagHTML;
+  const tfsEl   = document.getElementById('tfs');
+  const tfsMob  = document.getElementById('tfsMob');
+  const tagsEl  = document.getElementById('tags');
+  const ddEl    = document.getElementById('catDropdown');
+  const btnEl   = document.getElementById('catBtn');
+  if(tfsEl)  tfsEl.innerHTML  = _tierHTML;   // PC: al lado del buscador
+  if(tfsMob) tfsMob.innerHTML = _tierHTML;   // Mobile: fila debajo del buscador
+  if(tagsEl) tagsEl.innerHTML = _tagHTML;    // PC: fila de categorías
+  if(ddEl)   ddEl.innerHTML   = _tagHTML;    // Mobile: dropdown
   if(btnEl){
-    const activeFilter=CUSTOM_FILTERS.find(f=>f.key===activeTag);
-    const isAll=activeTag==='all';
-    btnEl.textContent=(isAll?'Categoría':'▸ '+activeFilter?.label)+' ▾';
-    btnEl.className='cat-btn'+(isAll?'':' active');
+    const f = CUSTOM_FILTERS.find(f=>f.key===activeTag);
+    const isAll = activeTag==='all';
+    btnEl.textContent = (isAll ? 'Categoría' : '▸ '+f?.label) + ' ▾';
+    btnEl.className   = 'cat-btn' + (isAll ? '' : ' active');
   }
 }
 
