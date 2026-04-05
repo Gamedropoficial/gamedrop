@@ -68,29 +68,31 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.93);backdrop-fi
   .pb-pill{font-size:.75rem;padding:5px 13px}
 }
 main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
-.toolbar{display:flex;gap:9px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
-.toolbar-filters-row{display:flex;gap:5px;width:100%;flex-wrap:wrap}
-.sw{flex:1;min-width:180px;position:relative}
+.toolbar{display:flex;gap:9px;margin-bottom:10px;align-items:center}
+.sw{flex:1;min-width:0;position:relative}
 .sw input{width:100%;background:var(--s1);border:1px solid var(--bdr);color:var(--txt);padding:11px 13px 11px 40px;border-radius:9px;font-family:var(--fB);font-size:.95rem;outline:none;transition:border-color .2s}
 .sw input:focus{border-color:var(--acc)}
 .sw input::placeholder{color:var(--mut)}
 .si{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--mut);font-size:14px;pointer-events:none}
-.filters{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+/* Fila tiers — al lado del buscador en PC */
+.tier-row{display:flex;gap:5px;align-items:center;flex-wrap:wrap;flex-shrink:0}
+/* Fila tags — debajo del buscador en PC */
+.tag-row{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
 .tag,.tf{background:var(--s1);border:1px solid var(--bdr);color:var(--mut);padding:6px 10px;border-radius:7px;cursor:pointer;font-family:var(--fB);font-size:.76rem;transition:all .15s;white-space:nowrap}
 .tag:hover,.tf:hover{border-color:rgba(255,255,255,.15);color:var(--txt)}
 .tag.on,.tf.on-all{border-color:var(--acc);color:var(--acc);background:var(--acc-dim)}
 .tf.on-normal{border-color:var(--acc);color:var(--acc);background:var(--acc-dim)}
 .tf.on-premium{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
 .tf.on-special{border-color:var(--pur);color:var(--pur);background:var(--pur-dim)}
-/* ── Mobile: botón categorías ── */
-.cat-btn{display:none;background:var(--s1);border:1px solid var(--bdr);color:var(--mut);padding:6px 12px;border-radius:7px;cursor:pointer;font-family:var(--fB);font-size:.76rem;white-space:nowrap;gap:6px;align-items:center;transition:all .15s}
+/* Botón categoría — solo mobile */
+.cat-btn{display:none;flex-shrink:0;background:var(--s1);border:1px solid var(--bdr);color:var(--mut);padding:6px 11px;border-radius:7px;cursor:pointer;font-family:var(--fB);font-size:.76rem;white-space:nowrap;transition:all .15s}
 .cat-btn.active{border-color:var(--acc);color:var(--acc);background:var(--acc-dim)}
-.cat-dropdown{display:none;position:fixed;left:0;right:0;bottom:var(--nav-h);z-index:299;background:var(--s1);border-top:1px solid var(--bdr);padding:12px 14px 14px;flex-wrap:wrap;gap:7px}
+.cat-dropdown{display:none;position:fixed;left:0;right:0;bottom:var(--nav-h);z-index:299;background:var(--s2);border-top:1px solid var(--bdr);padding:12px 14px 14px;flex-wrap:wrap;gap:7px;box-shadow:0 -8px 24px rgba(0,0,0,.5)}
 .cat-dropdown.open{display:flex}
 @media(max-width:768px){
-  .cat-btn{display:flex}
-  #allFilters .tag{display:none}
-  #allFilters .cat-sep{display:none}
+  .sw input{font-size:.85rem;padding:10px 11px 10px 36px}
+  .cat-btn{display:flex;align-items:center;gap:5px}
+  .tag-row{display:none}  /* tags se muestran en dropdown */
 }
 .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
 .st{font-family:var(--fD);font-size:1.1rem;font-weight:700}
@@ -255,11 +257,15 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
     <div style="display:flex;align-items:baseline;gap:10px"><h1 class="st">Catálogo</h1><span class="sc" id="cnt"></span></div>
     <span class="lu" id="lu"></span>
   </div>
+  <!-- Fila 1: buscador + tiers (PC) / buscador + botón categoría (mobile) -->
   <div class="toolbar">
     <div class="sw"><span class="si">🔍</span><input type="text" id="q" placeholder="Buscar juego..."/></div>
+    <div id="tfs" class="tier-row"></div>
+    <button class="cat-btn" id="catBtn" onclick="toggleCatDropdown()">Categoría ▾</button>
   </div>
-  <div class="toolbar-filters-row" id="allFilters" style="margin-bottom:12px"></div>
-  <!-- Dropdown de categorías solo en mobile -->
+  <!-- Fila 2: categorías (solo PC) -->
+  <div class="tag-row" id="tags" style="margin-bottom:12px"></div>
+  <!-- Dropdown categorías mobile -->
   <div class="cat-dropdown" id="catDropdown"></div>
   <div id="gamesArea"><div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span></div></div>
 </main>
@@ -541,20 +547,19 @@ function setTag(k){
 
 let _tierHTML='', _tagHTML='';
 function _renderAllFilters(){
-  const el=document.getElementById('allFilters');
-  if(!el) return;
-  // Etiqueta activa del filtro de categoría
-  const activeFilter=CUSTOM_FILTERS.find(f=>f.key===activeTag);
-  const catLabel=activeTag==='all'?'Categoría':'▸ '+activeFilter?.label;
-  const catActive=activeTag!=='all';
-  // PC: tiers + separador + tags wrapping — Mobile: tiers + botón categoría
-  el.innerHTML=_tierHTML
-    +'<span class="cat-sep" style="color:var(--s3);font-size:14px">·</span>'
-    +`<button class="cat-btn${catActive?' active':''}" onclick="toggleCatDropdown()">${catLabel} ▾</button>`
-    +_tagHTML;
-  // Dropdown mobile
-  const dd=document.getElementById('catDropdown');
-  if(dd) dd.innerHTML=_tagHTML;
+  const tfsEl=document.getElementById('tfs');
+  const tagsEl=document.getElementById('tags');
+  const ddEl=document.getElementById('catDropdown');
+  const btnEl=document.getElementById('catBtn');
+  if(tfsEl) tfsEl.innerHTML=_tierHTML;
+  if(tagsEl) tagsEl.innerHTML=_tagHTML;
+  if(ddEl)   ddEl.innerHTML=_tagHTML;
+  if(btnEl){
+    const activeFilter=CUSTOM_FILTERS.find(f=>f.key===activeTag);
+    const isAll=activeTag==='all';
+    btnEl.textContent=(isAll?'Categoría':'▸ '+activeFilter?.label)+' ▾';
+    btnEl.className='cat-btn'+(isAll?'':' active');
+  }
 }
 
 function applyFilter(){
