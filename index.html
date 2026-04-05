@@ -238,10 +238,9 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
     <div class="pb-pill p">💛 Premium: $14.000 | $10.000 c/u desde 2 o mas juegos</div>
     <div class="pb-sep">·</div>
     <div class="pb-pill s">🟣 Especial: $25.000 + 2 juegos normales de regalo</div>
-    <div class="pb-sep">·</div>
-    <div class="pb-pill" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--mut);font-size:.68rem">📦 Todos los juegos incluyen sus DLC</div>
   </div>
 </div>
+<div style="text-align:center;padding:5px 0 2px;font-size:.68rem;color:var(--mut);letter-spacing:.3px">📦 Todos los juegos incluyen sus DLC</div>
 
 <main>
   <div class="sh">
@@ -251,8 +250,7 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
   <div class="toolbar">
     <div class="sw"><span class="si">🔍</span><input type="text" id="q" placeholder="Buscar juego..."/></div>
   </div>
-  <div class="toolbar-filters-row" id="tfs"></div>
-  <div class="toolbar-filters-row" style="margin-top:7px;margin-bottom:16px" id="tags"></div>
+  <div class="toolbar-filters-row" id="allFilters" style="margin-bottom:12px"></div>
   <div id="gamesArea"><div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span></div></div>
 </main>
 
@@ -286,9 +284,7 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
       <div class="price-card pc"><div class="pc-label">💛 Premium</div><p>$14.000 solo<br>$10.000 c/u desde 2 o mas juegos </p></div>
       <div class="price-card sc"><div class="pc-label">🟣 Especial</div><p>$25.000 c/u + elegís 2 juegos normales de regalo</p></div>
     </div>
-    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:11px 14px;text-align:center;margin-top:16px">
-      <span style="font-size:.78rem;color:var(--mut)">📦 Todos los juegos incluyen sus DLC</span>
-    </div>
+    <p style="text-align:center;font-size:.68rem;color:var(--mut);margin-top:12px">📦 Todos los juegos incluyen sus DLC</p>
     <button class="modal-close" onclick="closePedir(null,true)">CERRAR</button>
   </div>
 </div>
@@ -509,17 +505,26 @@ function buildTierFilters(metaTiers){
   const L={all:'Todos',normal:'🟢 Normal',premium:'💛 Premium',special:'🟣 Especial'};
   const on={all:'on-all',normal:'on-normal',premium:'on-premium',special:'on-special'};
   const tiers=['all',...(metaTiers||[...new Set(ALL_SORTED.map(g=>g.tier))])];
-  $('tfs').innerHTML=tiers.map(t=>`<button class="tf${activeTier===t?' '+on[t]:''}" onclick="setTier('${t}')">${L[t]||t}</button>`).join('');
+  _tierHTML=tiers.map(t=>`<button class="tf${activeTier===t?' '+on[t]:''}" onclick="setTier('${t}')">${L[t]||t}</button>`).join('');
+  _renderAllFilters();
 }
 function setTier(t){activeTier=t;buildTierFilters();applyFilter();}
 
 function buildTagFilters(){
-  // Filtros fijos — el parámetro metaTags ya no se usa
-  $('tags').innerHTML=CUSTOM_FILTERS.map(f=>
+  _tagHTML=CUSTOM_FILTERS.map(f=>
     `<button class="tag${activeTag===f.key?' on':''}" onclick="setTag('${f.key}')">${f.label}</button>`
   ).join('');
+  _renderAllFilters();
 }
 function setTag(k){activeTag=k;buildTagFilters();applyFilter();}
+
+let _tierHTML='', _tagHTML='';
+function _renderAllFilters(){
+  const el=document.getElementById('allFilters');
+  if(el) el.innerHTML=_tierHTML
+    +'<span style="color:var(--s3);font-size:12px;flex-shrink:0;align-self:center;padding:0 2px">·</span>'
+    +_tagHTML;
+}
 
 function applyFilter(){
   const rawQ=($('q').value||'').trim();
