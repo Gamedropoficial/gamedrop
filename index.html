@@ -427,33 +427,36 @@ async function loadGames(manual=false){
   const base=CFG.catalogUrl+'?t='+Date.now();
 
   try{
-    // ── Fase 1: primeros 60 featured, render inmediato ──────────────────────
-    // Los filtros de tier/tag NO se construyen aquí — solo una vez en Fase 2
+    // ── Fase 1: primeros 60 + meta del catálogo completo ─────────────────────
     const first=await fetch(base+'&chunk=first').then(r=>r.json());
     if(first?.d?.length){
       ALL_SORTED=sortGames(parseGames(first.d));
       FILTERED=ALL_SORTED.slice();
-      buildVirtualGrid();           // renderiza las 60 cards sin tocar filtros
+      // Los filtros se construyen con el meta del catálogo completo (calculado en n8n)
+      // → aparecen correctos desde el primer frame, sin ningún rebuild posterior
+      buildTierFilters(first.meta?.tiers);
+      buildTagFilters(first.meta?.topTags);
+      if(first.meta?.total){
+        $('cnt').textContent=`${Number(first.meta.total).toLocaleString()} juego${first.meta.total!==1?'s':''}`;
+      }
+      buildVirtualGrid();
       renderTotals();
       btn.classList.remove('spinning');
-      $('cnt').textContent='';
       $('lu').textContent='';
     }
 
-    // ── Fase 2: catálogo completo — filtros se renderizan una sola vez ───────
+    // ── Fase 2: catálogo completo — NO toca filtros ni grid ──────────────────
     const full=await fetch(base).then(r=>r.json());
     if(full?.d?.length){
       ALL_SORTED=sortGames(parseGames(full.d));
       const now=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
       const noFilters=!($('q').value||'').trim()&&activeTag==='Todos'&&activeTier==='all';
-      // Siempre construimos filtros aquí — es la única vez que se renderizan
-      buildTierFilters();
-      buildTagFilters();
       if(noFilters){
-        // Grid intacto — solo actualizamos FILTERED para que el scroll cargue desde card 61
         FILTERED=ALL_SORTED.slice();
+        // Filtros ya son correctos desde Fase 1 — no se tocan
       } else {
-        // El usuario filtró mientras cargaba → re-render completo con datos reales
+        buildTierFilters();
+        buildTagFilters();
         applyFilter();
       }
       $('cnt').textContent=`${ALL_SORTED.length.toLocaleString()} juego${ALL_SORTED.length!==1?'s':''}`;
@@ -471,18 +474,23 @@ async function loadGames(manual=false){
   }
 }
 
-function buildTierFilters(){
+function buildTierFilters(metaTiers){
   const L={all:'Todos',normal:'🟢 Normal',premium:'💛 Premium',special:'🟣 Especial'};
   const on={all:'on-all',normal:'on-normal',premium:'on-premium',special:'on-special'};
-  const tiers=['all',...new Set(ALL_SORTED.map(g=>g.tier))];
+  const tiers=['all',...(metaTiers||[...new Set(ALL_SORTED.map(g=>g.tier))])];
   $('tfs').innerHTML=tiers.map(t=>`<button class="tf${activeTier===t?' '+on[t]:''}" onclick="setTier('${t}')">${L[t]||t}</button>`).join('');
 }
 function setTier(t){activeTier=t;buildTierFilters();applyFilter();}
 
-function buildTagFilters(){
-  const freq={};
-  ALL_SORTED.forEach(g=>g.tags.forEach(t=>{freq[t]=(freq[t]||0)+1;}));
-  const top=['Todos',...Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([t])=>t)];
+function buildTagFilters(metaTags){
+  let top;
+  if(metaTags){
+    top=['Todos',...metaTags];
+  } else {
+    const freq={};
+    ALL_SORTED.forEach(g=>g.tags.forEach(t=>{freq[t]=(freq[t]||0)+1;}));
+    top=['Todos',...Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([t])=>t)];
+  }
   $('tags').innerHTML=top.map(t=>`<button class="tag${t===activeTag?' on':''}" onclick="setTag('${t}')">${t}</button>`).join('');
 }
 function setTag(t){activeTag=t;buildTagFilters();applyFilter();}
