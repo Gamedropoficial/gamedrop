@@ -863,10 +863,12 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 // ── Protección anti-copia ────────────────────────────────────────────────────
 document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('copy',e=>{
+  if(e.target.tagName==='INPUT') return; // permitir copiar/pegar en buscador
   e.clipboardData.setData('text/plain','© GameDrop — Contenido protegido');
   e.preventDefault();
 });
 document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT') return; // no bloquear nada dentro del buscador
   const k=e.key.toLowerCase();
   if(e.ctrlKey&&['u','s'].includes(k)){e.preventDefault();return false;}
   if(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(k)){e.preventDefault();return false;}
