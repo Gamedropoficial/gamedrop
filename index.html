@@ -440,7 +440,7 @@ function parseGames(d){
     const name = g.n;
     const nq = norm(name);
     const status = (g.u || '').toString().trim().toLowerCase();
-    const isUpcoming = status === 'true' || status === 'proximamente';
+    const isUpcoming = status === 'proximamente';
 
     return{
       id: i+1,
