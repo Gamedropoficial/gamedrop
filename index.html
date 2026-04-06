@@ -4,7 +4,6 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>GameDrop — Catálogo</title>
-<link rel="icon" id="dynamic-favicon">
 <!-- ██ DOMAIN LOCK — si esto no corre en el dominio autorizado, borra todo ██ -->
 <script>
 (function(){
@@ -437,11 +436,8 @@ const CUSTOM_FILTERS = [
 
 function parseGames(d){
   return d.map((g,i)=>{
-    const name = g.n;
-    const nq = norm(name);
-    const status = (g.s || '').toString().trim().toLowerCase();
-    const isUpcoming = status === 'proximamente';
-
+    const name=g.n;
+    const nq=norm(name);
     return{
       id: i+1,
       _sheetIndex: i,
@@ -449,9 +445,7 @@ function parseGames(d){
       appId: g.a,
       tier: TM[g.t]||'normal',
       price: g.p,
-      status,
-      upcoming: isUpcoming,
-      tags: (g.g || '').split(',').map(t=>t.trim()).filter(Boolean)
+      tags: g.g.split(',').map(t=>t.trim()).filter(Boolean)
             .map(t=>t.toLowerCase()==='multiplayer'?'Open World':t),
       image: g.i||'',
       _q: name.toLowerCase(),
@@ -654,59 +648,33 @@ function groupCartItems(items){
 }
 
 function makeCard(g){
-  const tier = g.tier || 'normal';
-  const qty = getCartQty(g.id);
-  const inCart = qty > 0;
-  const c = calcTotal();
-  const freeCount = c.freeNormalCounts[g.id] || 0;
-  const isFree = freeCount > 0;
-  const sc = inCart ? `s${tier[0]}` : '';
-  const P = CFG.prices;
-  const isUpcoming = !!g.upcoming;
+  const tier=g.tier||'normal';
+  const qty=getCartQty(g.id);
+  const inCart=qty>0;
+  const c=calcTotal();
+  const freeCount=c.freeNormalCounts[g.id]||0;
+  const isFree=freeCount>0;
+  const sc=inCart?`s${tier[0]}`:'';
+  const P=CFG.prices;
 
-  let ph = '';
-  if(isUpcoming){
-    ph = `<div class="pb2">
-      <div class="cp" style="color:var(--red)">Próximamente</div>
-      <div class="cps" style="color:rgba(255,64,96,.72)">Sin precio todavía</div>
-    </div>`;
-  } else if(tier === 'normal'){
-    ph = `<div class="pb2"><div class="cp">${fmt(P.normal.single)}</div><div class="cps">x3 ${fmt(P.normal.pack3)} | x6 ${fmt(P.normal.pack6)}</div></div>`;
-  } else if(tier === 'premium'){
-    ph = `<div class="pb2"><div class="cp gp">${fmt(P.premium.solo)}</div><div class="cps gp">o ${fmt(P.premium.mixed)} en combo</div></div>`;
-  } else {
-    ph = `<div class="pb2"><div class="cp sp2">${fmt(P.special.price)}</div><div class="cps sp2">🎁 +${P.special.gifts} juegos de regalo</div></div>`;
-  }
+  let ph='';
+  if(tier==='normal')
+    ph=`<div class="pb2"><div class="cp">${fmt(P.normal.single)}</div><div class="cps">x3 ${fmt(P.normal.pack3)} | x6 ${fmt(P.normal.pack6)}</div></div>`;
+  else if(tier==='premium')
+    ph=`<div class="pb2"><div class="cp gp">${fmt(P.premium.solo)}</div><div class="cps gp">o ${fmt(P.premium.mixed)} en combo</div></div>`;
+  else
+    ph=`<div class="pb2"><div class="cp sp2">${fmt(P.special.price)}</div><div class="cps sp2">🎁 +${P.special.gifts} juegos de regalo</div></div>`;
 
-  const up = isUpcoming
-    ? `<div class="bdg tb" style="background:#1a1a1a;border:1px solid #ff4060;color:#ff4060">PRÓXIMAMENTE</div>`
-    : '';
+  const tb=tier==='premium'?`<div class="bdg tb tbp">PREMIUM</div>`:tier==='special'?`<div class="bdg tb tbs">ESPECIAL</div>`:'';
+  const actionBtn=qty>=1
+    ?`<button class="addb ${tier[0]}" onclick="event.stopPropagation();removeFromCart(${g.id})">−</button>`
+    :`<button class="addb ${tier[0]}" onclick="event.stopPropagation();addToCart(${g.id})">+</button>`;
 
-  const tb = !isUpcoming
-    ? (tier==='premium'
-        ? `<div class="bdg tb tbp">PREMIUM</div>`
-        : tier==='special'
-          ? `<div class="bdg tb tbs">ESPECIAL</div>`
-          : '')
-    : '';
-
-  const actionBtn = isUpcoming
-    ? `<button class="addb n" style="border-color:rgba(255,64,96,.35);background:rgba(255,64,96,.08);color:#ff4060;cursor:not-allowed;opacity:.8" onclick="event.stopPropagation()">—</button>`
-    : qty>=1
-      ? `<button class="addb ${tier[0]}" onclick="event.stopPropagation();removeFromCart(${g.id})">−</button>`
-      : `<button class="addb ${tier[0]}" onclick="event.stopPropagation();addToCart(${g.id})">+</button>`;
-
-  const div = document.createElement('div');
-  div.className = `card ${sc}`;
-  div.dataset.id = g.id;
-  div.onclick = ()=> {
-    if(isUpcoming) return;
-    addToCart(g.id);
-  };
-  if(isUpcoming) div.style.cursor = 'default';
-
-  div.innerHTML = `${up}
-    ${inCart?`<div class="bdg sb sb${tier[0]}">${qty}× EN PEDIDO</div>`:tb}
+  const div=document.createElement('div');
+  div.className=`card ${sc}`;
+  div.dataset.id=g.id;
+  div.onclick=()=>addToCart(g.id);
+  div.innerHTML=`${inCart?`<div class="bdg sb sb${tier[0]}">${qty}× EN PEDIDO</div>`:tb}
     ${isFree?`<div class="bdg fb">🎁 GRATIS</div>`:''}
     <img class="cover" loading="lazy" src="${imgUrl(g.appId,g.image)}" onerror="imgFallback(this,${g.appId},${JSON.stringify(g.image)})" alt="">
     <div class="card-body">
@@ -715,6 +683,7 @@ function makeCard(g){
     </div>`;
   return div;
 }
+
 function refreshCard(id){
   const els=document.querySelectorAll(`.card[data-id="${id}"]`);
   if(!els.length)return;
@@ -760,10 +729,9 @@ function updateCartBadge(){
 }
 
 function addToCart(id){
-  const g = ALL_SORTED.find(x=>x.id===id);
-  if(!g) return;
-  if(g.upcoming) return;
-  if(getCartQty(id) >= CFG.MAX_PER_GAME) return;
+  const g=ALL_SORTED.find(x=>x.id===id);
+  if(!g)return;
+  if(getCartQty(id)>=CFG.MAX_PER_GAME)return;
   cart.push(g);
   updateCartBadge();refreshCard(id);renderCartList();renderTotals();
 }
@@ -924,28 +892,11 @@ loadGames();
 
 // ── Logo desde localStorage ───────────────────────────────────────────────────
 (function(){
-  const b64 = localStorage.getItem('gd_logo');
-  const el  = document.getElementById('logo-img');
-  const fav = document.getElementById('dynamic-favicon');
-
-  if(!el) return;
-
-  if(b64){
-    const dataUrl = 'data:image/png;base64,' + b64;
-
-    // Logo header
-    el.src = dataUrl;
-
-    // Favicon dinámico
-    if(fav) fav.href = dataUrl;
-
-  } else {
-    // 🔥 fallback si no hay logo guardado
-    el.src = 'logo.png';
-    if(fav) fav.href = 'logo.png';
-  }
-
-  el.style.display = 'block';
+  const b64=localStorage.getItem('gd_logo');
+  const el=document.getElementById('logo-img');
+  if(!el)return;
+  if(b64){el.src='data:image/png;base64,'+b64;}
+  el.style.display='block';
 })();
 function setLogo(base64){
   localStorage.setItem('gd_logo',base64);
