@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>GameDrop — Catálogo</title>
+<link rel="icon" id="dynamic-favicon">
 <!-- ██ DOMAIN LOCK — si esto no corre en el dominio autorizado, borra todo ██ -->
 <script>
 (function(){
@@ -892,11 +893,23 @@ loadGames();
 
 // ── Logo desde localStorage ───────────────────────────────────────────────────
 (function(){
-  const b64=localStorage.getItem('gd_logo');
-  const el=document.getElementById('logo-img');
-  if(!el)return;
-  if(b64){el.src='data:image/png;base64,'+b64;}
-  el.style.display='block';
+  const b64 = localStorage.getItem('gd_logo');
+  const el  = document.getElementById('logo-img');
+  const fav = document.getElementById('dynamic-favicon');
+
+  if(!el) return;
+
+  if(b64){
+    const dataUrl = 'data:image/png;base64,' + b64;
+
+    // Logo header
+    el.src = dataUrl;
+
+    // 🔥 favicon con el MISMO logo
+    if(fav) fav.href = dataUrl;
+  }
+
+  el.style.display = 'block';
 })();
 function setLogo(base64){
   localStorage.setItem('gd_logo',base64);
