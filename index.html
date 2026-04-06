@@ -341,7 +341,7 @@ const CFG = {
   aliasTienda: 'gamedrop',
   currency:    '$',
   // ── Sin sheetId — el catálogo viene del proxy n8n ──
-  catalogUrl:  'https://flow.retroverse.games/webhook/gamedrop-catalog',
+  catalogUrl: 'https://flow.retroverse.games/webhook/gamedrop-catalog?v=GD2026_SECURE_X91',
   prices: {
     normal:  {single:9900,pack3:19900,pack6:29900},
     premium: {solo:14000,mixed:10000},
@@ -469,7 +469,7 @@ async function loadGames(manual=false){
   if(!ALL_SORTED.length||manual)
     $('gamesArea').innerHTML='<div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span></div>';
 
-  const base=CFG.catalogUrl+'?t='+Date.now();
+  const base=CFG.catalogUrl+'&t='+Date.now();
 
   try{
     // ── Fase 1: primeros 60 + meta del catálogo completo ─────────────────────
