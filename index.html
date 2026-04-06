@@ -439,7 +439,7 @@ function parseGames(d){
   return d.map((g,i)=>{
     const name = g.n;
     const nq = norm(name);
-    const status = (g.u || '').toString().trim().toLowerCase();
+    const status = (g.s || '').toString().trim().toLowerCase();
     const isUpcoming = status === 'proximamente';
 
     return{
