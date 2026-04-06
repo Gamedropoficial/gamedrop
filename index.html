@@ -113,19 +113,31 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 .card.sp{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 5px 18px var(--gold-glow)}
 .card.ss{border-color:var(--pur);box-shadow:0 0 0 1px var(--pur),0 5px 18px var(--pur-glow)}
 .card.prox{
-  filter:grayscale(1);
-  opacity:.72;
-  cursor:default;
-  border-color:rgba(255,255,255,.12);
+  background:#171a22;
+  border-color:rgba(255,255,255,.08);
   box-shadow:none;
+  cursor:default;
+  opacity:.88;
+  filter:grayscale(.35);
 }
 .card.prox:hover{
   transform:none;
-  border-color:rgba(255,255,255,.12);
+  border-color:rgba(255,255,255,.08);
   box-shadow:none;
 }
 .card.prox .cover{
-  filter:grayscale(1) brightness(.78);
+  filter:grayscale(.75) brightness(.72);
+}
+.card.prox .cn{
+  color:#cfd5e2;
+}
+.card.prox .cp,
+.card.prox .cp.gp,
+.card.prox .cp.sp2,
+.card.prox .cps,
+.card.prox .cps.gp,
+.card.prox .cps.sp2{
+  color:#8b93a7 !important;
 }
 .cover{width:100%;aspect-ratio:460/215;object-fit:cover;display:block;background:var(--s2)}
 .card-body{padding:9px 10px}
@@ -135,11 +147,9 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 .cp{font-family:var(--fD);font-size:.88rem;font-weight:700;color:var(--acc);line-height:1}
 .cp.gp{color:var(--gold)}
 .cp.sp2{color:var(--pur)}
-.cp.prox{color:#9aa3b2}
 .cps{font-size:.68rem;color:rgba(0,229,160,.62);margin-top:2px}
 .cps.gp{color:rgba(245,166,35,.6)}
 .cps.sp2{color:rgba(181,124,245,.62)}
-.cps.prox{color:#6f7887}
 .addb{width:28px;height:28px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s;flex-shrink:0;font-weight:bold;border:1px solid;line-height:1}
 .addb.n{border-color:var(--acc);background:var(--acc-dim);color:var(--acc)}
 .addb.n:hover,.card.sn .addb.n{background:var(--acc);color:#000}
@@ -147,12 +157,12 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 .addb.p:hover,.card.sp .addb.p{background:var(--gold);color:#000}
 .addb.s{border-color:var(--pur);background:var(--pur-dim);color:var(--pur)}
 .addb.s:hover,.card.ss .addb.s{background:var(--pur);color:#000}
-.addb.dis{
-  border-color:#4f5765;
-  background:rgba(255,255,255,.04);
-  color:#7f8897;
-  cursor:not-allowed;
-  pointer-events:none;
+.addb.disabled{
+  border-color:#4e5568 !important;
+  background:rgba(91,102,128,.12) !important;
+  color:#7d879c !important;
+  cursor:not-allowed !important;
+  pointer-events:none !important;
 }
 .bdg{position:absolute;font-size:.58rem;font-weight:700;font-family:var(--fD);padding:2px 6px;border-radius:3px;letter-spacing:.7px}
 .bdg.sb{top:5px;right:5px;font-size:.66rem;padding:3px 7px}
@@ -166,9 +176,11 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 .bdg.prox{
   top:5px;
   right:5px;
-  background:#3a404c;
-  border:1px solid rgba(255,255,255,.10);
-  color:#d7dde8;
+  background:rgba(245,166,35,.14);
+  border:1px solid rgba(245,166,35,.45);
+  color:#f5a623;
+  font-size:.62rem;
+  padding:3px 7px;
 }
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:300;background:rgba(13,17,32,.97);backdrop-filter:blur(20px);border-top:1px solid var(--bdr);height:var(--nav-h);padding:0 8px;align-items:center;justify-content:space-around;gap:4px}
 .bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 2px;border-radius:10px;cursor:pointer;border:none;background:none;color:var(--mut);font-family:var(--fD);font-size:.52rem;font-weight:600;letter-spacing:.3px;text-transform:uppercase;transition:all .2s;position:relative;-webkit-tap-highlight-color:transparent}
@@ -459,8 +471,10 @@ const CUSTOM_FILTERS = [
 
 function parseGames(d){
   return d.map((g,i)=>{
-    const name=g.n;
-    const nq=norm(name);
+    const name = g.n || '';
+    const nq = norm(name);
+    const availability = String(g.av || 'true').toLowerCase();
+
     return{
       id: i+1,
       _sheetIndex: i,
@@ -468,10 +482,11 @@ function parseGames(d){
       appId: g.a,
       tier: TM[g.t]||'normal',
       price: g.p,
-      available: (g.av || 'true').toLowerCase(),
-      tags: g.g.split(',').map(t=>t.trim()).filter(Boolean)
+      tags: (g.g || '').split(',').map(t=>t.trim()).filter(Boolean)
             .map(t=>t.toLowerCase()==='multiplayer'?'Open World':t),
       image: g.i||'',
+      available: availability,
+      isProx: availability === 'prox',
       _q: name.toLowerCase(),
       _nq: nq,
       _rank: featuredRank(nq),
@@ -599,7 +614,7 @@ function applyFilter(){
         if(g.id>60) return false;
       }
     }
-    if(rawQ&&!(g._q.includes(q)||g._nq.includes(nq))) return false;
+    if(rawQ && !(g._q.includes(q) || g._nq.includes(nq))) return false;
     return true;
   });
 
@@ -670,13 +685,13 @@ function makeCard(g){
   const c=calcTotal();
   const freeCount=c.freeNormalCounts[g.id]||0;
   const isFree=freeCount>0;
-  const isProx=(g.available==='prox');
+  const isProx=!!g.isProx;
   const sc=isProx ? 'prox' : (inCart?`s${tier[0]}`:'');
   const P=CFG.prices;
 
   let ph='';
   if(isProx){
-    ph=`<div class="pb2"><div class="cp prox">Próximamente</div><div class="cps prox">No disponible por ahora</div></div>`;
+    ph=`<div class="pb2"><div class="cp">Próximamente</div><div class="cps">No disponible para comprar todavía</div></div>`;
   } else if(tier==='normal'){
     ph=`<div class="pb2"><div class="cp">${fmt(P.normal.single)}</div><div class="cps">x3 ${fmt(P.normal.pack3)} | x6 ${fmt(P.normal.pack6)}</div></div>`;
   } else if(tier==='premium'){
@@ -685,16 +700,22 @@ function makeCard(g){
     ph=`<div class="pb2"><div class="cp sp2">${fmt(P.special.price)}</div><div class="cps sp2">🎁 +${P.special.gifts} juegos de regalo</div></div>`;
   }
 
-  const tb = isProx
-    ? `<div class="bdg prox">PRÓXIMAMENTE</div>`
+  const tb=isProx
+    ? ''
     : tier==='premium'
       ? `<div class="bdg tb tbp">PREMIUM</div>`
       : tier==='special'
         ? `<div class="bdg tb tbs">ESPECIAL</div>`
         : '';
 
-  const actionBtn = isProx
-    ? `<button class="addb dis" onclick="event.stopPropagation();return false;">—</button>`
+  const statusBadge=isProx
+    ? `<div class="bdg prox">PRÓXIMAMENTE</div>`
+    : inCart
+      ? `<div class="bdg sb sb${tier[0]}">${qty}× EN PEDIDO</div>`
+      : tb;
+
+  const actionBtn=isProx
+    ? `<button class="addb disabled" tabindex="-1">—</button>`
     : qty>=1
       ? `<button class="addb ${tier[0]}" onclick="event.stopPropagation();removeFromCart(${g.id})">−</button>`
       : `<button class="addb ${tier[0]}" onclick="event.stopPropagation();addToCart(${g.id})">+</button>`;
@@ -702,12 +723,13 @@ function makeCard(g){
   const div=document.createElement('div');
   div.className=`card ${sc}`;
   div.dataset.id=g.id;
+
   if(!isProx){
     div.onclick=()=>addToCart(g.id);
   }
 
-  div.innerHTML=`${inCart && !isProx ? `<div class="bdg sb sb${tier[0]}">${qty}× EN PEDIDO</div>` : tb}
-    ${isFree ? `<div class="bdg fb">🎁 GRATIS</div>` : ''}
+  div.innerHTML=`${statusBadge}
+    ${!isProx && isFree ? `<div class="bdg fb">🎁 GRATIS</div>` : ''}
     <img class="cover" loading="lazy" src="${imgUrl(g.appId,g.image)}" onerror="imgFallback(this,${g.appId},${JSON.stringify(g.image)})" alt="">
     <div class="card-body">
       <div class="cn">${esc(g.name)}</div>
@@ -762,7 +784,7 @@ function updateCartBadge(){
 
 function addToCart(id){
   const g=ALL_SORTED.find(x=>x.id===id);
-  if(!g || g.available==='prox') return;
+  if(!g || g.isProx) return;
   if(getCartQty(id)>=CFG.MAX_PER_GAME)return;
   cart.push(g);
   updateCartBadge();refreshCard(id);renderCartList();renderTotals();
