@@ -905,8 +905,13 @@ loadGames();
     // Logo header
     el.src = dataUrl;
 
-    // 🔥 favicon con el MISMO logo
+    // Favicon dinámico
     if(fav) fav.href = dataUrl;
+
+  } else {
+    // 🔥 fallback si no hay logo guardado
+    el.src = 'logo.png';
+    if(fav) fav.href = 'logo.png';
   }
 
   el.style.display = 'block';
