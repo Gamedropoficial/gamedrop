@@ -90,9 +90,9 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 .cat-dropdown.open{display:flex}
 @media(max-width:768px){
   .sw input{font-size:.85rem;padding:10px 11px 10px 36px}
-  .tier-row{display:none}      /* tiers NO van en la toolbar en mobile */
-  .tier-row-mob{display:flex}  /* tiers van en su propia fila debajo */
-  .tag-row{display:none}       /* tags van en el dropdown */
+  .tier-row{display:none}
+  .tier-row-mob{display:flex}
+  .tag-row{display:none}
   .cat-btn{display:flex;align-items:center;gap:5px}
 }
 .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
@@ -112,6 +112,21 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 .card.sn{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc),0 5px 18px var(--acc-glow)}
 .card.sp{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 5px 18px var(--gold-glow)}
 .card.ss{border-color:var(--pur);box-shadow:0 0 0 1px var(--pur),0 5px 18px var(--pur-glow)}
+.card.prox{
+  filter:grayscale(1);
+  opacity:.72;
+  cursor:default;
+  border-color:rgba(255,255,255,.12);
+  box-shadow:none;
+}
+.card.prox:hover{
+  transform:none;
+  border-color:rgba(255,255,255,.12);
+  box-shadow:none;
+}
+.card.prox .cover{
+  filter:grayscale(1) brightness(.78);
+}
 .cover{width:100%;aspect-ratio:460/215;object-fit:cover;display:block;background:var(--s2)}
 .card-body{padding:9px 10px}
 .cn{font-family:var(--fD);font-size:.79rem;font-weight:600;line-height:1.3;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -120,9 +135,11 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 .cp{font-family:var(--fD);font-size:.88rem;font-weight:700;color:var(--acc);line-height:1}
 .cp.gp{color:var(--gold)}
 .cp.sp2{color:var(--pur)}
+.cp.prox{color:#9aa3b2}
 .cps{font-size:.68rem;color:rgba(0,229,160,.62);margin-top:2px}
 .cps.gp{color:rgba(245,166,35,.6)}
 .cps.sp2{color:rgba(181,124,245,.62)}
+.cps.prox{color:#6f7887}
 .addb{width:28px;height:28px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s;flex-shrink:0;font-weight:bold;border:1px solid;line-height:1}
 .addb.n{border-color:var(--acc);background:var(--acc-dim);color:var(--acc)}
 .addb.n:hover,.card.sn .addb.n{background:var(--acc);color:#000}
@@ -130,6 +147,13 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 .addb.p:hover,.card.sp .addb.p{background:var(--gold);color:#000}
 .addb.s{border-color:var(--pur);background:var(--pur-dim);color:var(--pur)}
 .addb.s:hover,.card.ss .addb.s{background:var(--pur);color:#000}
+.addb.dis{
+  border-color:#4f5765;
+  background:rgba(255,255,255,.04);
+  color:#7f8897;
+  cursor:not-allowed;
+  pointer-events:none;
+}
 .bdg{position:absolute;font-size:.58rem;font-weight:700;font-family:var(--fD);padding:2px 6px;border-radius:3px;letter-spacing:.7px}
 .bdg.sb{top:5px;right:5px;font-size:.66rem;padding:3px 7px}
 .bdg.sbn{background:var(--acc);color:#000}
@@ -139,6 +163,13 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 .bdg.tbp{background:#1e1200;border:1px solid rgba(245,166,35,.3);color:var(--gold)}
 .bdg.tbs{background:#150c22;border:1px solid rgba(181,124,245,.3);color:var(--pur)}
 .bdg.fb{top:5px;left:5px;background:#0e2318;border:1px solid rgba(0,229,160,.3);color:var(--acc)}
+.bdg.prox{
+  top:5px;
+  right:5px;
+  background:#3a404c;
+  border:1px solid rgba(255,255,255,.10);
+  color:#d7dde8;
+}
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:300;background:rgba(13,17,32,.97);backdrop-filter:blur(20px);border-top:1px solid var(--bdr);height:var(--nav-h);padding:0 8px;align-items:center;justify-content:space-around;gap:4px}
 .bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 2px;border-radius:10px;cursor:pointer;border:none;background:none;color:var(--mut);font-family:var(--fD);font-size:.52rem;font-weight:600;letter-spacing:.3px;text-transform:uppercase;transition:all .2s;position:relative;-webkit-tap-highlight-color:transparent}
 .bnav-btn:active{transform:scale(.95)}
@@ -258,16 +289,13 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
     <div style="display:flex;align-items:baseline;gap:10px"><h1 class="st">Catálogo</h1><span class="sc" id="cnt"></span></div>
     <span class="lu" id="lu"></span>
   </div>
-  <!-- Fila 1: buscador + botón categoría (mobile) / buscador + tiers (PC) -->
   <div class="toolbar">
     <div class="sw"><span class="si">🔍</span><input type="text" id="q" placeholder="Buscar juego..."/></div>
     <div id="tfs" class="tier-row"></div>
     <button class="cat-btn" id="catBtn" onclick="toggleCatDropdown()">Categoría ▾</button>
   </div>
-  <!-- Fila 2: tiers en mobile / tags en PC -->
   <div class="tier-row-mob" id="tfsMob"></div>
   <div class="tag-row" id="tags" style="margin-bottom:12px"></div>
-  <!-- Dropdown categorías mobile -->
   <div class="cat-dropdown" id="catDropdown"></div>
   <div id="gamesArea"><div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span></div></div>
 </main>
@@ -340,7 +368,6 @@ const CFG = {
   whatsapp:    '5491173597848',
   aliasTienda: 'gamedrop',
   currency:    '$',
-  // ── Sin sheetId — el catálogo viene del proxy n8n ──
   catalogUrl: 'https://flow.retroverse.games/webhook/gamedrop-catalog?v=GD2026_SECURE_X91',
   prices: {
     normal:  {single:9900,pack3:19900,pack6:29900},
@@ -407,12 +434,8 @@ function imgFallback(el,appId,custom){
   }
 }
 
-// ── Tier map compacto → nombre completo ──────────────────────────────────────
 const TM = { n:'normal', p:'premium', s:'special' };
 
-// ── Filtros fijos en español ──────────────────────────────────────────────────
-// tags: array de tags ingleses del sheet que activa este filtro (OR)
-// sin tags → filtro especial por key
 const CUSTOM_FILTERS = [
   { label:'Todos',          key:'all' },
   { label:'Populares',      key:'popular' },
@@ -445,6 +468,7 @@ function parseGames(d){
       appId: g.a,
       tier: TM[g.t]||'normal',
       price: g.p,
+      available: (g.av || 'true').toLowerCase(),
       tags: g.g.split(',').map(t=>t.trim()).filter(Boolean)
             .map(t=>t.toLowerCase()==='multiplayer'?'Open World':t),
       image: g.i||'',
@@ -462,7 +486,6 @@ function sortGames(games){
   });
 }
 
-// ── Two-phase loading ─────────────────────────────────────────────────────────
 async function loadGames(manual=false){
   const btn=$('refreshBtn');
   btn.classList.add('spinning');
@@ -472,13 +495,10 @@ async function loadGames(manual=false){
   const base=CFG.catalogUrl+'&t='+Date.now();
 
   try{
-    // ── Fase 1: primeros 60 + meta del catálogo completo ─────────────────────
     const first=await fetch(base+'&chunk=first').then(r=>r.json());
     if(first?.d?.length){
       ALL_SORTED=sortGames(parseGames(first.d));
       FILTERED=ALL_SORTED.slice();
-      // Los filtros se construyen con el meta del catálogo completo (calculado en n8n)
-      // → aparecen correctos desde el primer frame, sin ningún rebuild posterior
       buildTierFilters(first.meta?.tiers);
       buildTagFilters(first.meta?.topTags);
       if(first.meta?.total){
@@ -490,7 +510,6 @@ async function loadGames(manual=false){
       $('lu').textContent='';
     }
 
-    // ── Fase 2: catálogo completo — NO toca filtros ni grid ──────────────────
     const full=await fetch(base).then(r=>r.json());
     if(full?.d?.length){
       ALL_SORTED=sortGames(parseGames(full.d));
@@ -498,7 +517,6 @@ async function loadGames(manual=false){
       const noFilters=!($('q').value||'').trim()&&activeTag==='all'&&activeTier==='all';
       if(noFilters){
         FILTERED=ALL_SORTED.slice();
-        // Filtros ya son correctos desde Fase 1 — no se tocan
       } else {
         buildTierFilters();
         buildTagFilters();
@@ -554,10 +572,10 @@ function _renderAllFilters(){
   const tagsEl  = document.getElementById('tags');
   const ddEl    = document.getElementById('catDropdown');
   const btnEl   = document.getElementById('catBtn');
-  if(tfsEl)  tfsEl.innerHTML  = _tierHTML;   // PC: al lado del buscador
-  if(tfsMob) tfsMob.innerHTML = _tierHTML;   // Mobile: fila debajo del buscador
-  if(tagsEl) tagsEl.innerHTML = _tagHTML;    // PC: fila de categorías
-  if(ddEl)   ddEl.innerHTML   = _tagHTML;    // Mobile: dropdown
+  if(tfsEl)  tfsEl.innerHTML  = _tierHTML;
+  if(tfsMob) tfsMob.innerHTML = _tierHTML;
+  if(tagsEl) tagsEl.innerHTML = _tagHTML;
+  if(ddEl)   ddEl.innerHTML   = _tagHTML;
   if(btnEl){
     const f = CUSTOM_FILTERS.find(f=>f.key===activeTag);
     const isAll = activeTag==='all';
@@ -576,10 +594,8 @@ function applyFilter(){
     if(activeTag!=='all'){
       const f=CUSTOM_FILTERS.find(f=>f.key===activeTag);
       if(f?.tags){
-        // Filtro por tags: al menos uno de los tags del filtro debe estar en el juego
         if(!f.tags.some(t=>g.tags.includes(t))) return false;
       } else if(activeTag==='popular'||activeTag==='new'){
-        // Populares y Nuevos = los 60 juegos featured (IDs 1–60)
         if(g.id>60) return false;
       }
     }
@@ -654,28 +670,44 @@ function makeCard(g){
   const c=calcTotal();
   const freeCount=c.freeNormalCounts[g.id]||0;
   const isFree=freeCount>0;
-  const sc=inCart?`s${tier[0]}`:'';
+  const isProx=(g.available==='prox');
+  const sc=isProx ? 'prox' : (inCart?`s${tier[0]}`:'');
   const P=CFG.prices;
 
   let ph='';
-  if(tier==='normal')
+  if(isProx){
+    ph=`<div class="pb2"><div class="cp prox">Próximamente</div><div class="cps prox">No disponible por ahora</div></div>`;
+  } else if(tier==='normal'){
     ph=`<div class="pb2"><div class="cp">${fmt(P.normal.single)}</div><div class="cps">x3 ${fmt(P.normal.pack3)} | x6 ${fmt(P.normal.pack6)}</div></div>`;
-  else if(tier==='premium')
+  } else if(tier==='premium'){
     ph=`<div class="pb2"><div class="cp gp">${fmt(P.premium.solo)}</div><div class="cps gp">o ${fmt(P.premium.mixed)} en combo</div></div>`;
-  else
+  } else {
     ph=`<div class="pb2"><div class="cp sp2">${fmt(P.special.price)}</div><div class="cps sp2">🎁 +${P.special.gifts} juegos de regalo</div></div>`;
+  }
 
-  const tb=tier==='premium'?`<div class="bdg tb tbp">PREMIUM</div>`:tier==='special'?`<div class="bdg tb tbs">ESPECIAL</div>`:'';
-  const actionBtn=qty>=1
-    ?`<button class="addb ${tier[0]}" onclick="event.stopPropagation();removeFromCart(${g.id})">−</button>`
-    :`<button class="addb ${tier[0]}" onclick="event.stopPropagation();addToCart(${g.id})">+</button>`;
+  const tb = isProx
+    ? `<div class="bdg prox">PRÓXIMAMENTE</div>`
+    : tier==='premium'
+      ? `<div class="bdg tb tbp">PREMIUM</div>`
+      : tier==='special'
+        ? `<div class="bdg tb tbs">ESPECIAL</div>`
+        : '';
+
+  const actionBtn = isProx
+    ? `<button class="addb dis" onclick="event.stopPropagation();return false;">—</button>`
+    : qty>=1
+      ? `<button class="addb ${tier[0]}" onclick="event.stopPropagation();removeFromCart(${g.id})">−</button>`
+      : `<button class="addb ${tier[0]}" onclick="event.stopPropagation();addToCart(${g.id})">+</button>`;
 
   const div=document.createElement('div');
   div.className=`card ${sc}`;
   div.dataset.id=g.id;
-  div.onclick=()=>addToCart(g.id);
-  div.innerHTML=`${inCart?`<div class="bdg sb sb${tier[0]}">${qty}× EN PEDIDO</div>`:tb}
-    ${isFree?`<div class="bdg fb">🎁 GRATIS</div>`:''}
+  if(!isProx){
+    div.onclick=()=>addToCart(g.id);
+  }
+
+  div.innerHTML=`${inCart && !isProx ? `<div class="bdg sb sb${tier[0]}">${qty}× EN PEDIDO</div>` : tb}
+    ${isFree ? `<div class="bdg fb">🎁 GRATIS</div>` : ''}
     <img class="cover" loading="lazy" src="${imgUrl(g.appId,g.image)}" onerror="imgFallback(this,${g.appId},${JSON.stringify(g.image)})" alt="">
     <div class="card-body">
       <div class="cn">${esc(g.name)}</div>
@@ -730,7 +762,7 @@ function updateCartBadge(){
 
 function addToCart(id){
   const g=ALL_SORTED.find(x=>x.id===id);
-  if(!g)return;
+  if(!g || g.available==='prox') return;
   if(getCartQty(id)>=CFG.MAX_PER_GAME)return;
   cart.push(g);
   updateCartBadge();refreshCard(id);renderCartList();renderTotals();
@@ -860,7 +892,6 @@ function openHow(){$('howModal').classList.add('open');}
 function closeHow(e,f=false){if(f||e&&e.target===$('howModal'))$('howModal').classList.remove('open');}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-// ── Protección anti-copia ────────────────────────────────────────────────────
 document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('copy',e=>{
   e.clipboardData.setData('text/plain','© GameDrop — Contenido protegido');
@@ -873,7 +904,6 @@ document.addEventListener('keydown',e=>{
   if(k==='f12'){e.preventDefault();return false;}
 });
 
-// ── DevTools blur ─────────────────────────────────────────────────────────────
 (function(){
   let devOpen=false;
   setInterval(()=>{
@@ -890,7 +920,6 @@ document.addEventListener('keydown',e=>{
 
 loadGames();
 
-// ── Logo desde localStorage ───────────────────────────────────────────────────
 (function(){
   const b64=localStorage.getItem('gd_logo');
   const el=document.getElementById('logo-img');
