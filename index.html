@@ -395,7 +395,7 @@ function makeCard(g){
   }
   const qty=getCartQty(g.id);const inCart=qty>0;const c=calcTotal();const freeCount=c.freeNormalCounts[g.id]||0;const isFree=freeCount>0;const sc=inCart?`s${tier[0]}`:'';const P=CFG.prices;
   let ph='';
-  if(tier==='normal')ph=`<div class="pb2"><div class="cp">${fmt(P.normal.single)}</div><div class="cps">3→${fmt(P.normal.pack3)}   6→${fmt(P.normal.pack6)}</div></div>`;
+  if(tier==='normal')ph=`<div class="pb2"><div class="cp">${fmt(P.normal.single)}</div><div class="cps">3 → ${fmt(P.normal.pack3)} 6 → ${fmt(P.normal.pack6)}</div></div>`;
   else if(tier==='premium')ph=`<div class="pb2"><div class="cp gp">${fmt(P.premium.solo)}</div><div class="cps gp">o ${fmt(P.premium.mixed)} en combo</div></div>`;
   else ph=`<div class="pb2"><div class="cp sp2">${fmt(P.special.price)}</div><div class="cps sp2">🎁 +${P.special.gifts} juegos de regalo</div></div>`;
   const tb=tier==='premium'?`<div class="bdg tb tbp">PREMIUM</div>`:tier==='special'?`<div class="bdg tb tbs">ESPECIAL</div>`:'';
