@@ -96,7 +96,6 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 .card.sn{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc),0 5px 18px var(--acc-glow)}
 .card.sp{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 5px 18px var(--gold-glow)}
 .card.ss{border-color:var(--pur);box-shadow:0 0 0 1px var(--pur),0 5px 18px var(--pur-glow)}
-/* PROX card */
 .card.prox{cursor:default;opacity:.72;filter:grayscale(.55)}
 .card.prox:hover{transform:none;border-color:var(--bdr);box-shadow:none}
 .card.prox .cover{filter:brightness(.65)}
@@ -288,8 +287,9 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 <script>
 const CFG={storeName:'GAMEDROP',whatsapp:'5491173597848',aliasTienda:'gamedrop',currency:'$',
   catalogUrl:'https://flow.retroverse.games/webhook/gamedrop-catalog?v=GD2026_SECURE_X91',
+  pedidoUrl:'https://flow.retroverse.games/webhook/gamedrop-pedido',
   prices:{normal:{single:9900,pack3:19900,pack6:29900},premium:{solo:14000,mixed:10000},special:{price:25000,gifts:2}},
-  mensajeWA:'*PEDIDO {storeName}*\n━━━━━━━━━━━━━━━━━━━━\n{listaNormal}{listaPremium}{listaEspecial}\n━━━━━━━━━━━━━━━━━━━━\n *TOTAL: {total}*\n',
+  mensajeWA:'*PEDIDO {storeName}* — #{id_pedido}\n━━━━━━━━━━━━━━━━━━━━\n{listaNormal}{listaPremium}{listaEspecial}\n━━━━━━━━━━━━━━━━━━━━\n *TOTAL: {total}*\n',
   PAGE_SIZE:60,MAX_PER_GAME:2};
 let ALL_SORTED=[],FILTERED=[],cart=[],activeTag='all',activeTier='all',renderOffset=0,searchTimer=null;
 const $=id=>document.getElementById(id);
@@ -381,7 +381,6 @@ function getCartQty(id){return cart.filter(x=>x.id===id).length;}
 function groupCartItems(items){const m=new Map();items.forEach(g=>{if(m.has(g.id))m.get(g.id).qty+=1;else m.set(g.id,{...g,qty:1});});return[...m.values()];}
 function makeCard(g){
   const tier=g.tier||'normal';
-  // ── PRÓXIMAMENTE ──────────────────────────────────────────────────────────
   if(tier==='prox'){
     const div=document.createElement('div');
     div.className='card prox';
@@ -415,7 +414,67 @@ function renderCartList(){const el=$('cl');if(!cart.length){el.innerHTML='<div c
 function updGN({giftsAvail,giftsRem}){const el=$('gn'),tx=$('gntxt');if(!giftsAvail){el.classList.remove('show');return;}el.classList.add('show');if(giftsRem>0){el.className='gn show pe';tx.textContent=`Podés agregar ${giftsRem} juego${giftsRem>1?'s':''} normal${giftsRem>1?'es':''} de regalo`;}else{el.className='gn show ok';tx.textContent=`${giftsAvail} regalo${giftsAvail>1?'s':''} aplicado${giftsAvail>1?'s':''} ✓`;}}
 function renderTotals(){const el=$('tots');const c=calcTotal();const P=CFG.prices;if(!cart.length){el.innerHTML='';$('wab').disabled=true;return;}let h='';if(c.normals.length){h+=`<div class="trow hd"><span style="color:var(--acc)">🟢 Normales (${c.normals.length})</span></div>`;if(c.giftsUsed>0)h+=`<div class="trow sb2"><span class="lbl">${c.giftsUsed} regalo${c.giftsUsed>1?'s':''}</span><span style="color:var(--acc)">GRATIS</span></div>`;if(c.pk6>0)h+=`<div class="trow sb2"><span class="lbl">${c.pk6}× pack de 6</span><span>${fmt(c.pk6*P.normal.pack6)}</span></div>`;if(c.pk3>0)h+=`<div class="trow sb2"><span class="lbl">${c.pk3}× pack de 3</span><span>${fmt(c.pk3*P.normal.pack3)}</span></div>`;if(c.sg>0)h+=`<div class="trow sb2"><span class="lbl">${c.sg} suelto${c.sg>1?'s':''}</span><span>${fmt(c.sg*P.normal.single)}</span></div>`;}if(c.premiums.length){const lbl=c.hasMix?`${fmt(P.premium.mixed)} c/u combo`:`${fmt(P.premium.solo)} c/u`;h+=`<div class="trow hd"><span style="color:var(--gold)">💛 Premium (${c.premiums.length}) — ${lbl}</span></div>`;if(c.hasMix){const sv=c.premiums.length*(P.premium.solo-P.premium.mixed);h+=`<div class="trow dc"><span>↓ Desc. combo</span><span>-${fmt(sv)}</span></div>`;}}if(c.specials.length){h+=`<div class="trow hd"><span style="color:var(--pur)">🟣 Especiales (${c.specials.length})</span></div>`;if(c.giftsRem>0)h+=`<div class="trow dp"><span>🎁 Faltan ${c.giftsRem} juegos de regalo(normal)</span><span>—</span></div>`;}h+=`<div class="trow tot"><span>TOTAL</span><span>${fmt(c.total)}</span></div>`;el.innerHTML=h;$('wab').disabled=false;}
 function isDesktop(){return!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);}
-function sendWA(){if(!cart.length)return;const c=calcTotal();const P=CFG.prices;const normalsGrouped=groupCartItems(c.normals);const premiumsGrouped=groupCartItems(c.premiums);const specialsGrouped=groupCartItems(c.specials);const E={n:'',p:'',s:'',pkg:'  -',gift:'(GRATIS)',giftPkg:'  -'};let ln='',lp='',ls='';if(c.normals.length){ln=`\n${E.n} *NORMALES (${c.normals.length}):*\n`;normalsGrouped.forEach(g=>{const freeCount=c.freeNormalCounts[g.id]||0;ln+=`  • ${g.name}${g.qty>1?` x${g.qty}`:''}${freeCount>0?` ${E.gift} GRATIS x${freeCount}`:''}\n`;});const pd=[];if(c.pk6>0)pd.push(`${c.pk6}× pack de 6 = ${fmt(c.pk6*P.normal.pack6)}`);if(c.pk3>0)pd.push(`${c.pk3}× pack de 3 = ${fmt(c.pk3*P.normal.pack3)}`);if(c.sg>0)pd.push(`${c.sg} suelto${c.sg>1?'s':''} = ${fmt(c.sg*P.normal.single)}`);if(pd.length)ln+=`${E.pkg} ${pd.join(' | ')}\n`;}if(c.premiums.length){const lbl=c.hasMix?`${fmt(P.premium.mixed)} c/u combo`:`${fmt(P.premium.solo)} c/u`;lp=`\n${E.p} *PREMIUM — ${lbl}:*\n`;premiumsGrouped.forEach(g=>{lp+=`  • ${g.name}${g.qty>1?` x${g.qty}`:''}\n`;});}if(c.specials.length){ls=`\n${E.s} *ESPECIALES (${fmt(P.special.price)} c/u + ${P.special.gifts} regalos):*\n`;specialsGrouped.forEach(g=>{ls+=`  • ${g.name}${g.qty>1?` x${g.qty}`:''}\n`;});if(c.giftsRem>0)ls+=`  ${E.giftPkg} Faltan ${c.giftsRem} juegos de regalo por elegir\n`;}let msg=CFG.mensajeWA;[{storeName:CFG.storeName},{aliasTienda:CFG.aliasTienda},{listaNormal:ln},{listaPremium:lp},{listaEspecial:ls},{total:fmt(c.total)}].forEach(v=>Object.entries(v).forEach(([k,val])=>{msg=msg.replaceAll(`{${k}}`,val);}));window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(msg)}`,'_blank');}
+
+// ── MODIFICADO: guarda el pedido en n8n antes de abrir WhatsApp ──────────
+async function sendWA(){
+  if(!cart.length)return;
+  const c=calcTotal();const P=CFG.prices;
+  const normalsGrouped=groupCartItems(c.normals);
+  const premiumsGrouped=groupCartItems(c.premiums);
+  const specialsGrouped=groupCartItems(c.specials);
+  const E={n:'',p:'',s:'',pkg:'  -',gift:'(GRATIS)',giftPkg:'  -'};
+  let ln='',lp='',ls='';
+  if(c.normals.length){
+    ln=`\n${E.n} *NORMALES (${c.normals.length}):*\n`;
+    normalsGrouped.forEach(g=>{const freeCount=c.freeNormalCounts[g.id]||0;ln+=`  • ${g.name}${g.qty>1?` x${g.qty}`:''}${freeCount>0?` ${E.gift} GRATIS x${freeCount}`:''}\n`;});
+    const pd=[];
+    if(c.pk6>0)pd.push(`${c.pk6}× pack de 6 = ${fmt(c.pk6*P.normal.pack6)}`);
+    if(c.pk3>0)pd.push(`${c.pk3}× pack de 3 = ${fmt(c.pk3*P.normal.pack3)}`);
+    if(c.sg>0)pd.push(`${c.sg} suelto${c.sg>1?'s':''} = ${fmt(c.sg*P.normal.single)}`);
+    if(pd.length)ln+=`${E.pkg} ${pd.join(' | ')}\n`;
+  }
+  if(c.premiums.length){
+    const lbl=c.hasMix?`${fmt(P.premium.mixed)} c/u combo`:`${fmt(P.premium.solo)} c/u`;
+    lp=`\n${E.p} *PREMIUM — ${lbl}:*\n`;
+    premiumsGrouped.forEach(g=>{lp+=`  • ${g.name}${g.qty>1?` x${g.qty}`:''}\n`;});
+  }
+  if(c.specials.length){
+    ls=`\n${E.s} *ESPECIALES (${fmt(P.special.price)} c/u + ${P.special.gifts} regalos):*\n`;
+    specialsGrouped.forEach(g=>{ls+=`  • ${g.name}${g.qty>1?` x${g.qty}`:''}\n`;});
+    if(c.giftsRem>0)ls+=`  ${E.giftPkg} Faltan ${c.giftsRem} juegos de regalo por elegir\n`;
+  }
+
+  // 1. Guardar pedido en n8n → obtener ID
+  let id_pedido='GD-????';
+  const wab=$('wab');
+  wab.disabled=true;
+  wab.innerHTML='<span style="font-size:18px">⏳</span> Registrando pedido...';
+  try{
+    const res=await fetch(CFG.pedidoUrl,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        juegos:cart.map(g=>g.name).join(', '),
+        monto:c.total
+      })
+    });
+    const data=await res.json();
+    if(data.ok)id_pedido=data.id_pedido;
+  }catch(e){
+    console.warn('Webhook pedido falló, continuando sin ID',e);
+  }finally{
+    wab.disabled=false;
+    wab.innerHTML='<span style="font-size:18px">📱</span> HACER PEDIDO POR WHATSAPP';
+  }
+
+  // 2. Armar mensaje con el ID y abrir WhatsApp
+  let msg=CFG.mensajeWA;
+  [{storeName:CFG.storeName},{aliasTienda:CFG.aliasTienda},{listaNormal:ln},{listaPremium:lp},{listaEspecial:ls},{total:fmt(c.total)},{id_pedido}]
+    .forEach(v=>Object.entries(v).forEach(([k,val])=>{msg=msg.replaceAll(`{${k}}`,val);}));
+  window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 function openWAConsulta(){window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent('👋 Hola! Quiero un juego que no está en la lista 👀 ¿Me pueden ayudar?')}`,'_blank');}
 function openPanel(){$('panel').classList.add('open');$('overlay').classList.add('open');renderCartList();renderTotals();}
 function closePanel(){$('panel').classList.remove('open');$('overlay').classList.remove('open');}
