@@ -418,101 +418,49 @@ function isDesktop(){return!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent
 // ── MODIFICADO: guarda el pedido en n8n antes de abrir WhatsApp ──────────
 async function sendWA(){
   if(!cart.length)return;
-
-  const waWin = window.open('about:blank', '_blank');
-  if (waWin) {
-    waWin.document.write('<title>Abriendo WhatsApp…</title><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#111;color:#fff">Abriendo WhatsApp…</body>');
-  }
-
-  const c=calcTotal();
-  const P=CFG.prices;
+  const c=calcTotal();const P=CFG.prices;
   const normalsGrouped=groupCartItems(c.normals);
   const premiumsGrouped=groupCartItems(c.premiums);
   const specialsGrouped=groupCartItems(c.specials);
   const E={n:'',p:'',s:'',pkg:'  -',gift:'(GRATIS)',giftPkg:'  -'};
   let ln='',lp='',ls='';
-
   if(c.normals.length){
     ln=`\n${E.n} *NORMALES (${c.normals.length}):*\n`;
-    normalsGrouped.forEach(g=>{
-      const freeCount=c.freeNormalCounts[g.id]||0;
-      ln+=`  • ${g.name}${g.qty>1?` x${g.qty}`:''}${freeCount>0?` ${E.gift} GRATIS x${freeCount}`:''}\n`;
-    });
+    normalsGrouped.forEach(g=>{const freeCount=c.freeNormalCounts[g.id]||0;ln+=`  • ${g.name}${g.qty>1?` x${g.qty}`:''}${freeCount>0?` ${E.gift} GRATIS x${freeCount}`:''}\n`;});
     const pd=[];
     if(c.pk6>0)pd.push(`${c.pk6}× pack de 6 = ${fmt(c.pk6*P.normal.pack6)}`);
     if(c.pk3>0)pd.push(`${c.pk3}× pack de 3 = ${fmt(c.pk3*P.normal.pack3)}`);
     if(c.sg>0)pd.push(`${c.sg} suelto${c.sg>1?'s':''} = ${fmt(c.sg*P.normal.single)}`);
     if(pd.length)ln+=`${E.pkg} ${pd.join(' | ')}\n`;
   }
-
   if(c.premiums.length){
     const lbl=c.hasMix?`${fmt(P.premium.mixed)} c/u combo`:`${fmt(P.premium.solo)} c/u`;
     lp=`\n${E.p} *PREMIUM — ${lbl}:*\n`;
-    premiumsGrouped.forEach(g=>{
-      lp+=`  • ${g.name}${g.qty>1?` x${g.qty}`:''}\n`;
-    });
+    premiumsGrouped.forEach(g=>{lp+=`  • ${g.name}${g.qty>1?` x${g.qty}`:''}\n`;});
   }
-
   if(c.specials.length){
     ls=`\n${E.s} *ESPECIALES (${fmt(P.special.price)} c/u + ${P.special.gifts} regalos):*\n`;
-    specialsGrouped.forEach(g=>{
-      ls+=`  • ${g.name}${g.qty>1?` x${g.qty}`:''}\n`;
-    });
+    specialsGrouped.forEach(g=>{ls+=`  • ${g.name}${g.qty>1?` x${g.qty}`:''}\n`;});
     if(c.giftsRem>0)ls+=`  ${E.giftPkg} Faltan ${c.giftsRem} juegos de regalo por elegir\n`;
   }
 
-  const btn = $('wab');
-  const old = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = 'GENERANDO PEDIDO...';
+ // AHORA — genera ID al instante, manda webhook en background
+const num = Math.floor(1000 + Math.random() * 9000);
+const id_pedido = 'GD-' + num;
 
-  try {
-    const r = await fetch(CFG.pedidoUrl, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        numero_wa:'',
-        juegos:cart.map(g=>g.name).join(', '),
-        monto:c.total,
-        detalle:[...normalsGrouped,...premiumsGrouped,...specialsGrouped]
-          .map(g=>`${g.name} x${g.qty}`)
-          .join(' | ')
-      })
-    });
+// Fire and forget — no espera respuesta
+fetch(CFG.pedidoUrl, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ juegos: cart.map(g => g.name).join(', '), monto: c.total, id_pedido })
+}).catch(e => console.warn('Webhook pedido falló:', e));
 
-    const data = await r.json();
-
-    if(!data.ok || !data.id_pedido){
-      throw new Error('No se pudo generar el pedido');
-    }
-
-    let msg=CFG.mensajeWA;
-    [
-      {storeName:CFG.storeName},
-      {aliasTienda:CFG.aliasTienda},
-      {listaNormal:ln},
-      {listaPremium:lp},
-      {listaEspecial:ls},
-      {total:fmt(c.total)},
-      {id_pedido:data.id_pedido}
-    ].forEach(v=>Object.entries(v).forEach(([k,val])=>{
-      msg = msg.replaceAll(`{${k}}`, val);
-    }));
-
-    const url = `https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(msg)}`;
-
-    if (waWin) waWin.location.href = url;
-    else window.open(url, '_blank');
-
-  } catch(e) {
-    if (waWin) waWin.close();
-    alert('No se pudo generar el ID del pedido. Probá de nuevo.');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = old;
-  }
+  // 2. Armar mensaje con el ID y abrir WhatsApp
+  let msg=CFG.mensajeWA;
+  [{storeName:CFG.storeName},{aliasTienda:CFG.aliasTienda},{listaNormal:ln},{listaPremium:lp},{listaEspecial:ls},{total:fmt(c.total)},{id_pedido}]
+    .forEach(v=>Object.entries(v).forEach(([k,val])=>{msg=msg.replaceAll(`{${k}}`,val);}));
+  window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(msg)}`,'_blank');
 }
-
 // ─────────────────────────────────────────────────────────────────────────────
 
 function openWAConsulta(){window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent('👋 Hola! Quiero un juego que no está en la lista 👀 ¿Me pueden ayudar?')}`,'_blank');}
