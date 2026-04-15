@@ -301,7 +301,31 @@ function featuredRank(nq){for(let i=0;i<FEATURED.length;i++)if(FEATURED[i].some(
 function imgFallback(el,appId,custom){const t=el.dataset.tried||'';if(!t&&custom){el.dataset.tried='custom';el.src=custom;return;}if(t===''||t==='custom'){el.dataset.tried='cf';el.src='https://cdn.cloudflare.steamstatic.com/steam/apps/'+appId+'/header.jpg';}else if(t==='cf'){el.dataset.tried='cap';el.src='https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/'+appId+'/capsule_616x353.jpg';}else{el.onerror=null;el.src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='460' height='215'%3E%3Crect fill='%23141828' width='100%25' height='100%25'/%3E%3Ctext y='50%25' x='50%25' dominant-baseline='middle' text-anchor='middle' fill='%235b6680' font-size='12' font-family='sans-serif'%3ESin imagen%3C/text%3E%3C/svg%3E";}}
 const TM={n:'normal',p:'premium',s:'special',x:'prox'};
 const CUSTOM_FILTERS=[{label:'Todos',key:'all'},{label:'Populares',key:'popular'},{label:'Nuevos',key:'new'},{label:'Single Player',key:'sp',tags:['Singleplayer']},{label:'Acción',key:'action',tags:['Action']},{label:'RPG',key:'rpg',tags:['RPG']},{label:'Shooter',key:'shooter',tags:['Shooter','FPS']},{label:'Terror',key:'horror',tags:['Horror','Survival Horror']},{label:'Mundo Abierto',key:'openworld',tags:['Open World']},{label:'Historia',key:'story',tags:['Story Rich']},{label:'Aventura',key:'adventure',tags:['Adventure']},{label:'Soulslike',key:'souls',tags:['Souls-like']},{label:'Simulación',key:'sim',tags:['Simulation']},{label:'Carreras',key:'racing',tags:['Racing']},{label:'1ª Persona',key:'fp',tags:['First-Person']},{label:'3ª Persona',key:'tp',tags:['Third Person','Third-Person Shooter']},{label:'Indie',key:'indie',tags:['Indie']},{label:'Casual',key:'casual',tags:['Casual']}];
-function parseGames(d){return d.map((g,i)=>{const name=g.n;const nq=norm(name);return{id:i+1,_sheetIndex:i,name,appId:g.a,tier:TM[g.t]||'normal',price:g.p,tags:g.g.split(',').map(t=>t.trim()).filter(Boolean).map(t=>t.toLowerCase()==='multiplayer'?'Open World':t),image:g.i||'',_q:name.toLowerCase(),_nq:nq,_rank:featuredRank(nq)};});}
+function parseGames(d){
+  return d.map((g,i)=>{
+    const name=g.n;
+    const nq=norm(name);
+    const isProx = g.x === true || g.x === 'true';
+
+    return {
+      id:i+1,
+      _sheetIndex:i,
+      name,
+      appId:g.a,
+      tier:isProx ? 'prox' : (TM[g.t] || 'normal'),
+      price:g.p,
+      tags:(g.g || '')
+        .split(',')
+        .map(t=>t.trim())
+        .filter(Boolean)
+        .map(t=>t.toLowerCase()==='multiplayer' ? 'Open World' : t),
+      image:g.i || '',
+      _q:name.toLowerCase(),
+      _nq:nq,
+      _rank:featuredRank(nq)
+    };
+  });
+}
 function sortGames(games){return games.sort((a,b)=>{const d=a._rank-b._rank;return d!==0?d:a._sheetIndex-b._sheetIndex;});}
 async function loadGames(manual=false){
   const btn=$('refreshBtn');btn.classList.add('spinning');
