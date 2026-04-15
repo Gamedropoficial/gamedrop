@@ -96,7 +96,6 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 .card.sn{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc),0 5px 18px var(--acc-glow)}
 .card.sp{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 5px 18px var(--gold-glow)}
 .card.ss{border-color:var(--pur);box-shadow:0 0 0 1px var(--pur),0 5px 18px var(--pur-glow)}
-/* PROX card */
 .card.prox{cursor:default;opacity:.72;filter:grayscale(.55)}
 .card.prox:hover{transform:none;border-color:var(--bdr);box-shadow:none}
 .card.prox .cover{filter:brightness(.65)}
@@ -288,8 +287,9 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 <script>
 const CFG={storeName:'GAMEDROP',whatsapp:'5491173597848',aliasTienda:'gamedrop',currency:'$',
   catalogUrl:'https://flow.retroverse.games/webhook/gamedrop-catalog?v=GD2026_SECURE_X91',
+  pedidoUrl:'https://flow.retroverse.games/webhook/gamedrop-pedido',
   prices:{normal:{single:9900,pack3:19900,pack6:29900},premium:{solo:14000,mixed:10000},special:{price:25000,gifts:2}},
-  mensajeWA:'*PEDIDO {storeName}*\n━━━━━━━━━━━━━━━━━━━━\n{listaNormal}{listaPremium}{listaEspecial}\n━━━━━━━━━━━━━━━━━━━━\n *TOTAL: {total}*\n',
+  mensajeWA:'*PEDIDO {storeName}* — #{id_pedido}\n━━━━━━━━━━━━━━━━━━━━\n{listaNormal}{listaPremium}{listaEspecial}\n━━━━━━━━━━━━━━━━━━━━\n *TOTAL: {total}*\n',
   PAGE_SIZE:60,MAX_PER_GAME:2};
 let ALL_SORTED=[],FILTERED=[],cart=[],activeTag='all',activeTier='all',renderOffset=0,searchTimer=null;
 const $=id=>document.getElementById(id);
@@ -381,7 +381,6 @@ function getCartQty(id){return cart.filter(x=>x.id===id).length;}
 function groupCartItems(items){const m=new Map();items.forEach(g=>{if(m.has(g.id))m.get(g.id).qty+=1;else m.set(g.id,{...g,qty:1});});return[...m.values()];}
 function makeCard(g){
   const tier=g.tier||'normal';
-  // ── PRÓXIMAMENTE ──────────────────────────────────────────────────────────
   if(tier==='prox'){
     const div=document.createElement('div');
     div.className='card prox';
@@ -415,6 +414,8 @@ function renderCartList(){const el=$('cl');if(!cart.length){el.innerHTML='<div c
 function updGN({giftsAvail,giftsRem}){const el=$('gn'),tx=$('gntxt');if(!giftsAvail){el.classList.remove('show');return;}el.classList.add('show');if(giftsRem>0){el.className='gn show pe';tx.textContent=`Podés agregar ${giftsRem} juego${giftsRem>1?'s':''} normal${giftsRem>1?'es':''} de regalo`;}else{el.className='gn show ok';tx.textContent=`${giftsAvail} regalo${giftsAvail>1?'s':''} aplicado${giftsAvail>1?'s':''} ✓`;}}
 function renderTotals(){const el=$('tots');const c=calcTotal();const P=CFG.prices;if(!cart.length){el.innerHTML='';$('wab').disabled=true;return;}let h='';if(c.normals.length){h+=`<div class="trow hd"><span style="color:var(--acc)">🟢 Normales (${c.normals.length})</span></div>`;if(c.giftsUsed>0)h+=`<div class="trow sb2"><span class="lbl">${c.giftsUsed} regalo${c.giftsUsed>1?'s':''}</span><span style="color:var(--acc)">GRATIS</span></div>`;if(c.pk6>0)h+=`<div class="trow sb2"><span class="lbl">${c.pk6}× pack de 6</span><span>${fmt(c.pk6*P.normal.pack6)}</span></div>`;if(c.pk3>0)h+=`<div class="trow sb2"><span class="lbl">${c.pk3}× pack de 3</span><span>${fmt(c.pk3*P.normal.pack3)}</span></div>`;if(c.sg>0)h+=`<div class="trow sb2"><span class="lbl">${c.sg} suelto${c.sg>1?'s':''}</span><span>${fmt(c.sg*P.normal.single)}</span></div>`;}if(c.premiums.length){const lbl=c.hasMix?`${fmt(P.premium.mixed)} c/u combo`:`${fmt(P.premium.solo)} c/u`;h+=`<div class="trow hd"><span style="color:var(--gold)">💛 Premium (${c.premiums.length}) — ${lbl}</span></div>`;if(c.hasMix){const sv=c.premiums.length*(P.premium.solo-P.premium.mixed);h+=`<div class="trow dc"><span>↓ Desc. combo</span><span>-${fmt(sv)}</span></div>`;}}if(c.specials.length){h+=`<div class="trow hd"><span style="color:var(--pur)">🟣 Especiales (${c.specials.length})</span></div>`;if(c.giftsRem>0)h+=`<div class="trow dp"><span>🎁 Faltan ${c.giftsRem} juegos de regalo(normal)</span><span>—</span></div>`;}h+=`<div class="trow tot"><span>TOTAL</span><span>${fmt(c.total)}</span></div>`;el.innerHTML=h;$('wab').disabled=false;}
 function isDesktop(){return!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);}
+
+// ── MODIFICADO: guarda el pedido en n8n antes de abrir WhatsApp ──────────
 async function sendWA(){
   if(!cart.length) return;
 
@@ -494,6 +495,9 @@ ${ln}${lp}${ls}
     btn.innerHTML = old;
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 function openWAConsulta(){window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent('👋 Hola! Quiero un juego que no está en la lista 👀 ¿Me pueden ayudar?')}`,'_blank');}
 function openPanel(){$('panel').classList.add('open');$('overlay').classList.add('open');renderCartList();renderTotals();}
 function closePanel(){$('panel').classList.remove('open');$('overlay').classList.remove('open');}
