@@ -444,16 +444,15 @@ async function sendWA(){
     if(c.giftsRem>0)ls+=`  ${E.giftPkg} Faltan ${c.giftsRem} juegos de regalo por elegir\n`;
   }
 
- // AHORA — genera ID al instante, manda webhook en background
-const num = Math.floor(1000 + Math.random() * 9000);
-const id_pedido = 'GD-' + num;
-
-// Fire and forget — no espera respuesta
-fetch(CFG.pedidoUrl, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ juegos: cart.map(g => g.name).join(', '), monto: c.total, id_pedido })
-}).catch(e => console.warn('Webhook pedido falló:', e));
+  // 1. Generar ID en el cliente — instantáneo, sin esperar al servidor
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const id_pedido='GD-'+Array.from({length:8},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+  // Guardar en n8n en background (fire & forget)
+  fetch(CFG.pedidoUrl,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({juegos:cart.map(g=>g.name).join(', '),monto:c.total,id_pedido})
+  }).catch(e=>console.warn('Webhook pedido falló:',e));
 
   // 2. Armar mensaje con el ID y abrir WhatsApp
   let msg=CFG.mensajeWA;
