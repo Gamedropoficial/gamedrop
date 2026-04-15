@@ -494,23 +494,6 @@ async function sendWA(){
   window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(msg)}`,'_blank');
 }
 
- // AHORA — genera ID al instante, manda webhook en background
-const num = Math.floor(1000 + Math.random() * 9000);
-const id_pedido = 'GD-' + num;
-
-// Fire and forget — no espera respuesta
-fetch(CFG.pedidoUrl, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ juegos: cart.map(g => g.name).join(', '), monto: c.total, id_pedido })
-}).catch(e => console.warn('Webhook pedido falló:', e));
-
-  // 2. Armar mensaje con el ID y abrir WhatsApp
-  let msg=CFG.mensajeWA;
-  [{storeName:CFG.storeName},{aliasTienda:CFG.aliasTienda},{listaNormal:ln},{listaPremium:lp},{listaEspecial:ls},{total:fmt(c.total)},{id_pedido}]
-    .forEach(v=>Object.entries(v).forEach(([k,val])=>{msg=msg.replaceAll(`{${k}}`,val);}));
-  window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(msg)}`,'_blank');
-}
 // ─────────────────────────────────────────────────────────────────────────────
 
 function openWAConsulta(){window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent('👋 Hola! Quiero un juego que no está en la lista 👀 ¿Me pueden ayudar?')}`,'_blank');}
