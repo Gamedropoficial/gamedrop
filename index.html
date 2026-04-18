@@ -492,7 +492,6 @@ async function sendWA(){
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        numero_wa: CFG.whatsapp,
         juegos: cart.map(g => g.name).join(', '),
         monto: c.total,
         detalle
