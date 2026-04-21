@@ -550,7 +550,7 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('copy',e=>{if(e.target.tagName==='INPUT')return;e.clipboardData.setData('text/plain','© GameDrop — Contenido protegido');e.preventDefault();});
 document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;const k=e.key.toLowerCase();if(e.ctrlKey&&['u','s'].includes(k)){e.preventDefault();return false;}if(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(k)){e.preventDefault();return false;}if(k==='f12'){e.preventDefault();return false;}});
-(function(){let devOpen=false;setInterval(()=>{const W=window.outerWidth-window.innerWidth>200;const H=window.outerHeight-window.innerHeight>200;const now=W||H;if(now!==devOpen){devOpen=now;document.body.style.filter=devOpen?'blur(16px) brightness(.4)':'';document.body.style.pointerEvents=devOpen?'none':'';}},800);})();
+(function(){   if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent))return;   let devOpen=false;   setInterval(()=>{     const W=window.outerWidth-window.innerWidth>200;     const H=window.outerHeight-window.innerHeight>200;     const now=W||H;     if(now!==devOpen){devOpen=now;document.body.style.filter=devOpen?'blur(16px) brightness(.4)':'';document.body.style.pointerEvents=devOpen?'none':'';}   },800); })();
 loadGames();
 (function(){const b64=localStorage.getItem('gd_logo');const el=document.getElementById('logo-img');if(!el)return;if(b64){el.src='data:image/png;base64,'+b64;}el.style.display='block';})();
 function setLogo(base64){localStorage.setItem('gd_logo',base64);const el=document.getElementById('logo-img');if(el){el.src='data:image/png;base64,'+base64;}console.log('✅ Logo guardado');}
