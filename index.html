@@ -295,7 +295,7 @@ let ALL_SORTED=[],FILTERED=[],cart=[],activeTag='all',activeTier='all',renderOff
 const $=id=>document.getElementById(id);
 const fmt=n=>CFG.currency+Number(n).toLocaleString('es-AR');
 const imgUrl=(appId,custom)=>custom||`https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appId}/header.jpg`;
-function norm(str){return(str||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[''`"´]/g,'').replace(/[^a-z0-9]+/g,'');}
+function norm(str){return(str||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[''`"´]/g,'').replace(/[^a-z0-9]+/g,'');}
 const FEATURED=[['crimsondesert'],['residentevilrequiem'],['cyberpunk2077'],['eldenring'],['thelastofusparti','lastofus1'],['spidermanremastered'],['spiderman2'],['godofwarragnarok'],['hogwartslegacy'],['godofwar'],['thelastofuspartii','lastofus2'],['darksoulsremastered','darksouls1'],['darksoulsii','darksouls2'],['darksoulsiii','darksouls3'],['f125'],['blackmythwukong'],['stellarblade'],['reddeadredemption2','rdr2'],['witcher3','thewitcher3'],['sekiro'],['dragonsdogma2'],['ghostoftsushima'],['daysgone'],['deathstranding'],['detroitbecomehuman'],['horizonzerodawn'],['horizonforbiddenwest'],['finalfantasyvii','ff7remake'],['finalfantasyxvi','ff16'],['baldursgate3','bg3'],['metroexodus'],['doometernal'],['deadspaceremake'],['residentevil4'],['residentevilvillage'],['callistoprotocol'],['wolong'],['nioh2'],['masseffectlegendary'],['dragonageinquisition'],['fallout4'],['skyrim'],['starfield'],['kingdomcomedeliverance2'],['plaguetalerequiem'],['expedition33','clairobscur']];
 function featuredRank(nq){for(let i=0;i<FEATURED.length;i++)if(FEATURED[i].some(t=>nq.includes(t)))return i;return 99999;}
 function imgFallback(el,appId,custom){const t=el.dataset.tried||'';if(!t&&custom){el.dataset.tried='custom';el.src=custom;return;}if(t===''||t==='custom'){el.dataset.tried='cf';el.src='https://cdn.cloudflare.steamstatic.com/steam/apps/'+appId+'/header.jpg';}else if(t==='cf'){el.dataset.tried='cap';el.src='https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/'+appId+'/capsule_616x353.jpg';}else{el.onerror=null;el.src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='460' height='215'%3E%3Crect fill='%23141828' width='100%25' height='100%25'/%3E%3Ctext y='50%25' x='50%25' dominant-baseline='middle' text-anchor='middle' fill='%235b6680' font-size='12' font-family='sans-serif'%3ESin imagen%3C/text%3E%3C/svg%3E";}}
@@ -357,7 +357,8 @@ async function loadGames(manual=false){
 function buildTierFilters(metaTiers){
   const L={all:'Todos',normal:'🟢 Normal',premium:'💛 Premium',special:'🟣 Especial'};
   const on={all:'on-all',normal:'on-normal',premium:'on-premium',special:'on-special'};
-  const tiers=['all',...(metaTiers||[...new Set(ALL_SORTED.filter(g=>g.tier!=='prox').map(g=>g.tier))])];
+  // ── CAMBIO: se excluye 'prox' tanto del metaTiers de la API como del fallback dinámico
+  const tiers=['all',...(metaTiers||[...new Set(ALL_SORTED.filter(g=>g.tier!=='prox').map(g=>g.tier))]).filter(t=>t!=='prox')];
   _tierHTML=tiers.map(t=>`<button class="tf${activeTier===t?' '+on[t]:''}" onclick="setTier('${t}')">${L[t]||t}</button>`).join('');
   _renderAllFilters();
 }
@@ -381,7 +382,8 @@ function _renderAllFilters(){
 function applyFilter(){
   const rawQ=($('q').value||'').trim();const q=rawQ.toLowerCase();const nq=norm(rawQ);
   let result=ALL_SORTED.filter(g=>{
-    if(activeTier!=='all'&&g.tier!=='prox'&&g.tier!==activeTier)return false;
+    // ── CAMBIO: cuando hay un tier activo, los juegos 'prox' quedan excluidos
+    if(activeTier!=='all'&&(g.tier==='prox'||g.tier!==activeTier))return false;
     if(activeTag!=='all'){
       const f=CUSTOM_FILTERS.find(f=>f.key===activeTag);
       if(f?.tags){if(g.tier==='prox')return false;if(!f.tags.some(t=>g.tags.includes(t)))return false;}
