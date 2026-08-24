@@ -144,6 +144,21 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 .how-text strong{display:block;font-family:var(--fD);font-size:.82rem;color:var(--txt);margin-bottom:3px}
 .how-text p{font-size:.8rem;color:var(--mut);line-height:1.5}
 .how-divider{border:none;border-top:1px solid var(--bdr);margin:18px 0}
+.how-video{margin:0 0 20px;border:1px dashed rgba(181,124,245,.5);border-radius:12px;overflow:hidden;background:var(--s2)}
+.how-video video{display:block;width:100%;aspect-ratio:16/9;background:#000}
+.how-video-placeholder{min-height:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:20px;text-align:center;color:var(--mut)}
+.how-video-placeholder strong{font-family:var(--fD);font-size:.78rem;color:var(--pur);letter-spacing:.6px}
+.how-video-placeholder span{font-size:.75rem;line-height:1.45}
+.reviews-title{color:#ffe000!important;text-shadow:0 0 10px rgba(255,224,0,.35)}
+.reviews-carousel{position:relative;background:var(--s2);border:1px solid rgba(245,166,35,.3);border-radius:12px;overflow:hidden}
+.reviews-carousel figure{margin:0}
+.reviews-carousel img{display:block;width:100%;aspect-ratio:4/5;object-fit:contain;background:#05070c}
+.reviews-empty{min-height:260px;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;color:var(--mut);font-size:.82rem;line-height:1.5}
+.reviews-caption{padding:10px 48px;color:var(--txt);font-size:.78rem;text-align:center;min-height:40px}
+.reviews-nav{position:absolute;top:calc(50% - 20px);width:36px;height:36px;border:1px solid rgba(255,224,0,.55);border-radius:50%;background:rgba(7,9,15,.85);color:#ffe000;cursor:pointer;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.reviews-nav:hover:not(:disabled),.reviews-nav:focus-visible{background:rgba(245,166,35,.22);outline:none}
+.reviews-nav:disabled{opacity:.35;cursor:not-allowed}.reviews-prev{left:10px}.reviews-next{right:10px}
+.reviews-count{margin:10px 0 0;text-align:center;color:var(--mut);font-family:var(--fD);font-size:.68rem;letter-spacing:.8px}
 .price-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
 .price-card{background:var(--s2);border-radius:9px;padding:12px;border:1px solid var(--bdr)}
 .price-card .pc-label{font-family:var(--fD);font-size:.68rem;font-weight:700;letter-spacing:.5px;margin-bottom:6px}
@@ -200,7 +215,7 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
     <div class="top-actions-desk">
       <button class="top-action-btn" onclick="openPedir()">📋 Cómo pedir</button>
       <button class="top-action-btn top-action-btn-pur" onclick="openHow()">⚡ ¿Cómo funciona?</button>
-      <button class="top-action-btn top-action-btn-wa" onclick="openWAConsulta()">💬 Mi juego no está</button>
+       <button class="top-action-btn" style="color:#ffe000" onclick="openReviews()">★ RESEÑAS</button>
     </div>
     <button class="refresh-btn" id="refreshBtn" onclick="loadGames(true)"><span class="ic">↻</span> Actualizar</button>
     <button class="cart-btn-desk" onclick="openPanel()">🛒 Mi Pedido <div class="cart-count" id="cartCountDesk">0</div></button>
@@ -239,7 +254,7 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
   </button>
   <button class="bnav-btn info-nav" onclick="openPedir()"><div class="icon">📋</div><span>Cómo pedir</span></button>
   <button class="bnav-btn" style="color:var(--pur)" onclick="openHow()"><div class="icon">⚡</div><span>¿Cómo funciona?</span></button>
-  <button class="bnav-btn wa-nav" onclick="openWAConsulta()"><div class="icon">💬</div><span>Mi juego no está</span></button>
+   <button class="bnav-btn" style="color:#ffe000" onclick="openReviews()"><div class="icon">★</div><span>Reseñas</span></button>
 </nav>
 <div class="modal-overlay" id="pedirModal" onclick="closePedir(event)">
   <div class="modal-sheet">
@@ -260,10 +275,11 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
   </div>
 </div>
 <div class="modal-overlay" id="howModal" onclick="closeHow(event)">
-  <div class="modal-sheet">
-    <div class="modal-handle" onclick="closeHow(null,true)"></div>
-    <div class="modal-title" style="color:var(--pur)">¿CÓMO FUNCIONA?</div>
-    <div class="how-step"><div class="how-num" style="background:var(--pur-dim);border-color:rgba(181,124,245,.25);color:var(--pur)">⚡</div><div class="how-text"><strong>Activación instantánea</strong><p>Te enviamos la <b>key y el activador</b>. Demora <b>1 minuto</b> y ya podés jugar desde tu propia cuenta.</p></div></div>
+   <div class="modal-sheet">
+     <div class="modal-handle" onclick="closeHow(null,true)"></div>
+     <div class="modal-title" style="color:var(--pur)">¿CÓMO FUNCIONA?</div>
+     <div class="how-video" id="howVideo"></div>
+     <div class="how-step"><div class="how-num" style="background:var(--pur-dim);border-color:rgba(181,124,245,.25);color:var(--pur)">⚡</div><div class="how-text"><strong>Activación instantánea</strong><p>Te enviamos la <b>key y el activador</b>. Demora <b>1 minuto</b> y ya podés jugar desde tu propia cuenta.</p></div></div>
     <div class="how-step"><div class="how-num" style="background:var(--pur-dim);border-color:rgba(181,124,245,.25);color:var(--pur)">🔒</div><div class="how-text"><strong>100% seguro</strong><p>No vendemos cuentas compartidas ni te pedimos datos personales</p></div></div>
     <hr class="how-divider"/>
     <div style="background:var(--pur-dim);border:1px solid rgba(181,124,245,.2);border-radius:10px;padding:14px 16px;text-align:center">
@@ -273,8 +289,21 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
     </div>
     <button class="modal-close" onclick="closeHow(null,true)">CERRAR</button>
   </div>
-</div>
-<div class="overlay" id="overlay" onclick="closePanel()"></div>
+ </div>
+ <div class="modal-overlay" id="reviewsModal" onclick="closeReviews(event)">
+   <div class="modal-sheet">
+     <div class="modal-handle" onclick="closeReviews(null,true)"></div>
+     <div class="modal-title reviews-title">★ RESEÑAS</div>
+     <div class="reviews-carousel" id="reviewsCarousel" role="region" aria-roledescription="carousel" aria-label="Capturas de reseñas de clientes">
+       <button class="reviews-nav reviews-prev" id="reviewsPrev" type="button" onclick="changeReview(-1)" aria-label="Reseña anterior">‹</button>
+       <div id="reviewsSlide"></div>
+       <button class="reviews-nav reviews-next" id="reviewsNext" type="button" onclick="changeReview(1)" aria-label="Reseña siguiente">›</button>
+     </div>
+     <p class="reviews-count" id="reviewsCount" aria-live="polite"></p>
+     <button class="modal-close" onclick="closeReviews(null,true)">CERRAR</button>
+   </div>
+ </div>
+ <div class="overlay" id="overlay" onclick="closePanel()"></div>
 <div class="panel" id="panel">
   <div class="phd"><span class="pt">🛒 MI PEDIDO</span><button class="xb" onclick="closePanel()">✕</button></div>
   <div class="gn" id="gn"><span>🎁</span><span id="gntxt"></span></div>
@@ -289,8 +318,10 @@ const CFG={storeName:'GAMEDROP',whatsapp:'5491173597848',aliasTienda:'gamedrop',
   catalogUrl:'https://flow.retroverse.games/webhook/gamedrop-catalog?v=GD2026_SECURE_X91',
   pedidoUrl:'https://flow.retroverse.games/webhook/gamedrop-pedido',
   prices:{normal:{single:9900,pack3:19900,pack6:29900},premium:{solo:14000,mixed:10000},special:{price:25000,gifts:2}},
-  mensajeWA:'*PEDIDO {storeName}* — #{id_pedido}\n━━━━━━━━━━━━━━━━━━━━\n{listaNormal}{listaPremium}{listaEspecial}\n━━━━━━━━━━━━━━━━━━━━\n *TOTAL: {total}*\n',
-  PAGE_SIZE:60,MAX_PER_GAME:2};
+   mensajeWA:'*PEDIDO {storeName}* — #{id_pedido}\n━━━━━━━━━━━━━━━━━━━━\n{listaNormal}{listaPremium}{listaEspecial}\n━━━━━━━━━━━━━━━━━━━━\n *TOTAL: {total}*\n',
+   howItWorksVideoUrl:'', // Set a local path such as 'media/how-it-works.mp4' or a hosted MP4 URL.
+   reviewImages:[], // Add entries as {src:'media/review-01.jpg',alt:'Customer review screenshot'}.
+   PAGE_SIZE:60,MAX_PER_GAME:2};
 let ALL_SORTED=[],FILTERED=[],cart=[],activeTag='all',activeTier='all',renderOffset=0,searchTimer=null;
 const $=id=>document.getElementById(id);
 const fmt=n=>CFG.currency+Number(n).toLocaleString('es-AR');
@@ -541,19 +572,26 @@ async function sendWA(){
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-function openWAConsulta(){window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent('👋 Hola! Quiero un juego que no está en la lista 👀 ¿Me pueden ayudar?')}`,'_blank');}
+let reviewIndex=0;
+function renderHowVideo(){const el=$('howVideo');if(!el)return;const url=CFG.howItWorksVideoUrl?.trim();el.innerHTML=url?`<video controls preload="metadata"><source src="${esc(url)}">Your browser does not support video playback.</video>`:'<div class="how-video-placeholder"><strong>VIDEO EXPLICATIVO</strong><span>Configurá <code>CFG.howItWorksVideoUrl</code> con un archivo MP4 local o alojado.</span></div>';}
+function renderReviews(){const images=CFG.reviewImages||[];const slide=$('reviewsSlide'),prev=$('reviewsPrev'),next=$('reviewsNext'),count=$('reviewsCount');if(!slide)return;if(!images.length){slide.innerHTML='<div class="reviews-empty">Las capturas de reseñas aparecerán acá.<br>Agregá imágenes en <code>CFG.reviewImages</code>.</div>';prev.disabled=true;next.disabled=true;count.textContent='Sin reseñas cargadas';return;}reviewIndex=(reviewIndex+images.length)%images.length;const review=images[reviewIndex];slide.innerHTML=`<figure><img src="${esc(review.src)}" alt="${esc(review.alt||'Customer review screenshot')}" loading="lazy"><figcaption class="reviews-caption">${esc(review.alt||'Customer review screenshot')}</figcaption></figure>`;prev.disabled=images.length<2;next.disabled=images.length<2;count.textContent=`${reviewIndex+1} de ${images.length}`;}
+function changeReview(step){if((CFG.reviewImages||[]).length<2)return;reviewIndex+=step;renderReviews();}
 function openPanel(){$('panel').classList.add('open');$('overlay').classList.add('open');renderCartList();renderTotals();}
 function closePanel(){$('panel').classList.remove('open');$('overlay').classList.remove('open');}
 function openPedir(){$('pedirModal').classList.add('open');}
 function closePedir(e,f=false){if(f||e&&e.target===$('pedirModal'))$('pedirModal').classList.remove('open');}
 function openHow(){$('howModal').classList.add('open');}
 function closeHow(e,f=false){if(f||e&&e.target===$('howModal'))$('howModal').classList.remove('open');}
+function openReviews(){renderReviews();$('reviewsModal').classList.add('open');}
+function closeReviews(e,f=false){if(f||e&&e.target===$('reviewsModal'))$('reviewsModal').classList.remove('open');}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('copy',e=>{if(e.target.tagName==='INPUT')return;e.clipboardData.setData('text/plain','© GameDrop — Contenido protegido');e.preventDefault();});
 document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;const k=e.key.toLowerCase();if(e.ctrlKey&&['u','s'].includes(k)){e.preventDefault();return false;}if(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(k)){e.preventDefault();return false;}if(k==='f12'){e.preventDefault();return false;}});
+document.addEventListener('keydown',e=>{if(!$('reviewsModal').classList.contains('open'))return;if(e.key==='ArrowLeft'){e.preventDefault();changeReview(-1);}if(e.key==='ArrowRight'){e.preventDefault();changeReview(1);}if(e.key==='Escape')closeReviews(null,true);});
 (function(){   if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent))return;   let devOpen=false;   setInterval(()=>{     const W=window.outerWidth-window.innerWidth>200;     const H=window.outerHeight-window.innerHeight>200;     const now=W||H;     if(now!==devOpen){devOpen=now;document.body.style.filter=devOpen?'blur(16px) brightness(.4)':'';document.body.style.pointerEvents=devOpen?'none':'';}   },800); })();
 loadGames();
+renderHowVideo();
 (function(){const b64=localStorage.getItem('gd_logo');const el=document.getElementById('logo-img');if(!el)return;if(b64){el.src='data:image/png;base64,'+b64;}el.style.display='block';})();
 function setLogo(base64){localStorage.setItem('gd_logo',base64);const el=document.getElementById('logo-img');if(el){el.src='data:image/png;base64,'+base64;}console.log('✅ Logo guardado');}
 </script>
