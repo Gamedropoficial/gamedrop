@@ -38,6 +38,8 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.93);backdrop-fi
 .top-action-btn{background:var(--s2);border:1px solid var(--bdr);color:var(--txt);padding:7px 12px;border-radius:8px;cursor:pointer;font-family:var(--fB);font-size:.82rem;font-weight:500;display:flex;align-items:center;gap:6px;transition:all .2s;white-space:nowrap}
 .top-action-btn:hover{border-color:rgba(255,255,255,.2);color:#fff;background:rgba(255,255,255,.04)}
 .top-action-btn-pur:hover{border-color:var(--pur);color:var(--pur);background:var(--pur-dim)}
+.top-action-btn-reviews{border-color:rgba(255,224,0,.35);background:rgba(255,224,0,.06);color:#ffe000}
+.top-action-btn-reviews:hover{border-color:rgba(255,224,0,.65);background:rgba(255,224,0,.12);color:#fff3a0}
 .top-action-btn-wa:hover{border-color:#4ade80;color:#4ade80;background:rgba(74,222,128,.08)}
 .refresh-btn{background:none;border:1px solid var(--bdr);color:var(--mut);padding:6px 10px;border-radius:7px;cursor:pointer;font-family:var(--fB);font-size:.78rem;display:flex;align-items:center;gap:4px;transition:all .15s}
 .refresh-btn:hover{border-color:var(--acc);color:var(--acc)}
@@ -125,7 +127,7 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 .bdg.tbs{background:#150c22;border:1px solid rgba(181,124,245,.3);color:var(--pur)}
 .bdg.fb{top:5px;left:5px;background:#0e2318;border:1px solid rgba(0,229,160,.3);color:var(--acc)}
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:300;background:rgba(13,17,32,.97);backdrop-filter:blur(20px);border-top:1px solid var(--bdr);height:var(--nav-h);padding:0 8px;align-items:center;justify-content:space-around;gap:4px}
-.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 2px;border-radius:10px;cursor:pointer;border:none;background:none;color:var(--mut);font-family:var(--fD);font-size:.52rem;font-weight:600;letter-spacing:.3px;text-transform:uppercase;transition:all .2s;position:relative;-webkit-tap-highlight-color:transparent}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 2px;border-radius:10px;cursor:pointer;border:none;background:none;color:var(--mut);font-family:var(--fD);font-size:.64rem;font-weight:600;letter-spacing:.3px;text-transform:uppercase;transition:all .2s;position:relative;-webkit-tap-highlight-color:transparent}
 .bnav-btn:active{transform:scale(.95)}
 .bnav-btn .icon{font-size:22px;line-height:1;margin-bottom:1px}
 .bnav-btn.cart-nav{color:var(--acc)}
@@ -214,8 +216,8 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
   <div class="hdr-right">
     <div class="top-actions-desk">
       <button class="top-action-btn" onclick="openPedir()">📋 Cómo pedir</button>
-      <button class="top-action-btn top-action-btn-pur" onclick="openHow()">⚡ ¿Cómo funciona?</button>
-       <button class="top-action-btn" style="color:#ffe000" onclick="openReviews()">★ RESEÑAS</button>
+       <button class="top-action-btn top-action-btn-pur" onclick="openHow()">🎬 ¿Cómo funciona?</button>
+        <button class="top-action-btn top-action-btn-reviews" onclick="openReviews()">★ Ver reseñas</button>
     </div>
     <button class="refresh-btn" id="refreshBtn" onclick="loadGames(true)"><span class="ic">↻</span> Actualizar</button>
     <button class="cart-btn-desk" onclick="openPanel()">🛒 Mi Pedido <div class="cart-count" id="cartCountDesk">0</div></button>
@@ -253,8 +255,8 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
     <span>Mi Pedido</span>
   </button>
   <button class="bnav-btn info-nav" onclick="openPedir()"><div class="icon">📋</div><span>Cómo pedir</span></button>
-  <button class="bnav-btn" style="color:var(--pur)" onclick="openHow()"><div class="icon">⚡</div><span>¿Cómo funciona?</span></button>
-   <button class="bnav-btn" style="color:#ffe000" onclick="openReviews()"><div class="icon">★</div><span>Reseñas</span></button>
+   <button class="bnav-btn" style="color:var(--pur)" onclick="openHow()"><div class="icon">🎬</div><span>¿Cómo funciona?</span></button>
+    <button class="bnav-btn" style="color:#ffe000" onclick="openReviews()"><div class="icon">★</div><span>Ver reseñas</span></button>
 </nav>
 <div class="modal-overlay" id="pedirModal" onclick="closePedir(event)">
   <div class="modal-sheet">
