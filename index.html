@@ -93,9 +93,6 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 #gridWrap{position:relative;width:100%}
 .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--col),1fr));gap:13px;position:absolute;width:100%}
 #gridSpacer{width:100%}
-.catalog-status{margin:-2px 0 14px;padding:9px 12px;border:1px solid rgba(0,229,160,.24);border-radius:8px;background:var(--acc-dim);color:var(--txt);font-size:.79rem;line-height:1.4}
-.catalog-status strong{color:var(--acc)}
-.catalog-status.end{margin:18px 0 0;text-align:center;color:var(--mut)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .card{background:var(--s1);border:1px solid var(--bdr);border-radius:11px;overflow:hidden;cursor:pointer;position:relative;transition:transform .18s,border-color .18s,box-shadow .18s;animation:fadeUp .2s ease both}
 .card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.1);box-shadow:0 6px 24px rgba(0,0,0,.55)}
@@ -251,7 +248,7 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
   <div class="tier-row-mob" id="tfsMob"></div>
   <div class="tag-row" id="tags" style="margin-bottom:12px"></div>
   <div class="cat-dropdown" id="catDropdown"></div>
-  <div id="gamesArea"><div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span></div></div>
+  <div id="gamesArea"><div class="loading"><div class="spinner"></div><span>Cargando juegos...</span></div></div>
 </main>
 <nav class="bottom-nav">
   <button class="bnav-btn cart-nav" onclick="openPanel()">
@@ -366,7 +363,6 @@ function parseGames(d){
 }
 function sortGames(games){return games.sort((a,b)=>{const d=a._rank-b._rank;return d!==0?d:a._sheetIndex-b._sheetIndex;});}
 function catalogUrl(params={}){const url=new URL(CFG.catalogUrl);Object.entries(params).forEach(([key,value])=>{if(value!==''&&value!==undefined&&value!==null)url.searchParams.set(key,value);});return url;}
-function renderCatalogStatus(){const status=$('catalogStatus');if(!status)return;if(catalogHydrating){const filtered=($('q').value||'').trim()||activeTag!=='all'||activeTier!=='all';status.className='catalog-status';status.innerHTML=filtered?'<strong>Catálogo completo cargando.</strong> Estos resultados son solo de los 30 juegos iniciales; la búsqueda completa estará disponible enseguida.':'<strong>Catálogo completo cargando.</strong> Ya podés explorar los 30 juegos iniciales mientras se prepara la búsqueda completa.';return;}status.remove();}
 function setCatalogSummary(){const visible=FILTERED.filter(g=>g.tier!=='prox').length;$('cnt').textContent=`${visible.toLocaleString()} juego${visible!==1?'s':''}`;$('lu').textContent=catalogHydrating?`Mostrando ${visible.toLocaleString()} de los 30 juegos iniciales`:`${visible.toLocaleString()} juegos · ${new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}`;}
 async function hydrateFull(requestId){
   catalogFullController=new AbortController();
@@ -377,21 +373,21 @@ async function hydrateFull(requestId){
     if(requestId!==catalogRequest||!data?.d?.length)return;
     ALL_SORTED=sortGames(parseGames(data.d));catalogHydrating=false;applyFilter();renderTotals();
   }catch(error){
-    if(error.name!=='AbortError'&&requestId===catalogRequest){catalogHydrating=false;const status=$('catalogStatus');if(status){status.className='catalog-status';status.innerHTML='<strong>No se pudo completar la carga.</strong> Estás viendo resultados limitados a los 30 juegos iniciales. Actualizá para reintentar.';}$('lu').textContent='Resultados limitados · Actualizá para reintentar.';}
+    if(error.name!=='AbortError'&&requestId===catalogRequest){catalogHydrating=false;$('lu').textContent='Resultados limitados · Actualizá para reintentar.';}
   }finally{if(requestId===catalogRequest)$('refreshBtn').classList.remove('spinning');}
 }
 async function loadGames(manual=false){
   clearTimeout(searchTimer);catalogBootstrapController?.abort();catalogFullController?.abort();
   const requestId=++catalogRequest;catalogHydrating=false;ALL_SORTED=[];FILTERED=[];renderOffset=0;
-  const btn=$('refreshBtn');btn.classList.add('spinning');$('gamesArea').innerHTML='<div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span></div>';
+  const btn=$('refreshBtn');btn.classList.add('spinning');$('gamesArea').innerHTML='<div class="loading"><div class="spinner"></div><span>Cargando juegos...</span></div>';
   try{
     catalogBootstrapController=new AbortController();
-    const response=await fetch(catalogUrl({page:1,pageSize:CFG.BOOTSTRAP_PAGE_SIZE}),{signal:catalogBootstrapController.signal});
+    const response=await fetch(catalogUrl({chunk:'first',limit:CFG.BOOTSTRAP_PAGE_SIZE}),{signal:catalogBootstrapController.signal});
     if(!response.ok)throw new Error(`HTTP ${response.status}`);
     const data=await response.json();
     if(requestId!==catalogRequest||data?.d?.length!==CFG.BOOTSTRAP_PAGE_SIZE)throw new DOMException('Stale or invalid bootstrap response','AbortError');
     ALL_SORTED=sortGames(parseGames(data.d));FILTERED=ALL_SORTED.slice();catalogHydrating=true;
-    buildTierFilters(data.meta?.tiers);buildTagFilters(data.meta?.topTags);buildVirtualGrid();setCatalogSummary();renderCatalogStatus();renderTotals();
+    buildTierFilters(data.meta?.tiers);buildTagFilters(data.meta?.topTags);buildVirtualGrid();setCatalogSummary();renderTotals();
     hydrateFull(requestId);
   }catch(error){
     if(error.name!=='AbortError'&&requestId===catalogRequest){$('gamesArea').innerHTML='<div class="err-box"><strong>No se pudo cargar el catálogo</strong><button onclick="loadGames(true)" style="margin-top:10px;background:var(--s2);border:1px solid var(--bdr);color:var(--txt);padding:7px 18px;border-radius:8px;cursor:pointer;font-family:var(--fB)">Reintentar</button></div>';btn.classList.remove('spinning');}
@@ -435,11 +431,11 @@ function applyFilter(){
     return true;
   });
   if(rawQ){result=result.sort((a,b)=>{const ae=a._q===q,be=b._q===q;if(ae!==be)return ae?-1:1;const an=a._nq===nq,bn=b._nq===nq;if(an!==bn)return an?-1:1;const startsA=a._q.startsWith(q),startsB=b._q.startsWith(q);if(startsA!==startsB)return startsA?-1:1;const normalizedStartsA=a._nq.startsWith(nq),normalizedStartsB=b._nq.startsWith(nq);if(normalizedStartsA!==normalizedStartsB)return normalizedStartsA?-1:1;const aw=a._q.includes(' '+q),bw=b._q.includes(' '+q);if(aw!==bw)return aw?-1:1;return a._nq.indexOf(nq)-b._nq.indexOf(nq);});}
-  FILTERED=result;setCatalogSummary();buildVirtualGrid();renderCatalogStatus();
+  FILTERED=result;setCatalogSummary();buildVirtualGrid();
 }
 $('q').addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(applyFilter,150);});
-function buildVirtualGrid(){$('gamesArea').innerHTML='<div id="catalogStatus" class="catalog-status" aria-live="polite"></div><div id="gridWrap"><div class="vgrid" id="grid"></div><div id="gridSpacer"></div></div>';renderOffset=0;renderNextChunk();window.removeEventListener('scroll',onScroll);window.addEventListener('scroll',onScroll,{passive:true});}
-function renderNextChunk(){const grid=$('grid');if(!grid||renderOffset>=FILTERED.length)return;const end=Math.min(renderOffset+CFG.RENDER_CHUNK_SIZE,FILTERED.length);const frag=document.createDocumentFragment();for(let i=renderOffset;i<end;i++)frag.appendChild(makeCard(FILTERED[i]));grid.appendChild(frag);renderOffset=end;const wrap=$('gridWrap');if(wrap)wrap.style.minHeight=grid.offsetHeight+'px';if(catalogHydrating&&renderOffset>=FILTERED.length){let endNotice=$('catalogEndNotice');if(!endNotice){endNotice=document.createElement('div');endNotice.id='catalogEndNotice';endNotice.className='catalog-status end';endNotice.setAttribute('aria-live','polite');wrap.after(endNotice);}endNotice.textContent='Llegaste a los 30 juegos iniciales. Hay más juegos y la búsqueda completa está llegando.';}}
+function buildVirtualGrid(){$('gamesArea').innerHTML='<div id="gridWrap"><div class="vgrid" id="grid"></div><div id="gridSpacer"></div></div>';renderOffset=0;renderNextChunk();window.removeEventListener('scroll',onScroll);window.addEventListener('scroll',onScroll,{passive:true});}
+function renderNextChunk(){const grid=$('grid');if(!grid||renderOffset>=FILTERED.length)return;const end=Math.min(renderOffset+CFG.RENDER_CHUNK_SIZE,FILTERED.length);const frag=document.createDocumentFragment();for(let i=renderOffset;i<end;i++)frag.appendChild(makeCard(FILTERED[i]));grid.appendChild(frag);renderOffset=end;const wrap=$('gridWrap');if(wrap)wrap.style.minHeight=grid.offsetHeight+'px';}
 let scrollThrottle=false;
 function onScroll(){if(scrollThrottle)return;scrollThrottle=true;requestAnimationFrame(()=>{if(document.documentElement.scrollHeight-window.scrollY-window.innerHeight<600)renderNextChunk();scrollThrottle=false;});}
 function getCartQty(id){return cart.filter(x=>x.id===id).length;}
