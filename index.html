@@ -324,7 +324,8 @@ const CFG={storeName:'GAMEDROP',whatsapp:'5491173597848',aliasTienda:'gamedrop',
    mensajeWA:'*PEDIDO {storeName}* — #{id_pedido}\n━━━━━━━━━━━━━━━━━━━━\n{listaNormal}{listaPremium}{listaEspecial}\n━━━━━━━━━━━━━━━━━━━━\n *TOTAL: {total}*\n',
    howItWorksVideoUrl:'media/demostracion.mp4', // Set a local path such as 'media/how-it-works.mp4' or a hosted MP4 URL.
     PAGE_SIZE:60,MAX_PER_GAME:2};
-let ALL_SORTED=[],FILTERED=[],cart=[],activeTag='all',activeTier='all',renderOffset=0,searchTimer=null;
+ let ALL_SORTED=[],FILTERED=[],cart=[],activeTag='all',activeTier='all',renderOffset=0,searchTimer=null,catalogRequest=0;
+ let catalogPage={page:1,hasMore:false,loading:false,total:0};
 const $=id=>document.getElementById(id);
 const fmt=n=>CFG.currency+Number(n).toLocaleString('es-AR');
 const imgUrl=(appId,custom)=>custom||`https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appId}/header.jpg`;
@@ -341,7 +342,7 @@ function parseGames(d){
     const isProx = g.x === true || g.x === 'true';
 
     return {
-      id:i+1,
+       id:g.a,
       _sheetIndex:i,
       name,
       appId:g.a,
@@ -359,34 +360,33 @@ function parseGames(d){
     };
   });
 }
-function sortGames(games){return games.sort((a,b)=>{const d=a._rank-b._rank;return d!==0?d:a._sheetIndex-b._sheetIndex;});}
-async function loadGames(manual=false){
-  const btn=$('refreshBtn');btn.classList.add('spinning');
-  if(!ALL_SORTED.length||manual)$('gamesArea').innerHTML='<div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span></div>';
-  const base=CFG.catalogUrl+'&t='+Date.now();
-  try{
-    const first=await fetch(base+'&chunk=first').then(r=>r.json());
-    if(first?.d?.length){
-      ALL_SORTED=sortGames(parseGames(first.d));FILTERED=ALL_SORTED.slice();
-      buildTierFilters(first.meta?.tiers);buildTagFilters(first.meta?.topTags);
-      if(first.meta?.total)$('cnt').textContent=`${Number(first.meta.total).toLocaleString()} juegos`;
-      buildVirtualGrid();renderTotals();btn.classList.remove('spinning');$('lu').textContent='';
-    }
-    const full=await fetch(base).then(r=>r.json());
-    if(full?.d?.length){
-      ALL_SORTED=sortGames(parseGames(full.d));
-      const now=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-      const noFilters=!($('q').value||'').trim()&&activeTag==='all'&&activeTier==='all';
-      if(noFilters){FILTERED=ALL_SORTED.slice();}else{buildTierFilters();buildTagFilters();applyFilter();}
-      const cnt=ALL_SORTED.filter(g=>g.tier!=='prox').length;
-      $('cnt').textContent=`${cnt.toLocaleString()} juegos`;
-      $('lu').textContent=`${cnt.toLocaleString()} juegos · ${now}`;
-      renderTotals();
-    }
-  }catch(e){
-    if(!ALL_SORTED.length)$('gamesArea').innerHTML=`<div class="err-box"><strong>No se pudo cargar el catálogo</strong><button onclick="loadGames(true)" style="margin-top:10px;background:var(--s2);border:1px solid var(--bdr);color:var(--txt);padding:7px 18px;border-radius:8px;cursor:pointer;font-family:var(--fB)">Reintentar</button></div>`;
-  }finally{btn.classList.remove('spinning');}
-}
+ function catalogParams(page){const p=new URLSearchParams({page,pageSize:CFG.PAGE_SIZE});const q=($('q').value||'').trim();if(q)p.set('q',q);if(activeTier!=='all')p.set('tier',activeTier);if(activeTag!=='all')p.set('category',activeTag);return p;}
+ async function fetchCatalogPage(page){const response=await fetch(`${CFG.catalogUrl}&${catalogParams(page)}`);if(!response.ok)throw new Error(`HTTP ${response.status}`);return response.json();}
+ function updateCatalogMeta(meta){catalogPage={page:meta.page||1,hasMore:Boolean(meta.hasMore),loading:false,total:Number(meta.total||0)};const total=catalogPage.total;$('cnt').textContent=`${total.toLocaleString()} juego${total!==1?'s':''}`;const now=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});$('lu').textContent=`${total.toLocaleString()} juegos · ${now}`;}
+ async function loadCatalogPage(page,replace=false){
+   if(catalogPage.loading)return;
+   catalogPage.loading=true;const request=++catalogRequest;
+   if(replace)$('gamesArea').innerHTML='<div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span></div>';
+   try{
+     const payload=await fetchCatalogPage(page);if(request!==catalogRequest)return;
+     const games=parseGames(payload.d||[]);
+     ALL_SORTED=replace?games:[...ALL_SORTED,...games];FILTERED=ALL_SORTED.slice();updateCatalogMeta(payload.meta||{});buildVirtualGrid();renderTotals();
+   }catch(e){catalogPage.loading=false;if(replace)$('gamesArea').innerHTML=`<div class="err-box"><strong>No se pudo cargar el catálogo</strong><button onclick="loadGames(true)" style="margin-top:10px;background:var(--s2);border:1px solid var(--bdr);color:var(--txt);padding:7px 18px;border-radius:8px;cursor:pointer;font-family:var(--fB)">Reintentar</button></div>`;}
+ }
+ async function loadGames(manual=false){
+   const btn=$('refreshBtn');btn.classList.add('spinning');
+   try{
+     if(manual||ALL_SORTED.length){await loadCatalogPage(1,true);return;}
+     $('gamesArea').innerHTML='<div class="loading"><div class="spinner"></div><span>Cargando catálogo...</span></div>';
+     const response=await fetch(`${CFG.catalogUrl}&chunk=first`);if(!response.ok)throw new Error(`HTTP ${response.status}`);
+     const first=await response.json();
+     if(!first?.d?.length)throw new Error('Empty catalog');
+     ALL_SORTED=parseGames(first.d);FILTERED=ALL_SORTED.slice();
+     buildTierFilters(first.meta?.tiers);buildTagFilters(first.meta?.topTags);
+     updateCatalogMeta({page:1,hasMore:first.d.length===CFG.PAGE_SIZE,total:first.meta?.total});buildVirtualGrid();renderTotals();
+   }catch(e){$('gamesArea').innerHTML=`<div class="err-box"><strong>No se pudo cargar el catálogo</strong><button onclick="loadGames(true)" style="margin-top:10px;background:var(--s2);border:1px solid var(--bdr);color:var(--txt);padding:7px 18px;border-radius:8px;cursor:pointer;font-family:var(--fB)">Reintentar</button></div>`;
+   }finally{btn.classList.remove('spinning');}
+ }
 function buildTierFilters(metaTiers){
   const L={all:'Todos',normal:'🟢 Normal',premium:'💛 Premium',special:'🟣 Especial'};
   const on={all:'on-all',normal:'on-normal',premium:'on-premium',special:'on-special'};
@@ -395,7 +395,7 @@ function buildTierFilters(metaTiers){
   _tierHTML=tiers.map(t=>`<button class="tf${activeTier===t?' '+on[t]:''}" onclick="setTier('${t}')">${L[t]||t}</button>`).join('');
   _renderAllFilters();
 }
-function setTier(t){activeTier=t;buildTierFilters();applyFilter();}
+ function setTier(t){activeTier=t;buildTierFilters();applyFilter();}
 function buildTagFilters(){
   _tagHTML=CUSTOM_FILTERS.map(f=>`<button class="tag${activeTag===f.key?' on':''}" onclick="setTag('${f.key}')">${f.label}</button>`).join('');
   _renderAllFilters();
@@ -412,30 +412,12 @@ function _renderAllFilters(){
   if(ddEl)ddEl.innerHTML=_tagHTML;
   if(btnEl){const f=CUSTOM_FILTERS.find(f=>f.key===activeTag);const isAll=activeTag==='all';btnEl.textContent=(isAll?'Categoría':'▸ '+f?.label)+' ▾';btnEl.className='cat-btn'+(isAll?'':' active');}
 }
-function applyFilter(){
-  const rawQ=($('q').value||'').trim();const q=rawQ.toLowerCase();const nq=norm(rawQ);
-  let result=ALL_SORTED.filter(g=>{
-    // ── CAMBIO: cuando hay un tier activo, los juegos 'prox' quedan excluidos
-    if(activeTier!=='all'&&(g.tier==='prox'||g.tier!==activeTier))return false;
-    if(activeTag!=='all'){
-      const f=CUSTOM_FILTERS.find(f=>f.key===activeTag);
-      if(f?.tags){if(g.tier==='prox')return false;if(!f.tags.some(t=>g.tags.includes(t)))return false;}
-      else if(activeTag==='popular'||activeTag==='new'){if(g.id>60)return false;}
-    }
-    if(rawQ&&!(g._q.includes(q)||g._nq.includes(nq)))return false;
-    return true;
-  });
-  if(rawQ){result=result.sort((a,b)=>{const ae=a._q===q,be=b._q===q;if(ae!==be)return ae?-1:1;const an=a._nq===nq,bn=b._nq===nq;if(an!==bn)return an?-1:1;const as=a._q.startsWith(q),bs=b._q.startsWith(q);if(as!==bs)return as?-1:1;const as2=a._nq.startsWith(nq),bs2=b._nq.startsWith(nq);if(as2!==bs2)return as2?-1:1;const aw=a._q.includes(' '+q),bw=b._q.includes(' '+q);if(aw!==bw)return aw?-1:1;return a._nq.indexOf(nq)-b._nq.indexOf(nq);});}
-  FILTERED=result;renderOffset=0;
-  const vis=result.filter(g=>g.tier!=='prox').length;
-  $('cnt').textContent=`${vis.toLocaleString()} juego${vis!==1?'s':''}`;
-  buildVirtualGrid();
-}
+ function applyFilter(){loadCatalogPage(1,true);}
 $('q').addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(applyFilter,150);});
-function buildVirtualGrid(){$('gamesArea').innerHTML='<div id="gridWrap"><div class="vgrid" id="grid"></div><div id="gridSpacer"></div></div>';renderOffset=0;renderNextChunk();window.removeEventListener('scroll',onScroll);window.addEventListener('scroll',onScroll,{passive:true});}
+ function buildVirtualGrid(){$('gamesArea').innerHTML='<div id="gridWrap"><div class="vgrid" id="grid"></div><div id="gridSpacer"></div></div>';renderOffset=0;renderNextChunk();window.removeEventListener('scroll',onScroll);window.addEventListener('scroll',onScroll,{passive:true});}
 function renderNextChunk(){const grid=$('grid');if(!grid||renderOffset>=FILTERED.length)return;const end=Math.min(renderOffset+CFG.PAGE_SIZE,FILTERED.length);const frag=document.createDocumentFragment();for(let i=renderOffset;i<end;i++)frag.appendChild(makeCard(FILTERED[i]));grid.appendChild(frag);renderOffset=end;const wrap=$('gridWrap');if(wrap)wrap.style.minHeight=grid.offsetHeight+'px';}
 let scrollThrottle=false;
-function onScroll(){if(scrollThrottle)return;scrollThrottle=true;requestAnimationFrame(()=>{if(document.documentElement.scrollHeight-window.scrollY-window.innerHeight<600)renderNextChunk();scrollThrottle=false;});}
+ function onScroll(){if(scrollThrottle)return;scrollThrottle=true;requestAnimationFrame(()=>{if(document.documentElement.scrollHeight-window.scrollY-window.innerHeight<600&&catalogPage.hasMore&&!catalogPage.loading)loadCatalogPage(catalogPage.page+1);scrollThrottle=false;});}
 function getCartQty(id){return cart.filter(x=>x.id===id).length;}
 function groupCartItems(items){const m=new Map();items.forEach(g=>{if(m.has(g.id))m.get(g.id).qty+=1;else m.set(g.id,{...g,qty:1});});return[...m.values()];}
 function makeCard(g){
