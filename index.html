@@ -363,14 +363,15 @@ function parseGames(d){
 }
 function sortGames(games){return games.sort((a,b)=>{const d=a._rank-b._rank;return d!==0?d:a._sheetIndex-b._sheetIndex;});}
 function catalogUrl(params={}){const url=new URL(CFG.catalogUrl);Object.entries(params).forEach(([key,value])=>{if(value!==''&&value!==undefined&&value!==null)url.searchParams.set(key,value);});return url;}
+async function getCatalogRevision(signal){try{const response=await fetch(catalogUrl({manifest:1}),{signal,cache:'no-store'});if(!response.ok)return null;const manifest=await response.json();return typeof manifest?.revision==='string'&&/^r[0-9a-f]{8}$/.test(manifest.revision)?manifest.revision:null;}catch(error){if(error.name==='AbortError')throw error;return null;}}
 function catalogLoader(){return '<div class="loading"><div class="spinner"></div><span>Cargando juegos...</span></div>';}
 function hasActiveCatalogFilter(){return Boolean(($('q').value||'').trim())||activeTag!=='all'||activeTier!=='all';}
 function renderCatalogLoader(){window.removeEventListener('scroll',onScroll);$('gamesArea').innerHTML=catalogLoader();}
 function setCatalogSummary(){if(catalogHydrating&&hasActiveCatalogFilter()){$('cnt').textContent='';$('lu').textContent='';return;}const visible=FILTERED.filter(g=>g.tier!=='prox').length;$('cnt').textContent=`${visible.toLocaleString()} juego${visible!==1?'s':''}`;$('lu').textContent=catalogHydrating?`Mostrando ${visible.toLocaleString()} de los 60 juegos iniciales`:`${visible.toLocaleString()} juegos · ${new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}`;}
-async function hydrateFull(requestId){
+async function hydrateFull(requestId,revision){
   catalogFullController=new AbortController();
   try{
-    const response=await fetch(catalogUrl(),{signal:catalogFullController.signal});
+    const response=await fetch(catalogUrl(revision?{rev:revision}:{}),{signal:catalogFullController.signal});
     if(!response.ok)throw new Error(`HTTP ${response.status}`);
     const data=await response.json();
     if(requestId!==catalogRequest||!data?.d?.length)return;
@@ -385,13 +386,14 @@ async function loadGames(manual=false){
   const btn=$('refreshBtn');btn.classList.add('spinning');renderCatalogLoader();
   try{
     catalogBootstrapController=new AbortController();
-    const response=await fetch(catalogUrl({chunk:'first'}),{signal:catalogBootstrapController.signal});
+    const revision=await getCatalogRevision(catalogBootstrapController.signal);
+    const response=await fetch(catalogUrl(revision?{chunk:'first',rev:revision}:{chunk:'first'}),{signal:catalogBootstrapController.signal});
     if(!response.ok)throw new Error(`HTTP ${response.status}`);
     const data=await response.json();
     if(requestId!==catalogRequest||data?.d?.length!==CFG.BOOTSTRAP_PAGE_SIZE)throw new DOMException('Stale or invalid bootstrap response','AbortError');
     ALL_SORTED=sortGames(parseGames(data.d));catalogHydrating=true;
     buildTierFilters(data.meta?.tiers);buildTagFilters(data.meta?.topTags);applyFilter();renderTotals();
-    hydrateFull(requestId);
+    hydrateFull(requestId,revision);
   }catch(error){
     if(error.name!=='AbortError'&&requestId===catalogRequest){$('gamesArea').innerHTML='<div class="err-box"><strong>No se pudo cargar el catálogo</strong><button onclick="loadGames(true)" style="margin-top:10px;background:var(--s2);border:1px solid var(--bdr);color:var(--txt);padding:7px 18px;border-radius:8px;cursor:pointer;font-family:var(--fB)">Reintentar</button></div>';btn.classList.remove('spinning');}
   }
