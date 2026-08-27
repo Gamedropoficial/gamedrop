@@ -319,6 +319,7 @@ main{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:20px}
 </div>
 <script>
 const CFG={storeName:'GAMEDROP',whatsapp:'5491173597848',aliasTienda:'gamedrop',currency:'$',
+  manifestUrl:'https://flow.retroverse.games/gamedrop-manifest',
   catalogUrl:'https://flow.retroverse.games/webhook/gamedrop-catalog?v=GD2026_SECURE_X91',
   pedidoUrl:'https://flow.retroverse.games/webhook/gamedrop-pedido',
   prices:{normal:{single:9900,pack3:19900,pack6:29900},premium:{solo:14000,mixed:10000},special:{price:25000,gifts:2}},
@@ -363,7 +364,7 @@ function parseGames(d){
 }
 function sortGames(games){return games.sort((a,b)=>{const d=a._rank-b._rank;return d!==0?d:a._sheetIndex-b._sheetIndex;});}
 function catalogUrl(params={}){const url=new URL(CFG.catalogUrl);Object.entries(params).forEach(([key,value])=>{if(value!==''&&value!==undefined&&value!==null)url.searchParams.set(key,value);});return url;}
-async function getCatalogRevision(signal){try{const response=await fetch(catalogUrl({manifest:1}),{signal,cache:'no-store'});if(!response.ok)return null;const manifest=await response.json();return typeof manifest?.revision==='string'&&/^ref[0-9a-f]+$/.test(manifest.revision)?manifest.revision:null;}catch(error){if(error.name==='AbortError')throw error;return null;}}
+async function getCatalogRevision(signal){for(const url of [CFG.manifestUrl,catalogUrl({manifest:1})]){try{const response=await fetch(url,{signal,cache:'no-store'});if(!response.ok)continue;const manifest=await response.json();if(typeof manifest?.revision==='string'&&/^(?:r[0-9a-f]{8}|ref[0-9a-f]+)$/.test(manifest.revision))return manifest.revision;}catch(error){if(error.name==='AbortError')throw error;}}return null;}
 function catalogLoader(){return '<div class="loading"><div class="spinner"></div><span>Cargando juegos...</span></div>';}
 function hasActiveCatalogFilter(){return Boolean(($('q').value||'').trim())||activeTag!=='all'||activeTier!=='all';}
 function renderCatalogLoader(){window.removeEventListener('scroll',onScroll);$('gamesArea').innerHTML=catalogLoader();}
