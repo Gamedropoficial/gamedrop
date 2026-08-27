@@ -363,7 +363,7 @@ function parseGames(d){
 }
 function sortGames(games){return games.sort((a,b)=>{const d=a._rank-b._rank;return d!==0?d:a._sheetIndex-b._sheetIndex;});}
 function catalogUrl(params={}){const url=new URL(CFG.catalogUrl);Object.entries(params).forEach(([key,value])=>{if(value!==''&&value!==undefined&&value!==null)url.searchParams.set(key,value);});return url;}
-async function getCatalogRevision(signal){try{const response=await fetch(catalogUrl({manifest:1}),{signal,cache:'no-store'});if(!response.ok)return null;const manifest=await response.json();return typeof manifest?.revision==='string'&&/^r[0-9a-f]{8}$/.test(manifest.revision)?manifest.revision:null;}catch(error){if(error.name==='AbortError')throw error;return null;}}
+async function getCatalogRevision(signal){try{const response=await fetch(catalogUrl({manifest:1}),{signal,cache:'no-store'});if(!response.ok)return null;const manifest=await response.json();return typeof manifest?.revision==='string'&&/^ref[0-9a-f]+$/.test(manifest.revision)?manifest.revision:null;}catch(error){if(error.name==='AbortError')throw error;return null;}}
 function catalogLoader(){return '<div class="loading"><div class="spinner"></div><span>Cargando juegos...</span></div>';}
 function hasActiveCatalogFilter(){return Boolean(($('q').value||'').trim())||activeTag!=='all'||activeTier!=='all';}
 function renderCatalogLoader(){window.removeEventListener('scroll',onScroll);$('gamesArea').innerHTML=catalogLoader();}
